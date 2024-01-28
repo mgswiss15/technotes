@@ -120,21 +120,48 @@ $$
 = -\frac{D}{2}\log(2\pi) -D\log(\sigma) - \frac{||\rvx - \rv{\mu}||_2^2}{2\sigma^2}.
 $$
 
-For the terms in \eqref{eq:loglik} we get
+For two D-variate gaussian pdf $f(\rvx) = \gN(\rvx; \rv{\mu}_1, \sigma^2_1 \rv{I})$ and $g(\rvx) = \gN(\rvx; \rv{\mu}_2, \sigma^2_2 \rv{I})$ we have
+
 $$
 \begin{align}
-PT =& -\frac{D}{2}\log(2\pi) -D\log(1) - \frac{||\rvx_T - \rv{0}||_2^2}{2 \cdot 1} + \frac{D}{2}\log(2\pi) + D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)} 
-= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)}  - \frac{||\rvx_T||_2^2}{2} \\
-=& D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\rvx_T^T\rvx_T - 2\rvx_T^T\sqrt{\bar{a}_t}\rvx_{0} + \bar{a}_t\rvx_0^T\rvx_0 - (1 - \bar{a}_t)\rvx_T^T\rvx_T}{2(1 - \bar{a}_t)}
-= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\bar{a}_t (\rvx_T^T\rvx_T + \rvx_0^T\rvx_0) - 2\sqrt{\bar{a}_t}\rvx_T^T\rvx_{0}}{2(1 - \bar{a}_t)}
+\log f(\rvx) - \log g(\rvx) 
+=& -\frac{D}{2}\log(2\pi) -D\log(\sigma_1) - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} + \frac{D}{2}\log(2\pi) +D\log(\sigma_2) + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} \\
+=& D \log\frac{\sigma_2}{\sigma_1} + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} \\
 \end{align}
 $$
+
+If furthermore $\sigma_1 = \sigma_2 = \sigma$ we get
+$$
+\begin{align}
+\log f(\rvx) - \log g(\rvx) 
+=& \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma^2} \\
+=& \frac{\rvx^T \rvx - 2 \rvx^T \mu_2 + \mu_2^T \mu_2 - \rvx^T \rvx + 2 \rvx^T \mu_1 - \mu_1^T \mu_1}{2\sigma^2} \\
+=& \rvx^T(\mu_1 - \mu_2) + \frac{||\mu_2||_2^2 - ||\mu_1||_2^2}{2\sigma^2} \\
+\end{align}
+$$
+
+
+
+<!-- For the terms in \eqref{eq:loglik} we get
+$$
+PT = -\frac{D}{2}\log(2\pi) -D\log(1) - \frac{||\rvx_T - \rv{0}||_2^2}{2 \cdot 1} + \frac{D}{2}\log(2\pi) + D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)} 
+= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)}  - \frac{||\rvx_T||_2^2}{2}
+$$
+<!-- $$
+= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\rvx_T^T\rvx_T - 2\rvx_T^T\sqrt{\bar{a}_t}\rvx_{0} + \bar{a}_t\rvx_0^T\rvx_0 - (1 - \bar{a}_t)\rvx_T^T\rvx_T}{2(1 - \bar{a}_t)}
+= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\bar{a}_t (\rvx_T^T\rvx_T + \rvx_0^T\rvx_0) - 2\sqrt{\bar{a}_t}\rvx_T^T\rvx_{0}}{2(1 - \bar{a}_t)}
+$$ -->
+<!--
 Further note that $\pt(\rvx_{t-1} | \rvx_{t})$ and $q(\rvx_{t-1} | \rvx_{t}, \rvx_0)$ have the same variance which we indicate as $\sigma_t^2 = \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}$ and thus we have
 $$
 \begin{align}
 Pt =& -\frac{D}{2}\log(2\pi) - D\log(\sigma_t) - \frac{||\rvx_{t-1} - \frac{1}{\sqrt{\alpha_t}}\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right)||_2^2}{2 \sigma_t^2} + 
 \frac{D}{2}\log(2\pi) + D\log(\sigma_t) + \frac{||\rvx_{t-1} - (\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0)||_2^2}{2 \sigma_t^2} \\
 =& \frac{||\rvx_{t-1} - (\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0)||_2^2 - ||\rvx_{t-1} - \frac{1}{\sqrt{\alpha_t}}\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right)||_2^2}{2 \sigma_t^2} \\
+\end{align}
+$$ -->
+<!-- $$
+\begin{align}
 =& \frac{-2\rvx_{t-1}^T(\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0) + 
 ||\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0||_2^2 +  
 \frac{2}{\sqrt{\alpha_t}}\rvx_{t-1}^T\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right) - 
@@ -148,16 +175,31 @@ Pt =& -\frac{D}{2}\log(2\pi) - D\log(\sigma_t) - \frac{||\rvx_{t-1} - \frac{1}{\
 \frac{1-\alpha_t}{\alpha_t \sqrt{1-\bar\alpha_t}}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
 \frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
 {2 \sigma_t^2} \\
-=& \frac{(\frac{2}{\sqrt{\alpha_t}}-\frac{2\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t})\rvx_{t-1}^T\rvx_t -
+=& \frac{\frac{2(1 - \bar{\alpha}_t) - 2\alpha_t(1 - \bar{\alpha}_{t-1})}{\sqrt{\alpha_t}(1 - \bar{\alpha}_t)}\rvx_{t-1}^T\rvx_t -
 \frac{2(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_{t-1}^T\rvx_0 +
 \frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{\alpha_t(1 - \bar{\alpha}_t)^2}\rvx_t^T\rvx_t +
 \frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}(1 - \bar{\alpha}_{t-1})(1-\alpha_t)}{(1 - \bar{\alpha}_t)^2}\rvx_t\rvx_0 -
 \frac{2(1-\alpha_t)}{\sqrt{\alpha_t}\sqrt{1-\bar\alpha_t}}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
 \frac{1-\alpha_t}{\alpha_t \sqrt{1-\bar\alpha_t}}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
 \frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
-{2 \sigma_t^2}
+{2 \sigma_t^2} \\
+= & \frac{\frac{2(1-\alpha_t)}{\sqrt{\alpha_t}(1 - \bar{\alpha}_t)}\rvx_{t-1}^T\rvx_t - 
+\frac{2(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_{t-1}^T\rvx_0 + 
+\frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{\alpha_t(1 - \bar{\alpha}_t)^2}\rvx_t^T\rvx_t +
+\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}(1 - \bar{\alpha}_{t-1})(1-\alpha_t)}{(1 - \bar{\alpha}_t)^2}\rvx_t\rvx_0 -
+\frac{2(1-\alpha_t)\sqrt{1-\bar\alpha_t}}{\sqrt{\alpha_t}(1-\bar\alpha_t)}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
+\frac{(1-\alpha_t)\sqrt{1-\bar\alpha_t}}{\alpha_t (1-\bar\alpha_t)}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
+\frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
+{2 \frac{(1-\alpha_t)(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}} \\
+= & \frac{1}{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}\rvx_{t-1}^T\rvx_t -
+\frac{\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_{t-1})} \rvx_{t-1}^T\rvx_0 + 
+\frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{2(1 - \bar{\alpha}_t)^2(1-\alpha_t)}\rvx_t^T\rvx_t +
+\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}}{2(1 - \bar{\alpha}_t)}\rvx_t\rvx_0 -
+\frac{\sqrt{1-\bar\alpha_t}}{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
+\frac{\sqrt{1-\bar\alpha_t}}{2 \alpha_t (1 - \bar{\alpha}_{t-1})}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
+\frac{(1-\alpha_t)}{2(1 - \bar{\alpha}_{t-1})}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)
 \end{align}
-$$
+$$ -->
 
 For implementation, remember that $\rv{a}^T \rv{b} = \sum_i^d a_i b_i$ so these are all trivial element-wise products.
 
