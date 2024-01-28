@@ -5,221 +5,132 @@
 \def\E{\mathbb{E}}
 \def\gN{\mathcal{N}}
 \)
-# Evaluation of diffusion model
+# Evaluation of diffusion model via importance sampling of NLL
 
-***Created: 2024-01-21***
-***Updated: 2024-01-26***
+***Created: 2024-01-21, 
+Updated: 2024-01-26, 
+Updated: 2024-01-28***
 
+This uses the standard DDPM [^1] notation, the importance sampling was inspired by Importance Weighted VAE [^2].
 
-How can we evaluate the likelihood of a data point $\rvx$ using the diffusion model trained according to (Ho et al., 2020)[^1]?
+## Importance sampling estimation of data probability
+We evaluate the fidelity of data samples via the marginal negative log-likelihood (NLL) estimated by importance sampling \cite{burda2015importance, tomczak2018vae}. 
 
-We start from the importance sampling formulation of our model
-
+We start from the model marginal
+$$
+\begin{aligned}
+\pt(\rvx_0)
+=  & \int \pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T}) \, d\rvx_{1:T} \\
+=  & \int q(\rvx_{1:T} | \rvx_0) \frac{\pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T} \enspace ,
+\end{aligned}
+$$
+and its importance weighted monte-carlo (MC) estimate based on $M$ samples
 $$
 \pt(\rvx_0)
-= \int q(\rvx_{1:T} | \rvx_0) \frac{\pt(\rvx_{1:T}) \pt(\rvx_0 | \rvx_{1:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T}  \enspace .
-\tag{1}
-\label{eq:importance_sampling}
+\approx
+\frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_{1:T}^{(i)}) \pt(\rvx_0 | \rvx_{1:T}^{(i)})}{q(\rvx_{1:T}^{(i)} | \rvx_0)},
+\quad \rvx_{t}^{(i)} \sim q(\rvx_{t} | \rvx_0) = \gN \left(\rvx_t; \sqrt{\bar{a}_t}\rvx_{0}, (1 - \bar{a}_t) \rv{I}\right), \ \forall t=1, \ldots, T \enspace ,
 $$
+where we used the identity $q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_{t} | \rvx_0)$.
 
-<!-- 
-We normally train it by maximizing a lower bound on the log likelihood $\mathcal{L}(\rvx_0) \le \log \pt(\rvx_0)$
-$$
-\log \pt(\rvx_0)
-= \log \int q(\rvx_{1:T} | \rvx_0) \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T}
-\ge \int q(\rvx_{1:T} | \rvx_0) \log \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T} = \mathcal{L}(\rvx_0) 
- \enspace .
-$$
- -->
-## Monte-carlo estimate
-This likelihood \eqref{eq:importance_sampling} can be approximated by a Monte Carlo (MC) estimate as
-$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_0, \rvx_1^{(i)}, \ldots, \rvx_T^{(i)})}{q(\rvx_1^{(i)}, \ldots, \rvx_T^{(i)} | \rvx_0)} \enspace ,
-\quad \rvx_1^{(i)}, \ldots, \rvx_T^{(i)} \sim q(\rvx_{1:T} | \rvx_0) \enspace .
-\tag{2}
-\label{eq:MCestimate}
-$$
-
-### Sampling for MC estimate
-Sampling out of forward distribution $q(\rvx_{1:T} | \rvx_0)$ is easy.
-Thanks to the Markov and Gaussian assumptions it can be shown that 
-$$ q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1})
-= \prod_{t=1}^T q(\rvx_t | \rvx_0)
-\enspace ,
-\tag{3}
-\label{eq:forward}
-$$
-where the markov conditionals are all Gaussians with known fixed parameters
-$q(\rvx_t | \rvx_{t-1}) = \gN(\rvx_t; \sqrt{1-\beta_t}\rvx_{t-1}, \beta_t \rv{I})$
-and the $\rvx_0$ are also Gaussians 
-$q(\rvx_t | \rvx_0) = \gN(\rvx_t; \sqrt{\bar{a}_t}\rvx_{0}, (1 - \bar{a}_t) \rv{I})$
-with $\bar{a}_t = \prod_{s=1}^t (1-\beta_s)$.
-
-> For each $i$ we can sample the $\rvx_1^{(i)}, \ldots, \rvx_t^{(i)}$ independently out of $\rvx_t^{(i)} \sim \gN(\rvx_t; \sqrt{\bar{a}_t}\rvx_0, (1 - \bar{a}_t) \rv{I})$ as $\rvx_t^{(i)} = \sqrt{\bar{a}_t}\rvx_0 + \sqrt{(1 - \bar{a}_t)} \epsilon, \epsilon \sim \gN(\rv{0}, \rv{I})$.
-
-### Evaluation of likelihood terms
-
-For the individual terms in equation \eqref{eq:MCestimate}:
-* $q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_0)$ is simply the product of the Gaussian densities from equation \eqref{eq:forward} which can all be evaluated independently since $\rvx_0$ is fixed.
-* alternatively we can use $q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1})$
-* $\pt(\rvx_{0:T}) = p(\rvx_{0:T}) = \pt(\rvx_{T}) \prod_{t=1}^T \pt(\rvx_{t-1} | \rvx_{t})$ and we have:
-  * $\pt(\rvx_T) = \gN(\rvx_T; \rv{0}, \rv{I})$ is a fixed standard Gaussian
-  * $\pt(\rvx_{t-1} | \rvx_{t}) = \gN(\rvx_{t-1}; \frac{1}{\sqrt{\alpha_t}}\left(\rvx_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right), \sigma^2_t\rv{I})$ with $\sigma_t^2$ being a known (non-learnable) function of the forward variance schedule $\beta_t$ and $\epsilon_\theta(\rvx_t, t)$ is trained to approximate the noise introduced by the forward process. Here we will use $\sigma_t^2 = \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}$ 
-
-So that
-$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_T) \pt(\rvx_{0} | \rvx_{1}) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_{t})}{\prod_{t=1}^T q(\rvx_t | \rvx_{t-1})} \enspace ,
-\quad \rvx_t^{(i)} \sim q(\rvx_{t} | \rvx_0) \ \forall t=1, \ldots, T \enspace .
-\tag{4}
-\label{eq:MCestimate_details}
-$$
-
-For a single $i$ for the MC estimate in \eqref{eq:MCestimate_details} we sample the $\rvx_t^{(i)}$ independently, then evaluate for each the conditionals $q(\rvx_t^{(i)} | \rvx_0)$ or $q(\rvx_t | \rvx_{t-1})$ and simply take their product to get $q(\rvx_1^{(i)}, \ldots, \rvx_t^{(i)} | \rvx_0)$.
-We use the same $\rvx_t^{(i)}$ samples to evaluate each of the reverse conditionals $\pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)})$ (making sure these are the same samples as used for the $q$ evaluation) and get $\pt(\rvx_0, \rvx_1^{(i)}, \ldots, \rvx_t^{(i)})$ again as simple product.
-
-Yet another option would be to switch to the same ordering as in the reverse process.
-Starting from 
+From the standard DDPM assumptions and their results for the forward process
 $$
 q(\rvx_t | \rvx_{t-1}) = q(\rvx_t | \rvx_{t-1}, \rvx_0) = \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} | \rvx_0) q(\rvx_0)}
 $$
-and we get
+and hence
 $$
-\prod_{t=1}^T q(\rvx_t | \rvx_{t-1}) = q(\rvx_1 | \rvx_0) \prod_{t=2}^T \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} | \rvx_0) q(\rvx_0)}
+q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1}) = q(\rvx_1 | \rvx_0) \prod_{t=2}^T \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0)}{q(\rvx_{t-1} | \rvx_0)}
 = q(\rvx_1 | \rvx_0) \frac{q(\rvx_{T} | \rvx_0)}{q(\rvx_1 | \rvx_0)} \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0)
-= q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0)
+= q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0) \enspace .
 $$
+Similarly for the reverse process we get
+\begin{equation}
+\pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T})  = 
+\pt(\rvx_T) \pt(\rvx_0 | \rvx_1) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_t) \enspace .
+\end{equation}
 
-Bringing this back to importance sampling
-$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_T) \pt(\rvx_{0} | \rvx_{1}) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_{t})}{q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0)}  
-= \frac{1}{M}\sum_{i=1}^M \pt(\rvx_{0} | \rvx_{1}) \frac{\pt(\rvx_T)}{q(\rvx_{T} | \rvx_0)}
-\prod_{t=2}^T \frac{\pt(\rvx_{t-1} | \rvx_{t})}{q(\rvx_{t-1} | \rvx_{t}, \rvx_0)}
+Bringing these together the importance sampling estimate is
+$$\pt(\rvx_0) \approx  
+\frac{1}{M}\sum_{i=1}^M \pt(\rvx_{0} | \rvx_{1}^{(i)}) \frac{\pt(\rvx_T^{(i)})}{q(\rvx_{T}^{(i)} | \rvx_0)}
+\prod_{t=2}^T \frac{\pt(\rvx_{t-1}^{(i)} | \rvx_{t})}{q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)}
 \enspace ,
-\tag{5}
-\label{eq:MCestimate_details2}
-$$
-where 
-$q(\rvx_{t-1} | \rvx_{t}, \rvx_0) = \gN(\rvx_{t-1}; \frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0, \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} \rv{I})$
-
-### Log-likelihood stable evaluation
-
-Obviously, taking products of distributions is extremely unstable and hence we are better of working in $\log$.
-We therefore rewrite the MC estimate from equation \eqref{eq:MCestimate_details} using logs and use $\prod_{t=1}^T q(\rvx_t | \rvx_0)$ in the denominator (this could be readily replace by $\prod_{t=1}^T q(\rvx_t | \rvx_{t-1})$).
-$$\pt(\rvx_0) \approx
-\frac{1}{M}\sum_{i=1}^M \exp \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace .
+\tag{1}
+\label{eq:mc-estimate}
 $$
 
-Instead of using the above it may be more convenient to start from \eqref{eq:MCestimate_details2} and by introducing logs we get 
+### Stable evaluation
+
+Obviously, taking products of distributions is extremely unstable and hence we are better of working in $\log$s.
 $$\pt(\rvx_0) \approx
-\frac{1}{M}\sum_{i=1}^M \exp \left( \underbrace{\log \pt(\rvx_{0} | \rvx_{1}^{(i)})}_{P0} + \underbrace{\log \pt(\rvx_T^{(i)}) - \log q(\rvx_{T}^{(i)} | \rvx_0)}_{PT} + \sum_{t=2}^T \left[ \underbrace{\log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \log q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)}_{Pt} \right] \right)
+\frac{1}{M}\sum_{i=1}^M \exp \left( \underbrace{\log \pt(\rvx_{0} | \rvx_{1}^{(i)})}_\text{data conditional} + \underbrace{\log \pt(\rvx_T^{(i)}) - \log q(\rvx_{T}^{(i)} | \rvx_0)}_\text{prior matching} + \sum_{t=2}^T \left[ \underbrace{\log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \log q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)}_\text{denoising matching} \right] \right)
 \enspace .
-\tag{6}
-\label{eq:loglik}
+\tag{2}
+\label{eq:mc-stable}
 $$
 
-For a D-variate gaussian pdf $f(\rvx) = \gN(\rvx; \rv{\mu}, \sigma^2 \rv{I})$ we have
+### Per-pixel results
+
+It is conventional to report results per-pixel rather than per the whole image. This explains how to get those. 
+
+For a D-variate gaussian pdf with diagonal covariance $f(\rvx) = \gN(\rvx; \rv{\mu}, \sigma^2 \rv{I})$ we have $f(\rvx) = \prod_{i=1}^D f_i(x_i)$, where $f_i(x_i) = \gN(x_i; \mu_i, \sigma^2)$.
+We can therefore evaluate all log-probabilities in \eqref{eq:mc-stable} as sum of elementwise (pixel) log probabilities so for example
 $$
-\log f(\rvx) = \log \left( (2 \pi)^{-D/2} \sigma^{-D}  \exp \left[ -||\rvx - \rv{\mu}||_2^2/(2 \sigma^2) \right] \right)
-= -\frac{D}{2}\log(2\pi) -D\log(\sigma) - \frac{||\rvx - \rv{\mu}||_2^2}{2\sigma^2}.
+\log \pt(\rvx_{0} | \rvx_{1}^{(i)}) = \log \prod_{j=1}^D p_j(x_{0j} | x_{1j}^{(i)}) = \sum_{j=1}^D \log p_j(x_{0j} | x_{1j}^{(i)})
+\tag{3}
+\label{eq:image-logprob}
+$$
+Equation \eqref{eq:image-logprob} uses the pixel probabilities but is still expressed as log-probability for the whole image.
+To express these in terms of per-pixel values we need to normalize by the number as pixels $D$
+$$
+\text{pp} \log \pt(\rvx_{0} | \rvx_{1}^{(i)}) = \log (\prod_{j=1}^D p_j(x_{0j}) | x_{1j}^{(i)})^{1/D} = \frac{1}{D} \sum_{j=1}^D \log p_j(x_{0j} | x_{1j}^{(i)})
 $$
 
-For two D-variate gaussian pdf $f(\rvx) = \gN(\rvx; \rv{\mu}_1, \sigma^2_1 \rv{I})$ and $g(\rvx) = \gN(\rvx; \rv{\mu}_2, \sigma^2_2 \rv{I})$ we have
+### Evaluate prior and denoising matching
+We can simplify the evaluation of the *prior* and *denoising matching* terms in \eqref{eq:mc-stable} by writing down the logs of Gaussian pdfs.
 
+The log of univariate Gaussian pdf $f(x) = \gN(x; \mu, \sigma^2)$ is
 $$
-\begin{align}
-\log f(\rvx) - \log g(\rvx) 
-=& -\frac{D}{2}\log(2\pi) -D\log(\sigma_1) - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} + \frac{D}{2}\log(2\pi) +D\log(\sigma_2) + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} \\
-=& D \log\frac{\sigma_2}{\sigma_1} + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} \\
-\end{align}
+\log f(x) = \log \left( \frac{1}{\sigma \sqrt{2 \pi}} \exp \left[ -\frac{(x - \mu)^2}{2 \sigma^2} \right] \right)
+= -\frac{1}{2}\log(2\pi) - \log(\sigma) - \frac{(x - \mu)^2}{2\sigma^2}.
 $$
+
+For two univariate Gaussian pdf $f(x) = \gN(x; \mu_1, \sigma_1^2)$ and $g(x) = \gN(x; \mu_2, \sigma_2^2)$ we have
+$$
+\log f(x) - \log g(x) 
+= -\frac{1}{2}\log(2\pi) - \log(\sigma_1) - \frac{(x - \mu_1)^2}{2\sigma_1^2} + \frac{1}{2}\log(2\pi) + \log(\sigma_2) + \frac{(x - \mu_2)^2}{2\sigma_2^2} 
+= \log\frac{\sigma_2}{\sigma_1} + \frac{(x - \mu_2)^2}{2\sigma^2} - \frac{(x - \mu_1)^2}{2\sigma_1^2}
+$$
+We use this decomposition for evaluating the *prior matching* term with $f = \pt$ and $g = q$.
 
 If furthermore $\sigma_1 = \sigma_2 = \sigma$ we get
 $$
-\begin{align}
-\log f(\rvx) - \log g(\rvx) 
-=& \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma^2} \\
-=& \frac{\rvx^T \rvx - 2 \rvx^T \mu_2 + \mu_2^T \mu_2 - \rvx^T \rvx + 2 \rvx^T \mu_1 - \mu_1^T \mu_1}{2\sigma^2} \\
-=& \rvx^T(\mu_1 - \mu_2) + \frac{||\mu_2||_2^2 - ||\mu_1||_2^2}{2\sigma^2} \\
-\end{align}
+\log f(x) - \log g(x) 
+= \frac{(x - \mu_2)^2}{2\sigma^2} - \frac{(x - \mu_1)^2}{2\sigma_1^2} 
+= \frac{x^2 - 2 x \mu_2 + \mu_2^2 - x^2 + 2 x \mu_1 - \mu_1^2}{2\sigma^2} 
+=\frac{x(\mu_1 - \mu_2)}{\sigma^2} + \frac{\mu_2^2 - \mu_1^2}{2\sigma^2} \enspace .
 $$
+This we can use for the *denoising matching* terms as these have the same variance of $\pt$ and $q$ terms.
 
+### Evaluate data conditional
 
+Given that image pixel values are not continues but discrete $[0, \ldots, 255]$ values, we cannot evaluate the data conditional as a gaussian, but rather discretized gaussian.
+I'm not going to explain it here but it is in the implementation and the original inspiration comes from PixelCNN++[^4].
 
-<!-- For the terms in \eqref{eq:loglik} we get
-$$
-PT = -\frac{D}{2}\log(2\pi) -D\log(1) - \frac{||\rvx_T - \rv{0}||_2^2}{2 \cdot 1} + \frac{D}{2}\log(2\pi) + D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)} 
-= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{||\rvx_T - \sqrt{\bar{a}_t}\rvx_{0}||_2^2}{2(1 - \bar{a}_t)}  - \frac{||\rvx_T||_2^2}{2}
-$$
-<!-- $$
-= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\rvx_T^T\rvx_T - 2\rvx_T^T\sqrt{\bar{a}_t}\rvx_{0} + \bar{a}_t\rvx_0^T\rvx_0 - (1 - \bar{a}_t)\rvx_T^T\rvx_T}{2(1 - \bar{a}_t)}
-= D \log(\sqrt{(1 - \bar{a}_T)}) + \frac{\bar{a}_t (\rvx_T^T\rvx_T + \rvx_0^T\rvx_0) - 2\sqrt{\bar{a}_t}\rvx_T^T\rvx_{0}}{2(1 - \bar{a}_t)}
-$$ -->
-<!--
-Further note that $\pt(\rvx_{t-1} | \rvx_{t})$ and $q(\rvx_{t-1} | \rvx_{t}, \rvx_0)$ have the same variance which we indicate as $\sigma_t^2 = \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}$ and thus we have
-$$
-\begin{align}
-Pt =& -\frac{D}{2}\log(2\pi) - D\log(\sigma_t) - \frac{||\rvx_{t-1} - \frac{1}{\sqrt{\alpha_t}}\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right)||_2^2}{2 \sigma_t^2} + 
-\frac{D}{2}\log(2\pi) + D\log(\sigma_t) + \frac{||\rvx_{t-1} - (\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0)||_2^2}{2 \sigma_t^2} \\
-=& \frac{||\rvx_{t-1} - (\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0)||_2^2 - ||\rvx_{t-1} - \frac{1}{\sqrt{\alpha_t}}\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right)||_2^2}{2 \sigma_t^2} \\
-\end{align}
-$$ -->
-<!-- $$
-\begin{align}
-=& \frac{-2\rvx_{t-1}^T(\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0) + 
-||\frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0||_2^2 +  
-\frac{2}{\sqrt{\alpha_t}}\rvx_{t-1}^T\left(\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right) - 
-\frac{1}{\alpha_t} ||\rvx_{t} - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t) ||_2^2}{2 \sigma_t^2} \\
-=& \frac{(\frac{2}{\sqrt{\alpha_t}}-\frac{2\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t})\rvx_{t-1}^T\rvx_t -
-\frac{2(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_{t-1}^T\rvx_0 +
-\frac{\alpha_t(1 - \bar{\alpha}_{t-1})^2}{(1 - \bar{\alpha}_t)^2}\rvx_t^T\rvx_t +
-\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}(1 - \bar{\alpha}_{t-1})(1-\alpha_t)}{(1 - \bar{\alpha}_t)^2}\rvx_t\rvx_0 -
-\frac{2(1-\alpha_t)}{\sqrt{\alpha_t}\sqrt{1-\bar\alpha_t}}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
-\frac{1}{\alpha_t} \rvx_t^T \rvx_t + 
-\frac{1-\alpha_t}{\alpha_t \sqrt{1-\bar\alpha_t}}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
-\frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
-{2 \sigma_t^2} \\
-=& \frac{\frac{2(1 - \bar{\alpha}_t) - 2\alpha_t(1 - \bar{\alpha}_{t-1})}{\sqrt{\alpha_t}(1 - \bar{\alpha}_t)}\rvx_{t-1}^T\rvx_t -
-\frac{2(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_{t-1}^T\rvx_0 +
-\frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{\alpha_t(1 - \bar{\alpha}_t)^2}\rvx_t^T\rvx_t +
-\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}(1 - \bar{\alpha}_{t-1})(1-\alpha_t)}{(1 - \bar{\alpha}_t)^2}\rvx_t\rvx_0 -
-\frac{2(1-\alpha_t)}{\sqrt{\alpha_t}\sqrt{1-\bar\alpha_t}}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
-\frac{1-\alpha_t}{\alpha_t \sqrt{1-\bar\alpha_t}}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
-\frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
-{2 \sigma_t^2} \\
-= & \frac{\frac{2(1-\alpha_t)}{\sqrt{\alpha_t}(1 - \bar{\alpha}_t)}\rvx_{t-1}^T\rvx_t - 
-\frac{2(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_{t-1}^T\rvx_0 + 
-\frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{\alpha_t(1 - \bar{\alpha}_t)^2}\rvx_t^T\rvx_t +
-\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}(1 - \bar{\alpha}_{t-1})(1-\alpha_t)}{(1 - \bar{\alpha}_t)^2}\rvx_t\rvx_0 -
-\frac{2(1-\alpha_t)\sqrt{1-\bar\alpha_t}}{\sqrt{\alpha_t}(1-\bar\alpha_t)}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
-\frac{(1-\alpha_t)\sqrt{1-\bar\alpha_t}}{\alpha_t (1-\bar\alpha_t)}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
-\frac{(1-\alpha_t)^2}{1-\bar\alpha_t}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)}
-{2 \frac{(1-\alpha_t)(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}} \\
-= & \frac{1}{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}\rvx_{t-1}^T\rvx_t -
-\frac{\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_{t-1})} \rvx_{t-1}^T\rvx_0 + 
-\frac{\alpha_t^2(1 - \bar{\alpha}_{t-1})^2 - (1 - \bar{\alpha}_t)^2}{2(1 - \bar{\alpha}_t)^2(1-\alpha_t)}\rvx_t^T\rvx_t +
-\frac{\sqrt{\alpha_t \bar{\alpha}_{t-1}}}{2(1 - \bar{\alpha}_t)}\rvx_t\rvx_0 -
-\frac{\sqrt{1-\bar\alpha_t}}{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}\rvx_{t-1}^T\epsilon_\theta(\rvx_t, t) -
-\frac{\sqrt{1-\bar\alpha_t}}{2 \alpha_t (1 - \bar{\alpha}_{t-1})}\rvx_t^T \epsilon_\theta(\rvx_t, t) - 
-\frac{(1-\alpha_t)}{2(1 - \bar{\alpha}_{t-1})}\epsilon_\theta(\rvx_t, t)^T \epsilon_\theta(\rvx_t, t)
-\end{align}
-$$ -->
+### Negative log-likelihood (NLL)
 
-For implementation, remember that $\rv{a}^T \rv{b} = \sum_i^d a_i b_i$ so these are all trivial element-wise products.
-
-### Bits-per-dim
-
-We are also not typically interested in the likelihood but rather the **log-likelihood** and hence get 
-$$\log \pt(\rvx_0) \approx
-\log \frac{1}{M}\sum_{i=1}^M \exp \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace ,
+We are also not typically interested in the likelihood but rather the negative log-likelihood (NLL) and hence get 
+$$ \text{pp NLL} = - \text{pp} \log \pt(\rvx_0) \approx - \log \frac{1}{M}\sum_{i=1}^M \exp \frac{1}{D} \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace ,
 $$
 where we can evaluate the log-sum-exp in a stable manner.
 
+### Bits-per-pixel
 
-**Bits-per-dim** is simply the negative log-likelihood with base 2 normalized by the number of pixels $D$
-$$BPP = - \frac{\log_2  \pt(\rvx_0)}{D} = - \frac{\log  \pt(\rvx_0)}{D \log 2}$$ 
+Finally, we want to move from natural logarithm to log2 to get the restuls in bits
+
+$$BPP = \frac{\text{pp NLL}}{\log 2} = \frac{- \text{pp} \log \pt(\rvx_0)}{\log 2}$$ 
 
 The **number of samples** from the latent should be rather big to get a low-variance estimate of the log-likelihood. For the VAE case in both Importance Weighted VAE [^2] and VampPrior VAE [^3] they used $M = 5000$.
 
-There is one more trick that may be necessary: the pixel values are not continuous but discrete 0 to 255 values. Hence assuming that $\pt(\rvx_0 | \rvx_1)$ is Gaussian is strange.
-They have dealt with this in PixelCNN++[^4] they have used a mixture of logistic distributions. 
-Perhaps this is what the OpenAI implementation does?
 
 ## References
 
