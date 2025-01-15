@@ -1,0 +1,44 @@
+% PACKAGES
+\usepackage{xcolor}
+\usepackage{import}
+
+\input{math_commands.tex}
+
+% COLORS, SYMBOLS
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\colorred}{\color{Red}}
+\newcommand{\colorgreen}{\color{ForestGreen}}
+\newcommand{\colorgrey}{\color{darkgray}}
+\newcommand{\colorblack}{\color{Black}}
+
+
+% MATH
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}%
+\newcommand{\ovx}{\bm{x}^*}
+\newcommand{\ovy}{y^*}
+\newcommand{\yt}{y_t}
+\newcommand{\hvx}{\bm{\hat{x}}}
+\newcommand{\hvX}{\bm{\hat{X}}}
+\newcommand{\pgen}{p_{\rm{gen}}}
+\newcommand{\pcl}{p_{\rm{cl}}}
+\newcommand{\rvX}{\bm{X}}
+\newcommand{\rvY}{\bm{Y}}
+\newcommand{\scg}{s_{cl}} % Scaling classifier guidance
+\newcommand{\cg}{\mu_{cg}} %C lassifier guidance
+\newcommand{\ssg}{s_d} % Scaling structural guidance
+\newcommand{\sg}{\mu_{sg}} % Structural guidance
+
+% Diffusion
+\newcommand{\pt}{p_{\theta}} % diffusion reverse process
+\newcommand{\pf}{p_{\phi}} % classifier
+\newcommand{\mt}{\vmu_{\theta}} % diffusion reverse process mean
+\newcommand{\st}{\mSigma_{\theta}} % diffusion reverse process covariance
+\newcommand{\dN}{\mathcal{N}} % Normal distribution
+\newcommand{\veta}{\bm{\eta}} % Exponential family natural parameters
+\newcommand{\Ts}{\mathrm{T}} % Transpose
+\newcommand{\vvec}{\mathrm{vec}} % vectorization operator
+\newcommand{\amint}{\argmin_{\theta}}
+\newcommand{\epst}{\rvepsilon_{\theta}}
+\newcommand{\ut}{\vu_{\theta}}
+\newcommand{\gradxt}{\nabla_{\rvx_t}}

@@ -1,0 +1,381 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 2/5/2015 - Notes with ideas for future work %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% loads amsmath and some extra
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% to allow IEEEeqnarray
+\usepackage[retainorgcmds]{IEEEtrantools}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% enables commenting out sections of text
+\usepackage{verbatim}
+
+%shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}
+%argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\Tr}{Tr}
+\DeclareMathOperator*{\Vc}{Vec}
+%and some more
+\newcommand{\ts}{time-series}
+%\newcommand{\note}{note}
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\color{blue}\emph{Note: #1}} \else {} \fi}
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}
+\newcommand{\conclude}[1]{\ifShowComments {\color{blue}\emph{{\bf Conclusions:} #1}} \else {} \fi}
+
+% for advanced graphics
+%\usepackage{tikz}
+
+% for subfigures
+\usepackage{caption,subcaption}
+
+% for coloring table columns
+\usepackage{xcolor,colortbl}
+\definecolor{light-gray}{gray}{0.7}
+\newcommand{\lightbox}{\color{light-gray}\rule{0.23cm}{0.09cm}}
+
+% to inclued only sections in the table of contents
+\setcounter{tocdepth}{2}
+
+\begin{document}
+
+%% front matter %%
+\title{Thoughts about future work}
+\author{MG}
+\maketitle
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\begin{abstract}
+This is to help me capture and structure possible ideas for future work that shall not be forgotten. The advantage of writing these down and developing the notation etc. is that they can be quickly picked up and worked out into something more serious. Each section has a topic possibly rather unrelated to the other sections. The details developed in the subsections may be somewhat messy at this stage. Several sections have very little text yet, these are place-holders for raised ideas not to be forgotten (though perhaps completely unrealistic or wrong).
+\end{abstract}
+
+\tableofcontents
+
+\section{Kernel version of FVAR}
+
+For vector valued output $y \in \mathcal{Y} = \mathbb{R}^K$ the optimal solution for the minimisation of the regularised functional is
+
+\begin{equation}
+\vc{f}(\vc{x})
+ =  \sum_i^n \vc{H}(\vc{x}_i,\vc{x}) \, \vc{c}_i = 
+\sum_i^n \sum_k^K c_{ik} \, \vc{H}(\vc{x}_i,\vc{x})_{(:,k)},
+\end{equation}
+where $n$ is the number of instances, $K$ is the number of tasks, $\vc{c}_i \in \mathcal{Y}$, $\vc{H}(.,.) \in \mathcal{Y} \times \mathcal{Y}$ and $\vc{H}(.,.)_{(:,k)}$ is the $k$th column of $\vc{H}$.
+
+Hence, for task $t$ we have
+\begin{equation}
+f(\vc{x},t) = \sum_i^n \sum_k^K c_{ik} \, H\big((\vc{x}_i,k),(\vc{x},t)\big),
+\end{equation}
+where $H\big((.,.),(.,.)\big) \in \mathbb{R}$
+
+Assuming $H$ is separable we can write it as a product of input $K_X(.,.) \in \mathbb{R}$ and output $K_Y(.,.) \in \mathbb{R}$ kernels
+\begin{equation}
+H\big((\vc{x}_i,k),(\vc{x},t)\big) = K_X(\vc{x}_i,\vc{x}) \, K_Y(k,t),
+\end{equation}
+or equivalently
+\begin{equation}
+\vc{H}\big(\vc{x}_i,\vc{x}) = K_X(\vc{x}_i,\vc{x}) \, \vc{K}_Y,
+\end{equation}
+where $\vc{K}_Y \in \mathcal{Y} \times \mathcal{Y}$ is the output kernel Gram matrix.
+
+Since a linear combination of kernels is a valid kernel we can also assume that
+\begin{equation}
+\vc{H}\big(\vc{x}_i,\vc{x}) = \sum_s^S K^s_X(\vc{x}_i,\vc{x}) \, \vc{K}^s_Y,
+\end{equation}
+or equivalently
+\begin{equation}
+H\big((\vc{x}_i,k),(\vc{x},t)\big) = \sum_s^S K^s_X(\vc{x}_i,\vc{x}) \, K^s_Y(k,t),
+\end{equation}
+
+Now, assuming $K^s_X(\vc{x}_i,\vc{x}) = \langle \vc{x}^s_i, \vc{x}^s \rangle$ and $K^s_Y(k,t) = \delta_{k,t} \alpha_{k,t,s}$ we get
+
+\begin{eqnarray}
+f(\vc{x},t)
+& = & \sum_i^n \sum_k^K c_{ik} \, \sum_s^S K^s_X(\vc{x}_i,\vc{x}) \, K^s_Y(k,t) \nonumber \\
+& = & \sum_i^n \sum_k^K c_{ik} \, \sum_s^S  \langle \vc{x}^s_i, \vc{x}^s \rangle \,  \delta_{k,t} \alpha_{k,t,s} \nonumber \\
+& = & \sum_k^K \delta_{k,t} \sum_i^n \sum_s^S \alpha_{k,t,s}  c_{ik} \langle \vc{x}^s_i, \vc{x}^s \rangle \nonumber \\
+& = & \sum_i^n \sum_s^S \beta_{t,s}  c_{it} \langle \vc{x}^s_i, \vc{x}^s \rangle \nonumber \\
+& = & \sum_i^n c_{it} \sum_s^S \beta_{t,s}  \langle \vc{x}^s_i, \vc{x}^s \rangle \nonumber
+\end{eqnarray}
+
+
+
+
+\section{Granger causality in panel time-series (last updated 2/5/2015)}\label{sec:GrangerInPanels}
+
+The idea here is to extend our paper on learning Granger-causality \cite{Gregorova2015} into panel data.
+In this setting the multiple time series are observed over several \note{independent?} cross-sections \note{is this the right term?}.
+For example, in the Kaggle Wallmart competition (\url{https://www.kaggle.com/c/walmart-recruiting-sales-in-stormy-weather}), the time series are the sales of various products (bread, milk, umbrella), the panel dimension is added by having these over multiple shops.
+The assumption here would be that for every shop you can learn a VAR but the VARs across the sections shall be similar to one another in terms of their Granger-causality.
+Possibly, the individual VARs could also be constrained to be focalised (see \cite{Gregorova2015}) but this is perhaps not necessary in the 1st version. 
+
+This ideas is developed in this \href{http://www.gail.unige.ch/mediawiki/index.php/File:PanelVAR_ICML2015WS_v02.pdf}{paper} submitted to ICML2015 workshop on demand forecasting on 1/5/2015.
+
+\subsection{Panel F-VAR, SF-VAR}
+This bit is not in the above workshop paper so is left here.
+In \cite{Gregorova2015} we have developed methods to learn VAR models whose Granger-causality graphs are concentrated around a few focal series. We could extend this to the panel setting. 
+Following the development and logic of \cite{Gregorova2015} we rewrite the loss function in terms of the p-dimensional blocks in the input and parameter matrices $\vc{X}_z, \vc{W}_z$.
+\begin{equation}\label{eq:SquarredLossBlocks}
+\mathit{L}(\vc{W}^{3d}):= \sum_{t=1}^T \sum_{k=1}^K \sum_{z=1}^Z (y_{t,k,z} - \sum_b^K \langle \vc{\tilde{w}}_{b,k,z}, \vc{\tilde{x}}_{t,b,z} \rangle )^2
+\end{equation} 
+and further by decomposing $\vc{\tilde{w}}_{b,k,z} = \gamma_{b,k,z} \vc{\tilde{v}}_{b,k,z}$. 
+The $K \times K \times Z$ 3d-tensor $\vc{\Gamma}^{3d}$ will be used to control the sparsity and similarity between the models and the $Kp \times K \times Z$ 3d-tensor $\vc{V}^{3d}$ allows for learning task-section specific parameters.
+
+We decompose each of the $\vc{\Gamma}_z$ (cuts of $\vc{\Gamma}^{3d}$ through the $Z$ dimension) into the common $\vc{A}_z$ and task-specific $\vc{B}_z$ parts as in \cite{Gregorova2015} so that $\vc{\Gamma}_z = \vc{A}_z - diag(\vc{A}_z) + \vc{B}_z$ where we set $\vc{B}_z = \vc{I}$.
+To enforce the similarity of the models across the sections, we further set $\vc{\Gamma}_z = \vc{\Gamma}$ (and $\vc{A}_z = \vc{A}$) so that we learn just a single matrix $\vc{\Gamma}$ common for all the cross-sections.
+\begin{equation}\label{eq:SquarredLossBlocks}
+\mathit{L}(\vc{W}^{3d}):= \sum_{t=1}^T \sum_{k=1}^K \sum_{z=1}^Z (y_{t,k,z} - \sum_b^K \gamma_{b,k} \langle \vc{\tilde{v}}_{b,k,z}, \vc{\tilde{x}}_{t,b,z} \rangle )^2
+\end{equation} 
+
+The constraints follow from \cite{Gregorova2015} in analogy.
+\begin{itemize}
+\item for F-VAR: $||\vc{V}_z||_2^2 < \epsilon$; \, $\vc{\alpha}_{.,k} = {\overline{\vc{\alpha}}}$; \, $\sum_b {\overline{\alpha}}_b = 1$; \, ${\overline{\alpha}}_b > 0$
+\item for SF-VAR: $||\vc{V}_z||_2^2 < \epsilon$; \, $\sum_b \alpha_{b,k} = 1$; \, $\alpha_{b,k} > 0$; \, $rank(\vc{A}) < r$.
+\end{itemize}
+
+
+\section{Convex relaxation of F-VAR and SF-VAR (last updated 29/4/2015)}
+In section 2.3 of \cite{Gregorova2015} it is noted that the we can rewrite optimisation of F-VAR and SF-VAR as a weighted ridge regression problem where $\mathit{R}(\vc{W}) = ||\vc{V}||_2^2 = \sum_{b,k} 1/\gamma_{b,k}^2 ||\tilde{\vc{w}}_{b,k}||_2^2$ with further constraints on $\vc{\Gamma}$.
+Based on the note from Francesco \cite{Dinuzzo2015} the optimisation problem for F-VAR can be simplified to be expressed only in terms of $\vc{W}$.
+
+From \cite{Gregorova2015} we have $\vc{\Gamma} = \vc{A} - diag(\vc{A}) + I$.
+So for the elements $\gamma_{b,k} = \alpha_{b,k} + \delta_{b,k}(1 - \alpha_{b,k})$, where $\delta_{b,k} = 1$ for $b=k$ and is zero otherwise.
+
+For the regularizor we get 
+\begin{eqnarray}\label{eq:RW}
+\mathit{R}(\vc{W}) & = & \sum_{b,k} 1/\gamma_{b,k}^2 ||\tilde{\vc{w}}_{b,k}||_2^2 \nonumber \\
+& = & \sum_{b,k} ||\tilde{\vc{w}}_{b,k}||_2^2 ~/~ \big(\alpha_{b,k} + \delta_{b,k}(1 - \alpha_{b,k})\big)^2  \nonumber \\
+& = & \sum_{b,k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 ~/~ \alpha_{b,k}^2 + \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2
+\end{eqnarray}
+
+The full optimisation problem (in the Lagrange form) can be written as
+\begin{eqnarray}\label{eq:JW}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + \lambda_{1} ||\vc{V}||_2^2 + \sum_k \lambda_{k+1} \sum_b \alpha_{b,k}, \end{eqnarray}
+where 
+\begin{equation}\label{eq:LW}
+\mathit{L}(\vc{W}):= \sum_{t=1}^T \sum_{k=1}^K (y_{t,k} - \langle \vc{w}_{.,k},\vc{x}_{t,.} \rangle )^2
+\end{equation} 
+and with further positivity constraints $\alpha_{b,k} \geq 0$ and for SF-VAR $rank(\vc{A}) \leq r$.
+
+\subsection{F-VAR}\label{sec:F-VARsimple}
+Following the assumptions of F-VAR, the columns in the $\vc{A}$ matrix are identical so that $\vc{\alpha}_{.,k} = {\overline{\vc{\alpha}}}$.
+Using (\ref{eq:RW}) we can rewrite (\ref{eq:JW}) as
+\begin{eqnarray}\label{eq:JWFVAR}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + \lambda_1 \Big( \sum_{b,k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 ~/~ \overline{\alpha}_{b}^2 + \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2 \Big) + \lambda_2 \sum_b \overline{\alpha}_{b}
+\end{eqnarray}
+
+Minimising with respect to $\overline{\vc{\alpha}}$ by equating $\partial\mathit{J}(\vc{W}) / \partial\overline{\alpha}_{b} = 0$ we get
+\begin{eqnarray}
+-2 ~ \lambda_1 ~ \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 ~ \overline{\alpha}_{b}^{-3} + \lambda_2 & = & 0 \nonumber \\
+2 ~ \lambda_1 ~ \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 & = & \lambda_2 ~ \overline{\alpha}_{b}^{3}  \quad \text{note that }  \overline{\alpha}_{b} \geq 0 \nonumber \\
+(\frac{2 ~ \lambda_1}{\lambda_2})^{1/3} ~ (\sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2)^{1/3} & = & \overline{\alpha}_{b}
+\end{eqnarray}
+
+Plugging this back to (\ref{eq:JWFVAR}) we get
+\begin{eqnarray}\label{eq:JWFVAR2}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + (\lambda_2/2)^{2/3} \lambda_1^{1/3} \sum_b \Big( \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 \Big)^{1/3} + \lambda_1 \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2 \nonumber \\
+& = & \mathit{L}(\vc{W}) + \kappa_1 \sum_b ||\tilde{\vc{W}}_{b,k \neq b}||_2^{2/3}  + \kappa_2 \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2,
+\end{eqnarray}
+where $\tilde{\vc{W}}_{b,k \neq b}$ is the $p \times K-1$ matrix constructed from $\vc{W}$ by taking the $b$-th block of rows and leaving out the $b$-th column.
+
+Problem (\ref{eq:JWFVAR2}) is now formulated only in terms of the elements of $\vc{W}$ but the middle term is non-convex (and non-differentiable) $\ell_{p,q}$ operator with $q=2$ and $p=2/3$.
+
+\subsubsection{Convex relaxation for F-VAR}
+We could change the original simplex constraint on $\vc{\alpha}_{.,k}$ into a $\ell_2$ ball one so that $\sum_b \alpha_{b,k}^2 = 1$.
+Problem (\ref{eq:JWFVAR}) in the Lagrangian form then is
+\begin{eqnarray}\label{eq:JWFVAR3}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + \lambda_1 \Big( \sum_{b,k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 ~/~ \overline{\alpha}_{b}^2 + \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2 \Big) + \lambda_2 \sum_b \overline{\alpha}_{b}^2 \end{eqnarray}
+
+Minimising solution for $\overline{\alpha}_{b}$ 
+\begin{eqnarray}
+-2 ~ \lambda_1 ~ \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 ~ \overline{\alpha}_{b}^{-3} + \lambda_2 ~ \overline{\alpha}_{b} & = & 0 \nonumber \\
+2 ~ \lambda_1 ~ \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 & = & \lambda_2 ~ \overline{\alpha}_{b}^{4}  \quad \text{note that }  \overline{\alpha}_{b} \geq 0 \nonumber \\
+(\frac{2 ~ \lambda_1}{\lambda_2})^{1/2} ~ (\sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2)^{1/2} & = & \overline{\alpha}_{b}^2
+\end{eqnarray}
+
+and after plugging this back
+\begin{eqnarray}\label{eq:JWFVAR4}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + (\lambda_2/2)^{1/2} \lambda_1^{1/2} \sum_b \Big( \sum_{k \neq b} ||\tilde{\vc{w}}_{b,k}||_2^2 \Big)^{1/2} + \lambda_1 \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2 \nonumber \\
+& = & \mathit{L}(\vc{W}) + \kappa_1 \sum_b ||\tilde{\vc{W}}_{b,k \neq b}||_2  + \kappa_2 \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2,
+\end{eqnarray}
+
+The middle term in (\ref{eq:JWFVAR4}) now reduces to the $\ell_{1,2}$ operator and hence we recover the convex group-lasso formulation across the $\tilde{\vc{W}}_{b,k \neq b}$ groups.
+
+Note that in the experimental part of \cite{Gregorova2015} one of the baseline models indicated as GroupVAR had similar formulation to (\ref{eq:JWFVAR4}). However, it used only a single tuning parameter $\kappa_1 = \kappa_2$ and (probably more importantly) the last term was $\sum_b ||\tilde{\vc{w}}_{b,b}||_2$ - an $\ell_{1,2}$ operator across the $\tilde{\vc{w}}_{b,b}$ instead of the simple $\ell_2$ norm on the concatenation of $\tilde{\vc{w}}_{b,b}$.
+
+\subsection{SF-VAR}
+In SF-VAR, in addition to the non-negativity $\alpha_{b,k} \geq 0$ we also have the low-rank constraint on $\vc{A}$ which in \cite{Gregorova2015} is achieved by matrix factorization $\vc{A} = \vc{UL}$ so that $\alpha_{b,k} = \sum_j^r u_{b,j} ~ l_{j,k}$, where $r$ is the rank of $\vc{A}$.
+This has a nice interpretation as soft-clustering of the models.
+We can express the regularized loss (\ref{eq:JW}) using the non-negative $\vc{U}$ and $\vc{L}$
+\begin{eqnarray}\label{eq:JWSFVAR}
+\mathit{J}(\vc{W}) & = & \mathit{L}(\vc{W}) + \lambda_1 \Big( \sum_{b,k \neq b} \frac{||\tilde{\vc{w}}_{b,k}||_2^2 }{\big( \sum_j^r u_{b,j} ~ l_{j,k} \big)^2} + \sum_b ||\tilde{\vc{w}}_{b,b}||_2^2 \Big) + \lambda_2 \sum_{b,j} u_{b,j} + \lambda_3 \sum_{j,k} l_{j,k}
+\end{eqnarray}
+where we use the same $\lambda_2$ and $\lambda_3$ for all the simplex constraints on columns of $\vc{U}$ and $\vc{L}$.
+
+I try following the same trick as in section \ref{sec:F-VARsimple} to minimise first for the elements of $\vc{U}$ and $\vc{L}$.
+
+\begin{eqnarray}
+\frac{\partial\mathit{J}(\vc{W})}{\partial u_{b,j}} & = &
+-2 \lambda_1 \sum_{k \neq b} \frac{||\tilde{\vc{w}}_{b,k}||_2^2 ~ l_{j,k}}{\big( \sum_j^r u_{b,j} ~ l_{j,k} \big)^3} + \lambda_2 \\
+\end{eqnarray}
+
+\begin{eqnarray}
+\frac{\partial\mathit{J}(\vc{W})}{\partial l_{j,k}} & = &
+-2 \lambda_1 \sum_{b \neq k} \frac{||\tilde{\vc{w}}_{b,k}||_2^2 ~ u_{b,j}}{\big( \sum_j^r u_{b,j} ~ l_{j,k} \big)^3} + \lambda_3
+\end{eqnarray}
+
+I don't think this can really help anything or at least I don't see it. Not sure if using nuclear norm instead of the $\vc{UL}$ decomposition would help. Perhaps yes ... \todo{Look at nuclear norm minimisation}
+
+\section{Restrict directly (partial-)covariance instead of $\vc{W}$ (last updated 2/5/2015)}
+
+Yule-Walker equations? Does this even make sense? What does it really mean "constraining the covariances/partial covariances"?
+
+The original definition of Granger-causality was for 2 variables (or 2 n-dimensional processes) only. That is can I improve prediction of $z_t$ given the past of $x_t$?
+I'm playing with many variables - the problem here is that some may improve prediction of $z_t$ by passing through another variable. Eg $y_t$ may influence $x_t$ and this in turn $z_t$. How is this treated in the model, the Granger graphs and what would I like to see?
+
+\subsection{GPs again}
+
+Aha?! So .. what if I formulate the problem as Yule-Walker but instead of putting constraints on norm in $\vc{W}$ I directly put some constraints on the covariance estimates?
+
+Perhaps could be more obvious through Bayesian priors?
+Prior for $\gamma_{ij}(h) \sim \mathcal{N}(0,\sigma)$. Is this in fact a hyperprior on the covariance matrix of the original multi-variate Gaussian process (Gaussian random field)?
+
+In fact, given that the covariance in GP and kernel in the kernel learning theory coincide, imposing sparsity constraints on the covariance somehow relates to Francesco's problem of learning sparse output kernel.
+
+I can look at the vector prediction problem in VAR as at a scalar prediction problem where the specification of the task $l$ is an input for the prediction function.
+
+\paragraph{The following is mainly based on \cite{Turner2012} and \cite{Rasmussen2006}}
+In the multiple time series prediction problem we have got a data sample $\{ y_{i = t \times l} : t \in \mathbb{N}_T, l \in \mathbb{N}_m, i \in \mathbb{N}_{Tm}\}$ which we consider to be a realization of a real Gaussian process $f(.) \sim \mathit{GP}(\mu(.),k(.,.))$ with mean function $\mu(.) = E[f(.)]$ and covariance function $k(.,.) = E[ (f(.)-\mu(.))' (f(.)-\mu(.))]$ taking as inputs the 2-dimensional vectors $[t,l]_i$ of all possible time and task combinations (GP is a distribution over function $f: \mathbb{N}_T \times \mathbb{N}_m \rightarrow \mathbb{R}$).
+
+We will look at $f(.)$ as at an infinite dimensional vector (whose distribution is given by the GP) but in fact we're interested only in the $Tm$ long vector corresponding to our sample (or its parts) and its joint probability distribution which is a multivariate Gussian distribution (by the marginalisation property of Gaussians) $\vc{y} \sim \mathit{N}(\vc{\mu}, \vc{K}), \, \mu_i = \mu([t,l]_i), \, K(i,j) = k_{\xi}([t,l]_i,[t,l]_j), \forall i,j \in \mathbb{N}_i$.
+Here $\mu(.) : \mathbb{N}^2 \rightarrow \mathbb{R}$ is the mean function, $k_\xi(.,.) : \mathbb{N}^2 \times \mathbb{N}^2 \rightarrow \mathbb{R}$ is the covariance function (or kernel) with hyper-parameters $\xi$, and the inputs are the time/task indeces $\{[t,l]_i: i \in \mathbb{N}_{Tm}\}$. 
+
+Observe that this formulation of the covariance function $k$ is very similar \note{identical?} to the $\mathcal{Y}$-valued kernel formulation $H(x,x')_{rc} = H((x,r)(x',c))$ where $x$'s correspond to the time indeces $t$ and $r,c$ to the task indeces $l$.
+
+\begin{eqnarray}
+& y_{i} = f([t,l]_i) + e_{i}, \quad \forall i \in \{1 \ldots Tm\} & \\
+& f \sim \mathit{GP}(\mu,k), \quad e_{i} \sim \mathit{N}(0,\sigma^2) & \nonumber
+\end{eqnarray}
+
+\cite{Turner2012} actually builds the GP theory and then goes onto Yule-Walker as well but only in the one-dimensional case, he does not go into any details for the multi-dimensional case.
+
+\subsection{Shape of kernels 12/5/2015 - NEW!}
+
+There are four general types of problems I may want to explore here (of which the first I mainly use as a building stone for the others):
+\begin{description}
+\item[AR 1-step] Single time series prediction for 1-step ahead where the output is a scalar
+\item[AR h-steps] Single time series prediction for h-steps ahead where the h-steps $\{1,\dots,h\}$ are predicted simultaneously as an h-long output vector
+\item[VAR 1-step] Multiple time series prediction for 1-step ahead where all the $k$ series are predicted simultaneously as a $k$-long output vector
+\item[VAR h-step] Multiple time series prediction for h-steps ahead where the h-steps for all the $k$ series are predicted simultaneously as a $k \times h$ output matrix
+\end{description}
+
+Some thoughts about the shape of the kernels:
+\begin{itemize}
+\item For a stationary AR the gram matrix (over $\Delta(t)$) shall be a Toeplitz matrix with diminishing elements. In this way, I know the kernel values for a new observation since it is just an extension of the Toeplitz matrix.
+\item I could bring some non-stationarity into this by for example making the Toeplitz diagonals some smooth functions
+\item For s stationary AR with h-steps ahead the input and output kernels (over $\Delta(t)$) shall be identical. I guess, this is the reason why one can show that the optimal h-step forecasts is from the 1-step recursions.
+\item Full stationarity is unrealistic - extend the smooth functions on the Toeplitz diagonals from the input kernel to the corresponding diagonals of the output kernel?
+\item Does the separation of the Y-valued kernel into input and output even make sense here?
+\item For VAR 1-step ahead I could work with separable Y-valued kernel so that the input kernel has the same properties as an AR kernel (e.g. Toeplitz matrix over $\Delta(t)$) etc.) and I need to focus on the output kernel.
+\item The output kernel works over the task indexes where distances or ordering does not make sense so it cannot be a function of $|k-l|$ (or can it?).
+\item A straightforward assumption corresponding to my FVAR methods is that L is low-rank and sparse (I think). 
+\item But in fact, L probably should not be symmetrical because the Granger links are not.
+\item The assumption used e.g. in \cite{Dinuzzo2015} that the output kernel L is constant across all the input instances is perhaps too strong - the relations between the outputs may also evolve and change with time.
+\item This suggests that the separation into input and output kernel may not be the best idea here.
+\end{itemize}
+
+\subsection{Ideas from group meeting 4/5/2015 - NEW!}
+\begin{itemize}
+\item work with single time series but for multi-step ahead prediction
+\item similarity between input and output kernel via the fact that kernel $=X X'$ and covariance $=X' X$ are linked by the eigen-decomposition (share the same eigenvalues etc.)
+\end{itemize}
+
+\section{Not yet developed}
+
+\subsection{Online learning of sparse VARs}
+
+Normally, the VAR is learned in batch mode by sliding window without any control over the smoothness for the models across the windows. The smoothness should be implicit given the stationarity of the processes. But with sparsity norms such as $\ell_1$ which are known to be very unstable in the support selection this may not be so obvious, especially if the window shifts are bigger then single observation. Possibly even less in multi-task learning.
+
+Moreover, the stationarity assumption is very unrealistic for any real-time series which is likely to have gone through some concepts changes. Well, I guess the non-smoothness would in fact be an indication of such concept drift appearing in the new window.
+
+
+
+
+
+
+% so that instead of looking for $f: \mathit{X} \rightarrow \mathit{}$ 
+
+\subsection{Instantenous covariance and Granger causality}
+
+Structural VARs A-model, B-model, AB-model, (see \cite{Lutkepohl2005})
+
+\subsection{Granger causality for multi-step ahead prediction}
+
+Why, what would be the assumptions
+
+\subsection{Input-output kernel similarity in times series}
+
+Unsupervised learning, kernel PCA?
+
+\subsection{Matrix output for multi-step}
+
+An extension from vector output to matrix output. Fairly obvious since the theory is build over vector-spaces (matrix space is ok). Multi-linear models?
+
+\subsection{Projected gradient for optimising my problem}
+
+Solve least squares by projected gradient descent. Should be easy (I hope) but perhaps too slow.
+
+
+
+
+%%%% Bibliography %%%%
+\begin{thebibliography}{9}
+
+\bibitem{Gregorova2015}
+  Magda Gregorova, Alexandros Kalousis, Stephane Marchand-Maillet, Jun Wang:
+  Learning vector autoregressive models with focalised Granger causality graphs,
+  submitted for ICML2015
+
+\bibitem{Dinuzzo2015}
+  Francesco Dinuzzo: Note to Magda about equivalent formulation, 
+  17 April 2015
+  
+\bibitem{Lutkepohl2005}
+	L\"utkepohl, Helmut: New Introduction to Multiple Time Series Analysis.
+	Berlin: New York : Springer, 2005.
+	
+\bibitem{Turner2012}
+Turner, Ryan Darby: Gaussian Processes for State Space Models and Change Point Detection, University of Cambridge, 2012. 
+
+\bibitem{Rasmussen2006}
+Rasmussen, Carl Edward, and Christopher K. I. Williams: Gaussian Processes for Machine Learning. Adaptive Computation and Machine Learning. Cambridge, Mass: MIT Press, 2006.
+
+
+
+
+\end{thebibliography}
+
+\end{document}

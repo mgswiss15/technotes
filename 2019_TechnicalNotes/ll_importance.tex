@@ -1,0 +1,70 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 7/8/2019 - vae log-likelihood by importance sampling %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Evaluate data log likelihood by importance sampling}\index{importance sampling}
+
+In addition to evaluting the ELBO across the test samples, it makes sense to evaluate the log-likelihood of the test data. The ELBO is formulated each time differently, depending on the graphical model etc., while the log-likelihood should be measuring always the same.
+
+From the VAE basic assumptions we have the latent variable model
+\begin{equation}
+p(\bx) = \int p(\bx | \bz) p(\bz) dz \enspace , 
+\end{equation}
+where $p(\bz)$ is the prior for the latent $\bz$, and $p(\bx | \bz)$ is the learned conditional likelihood - the decoder of the VAE.
+
+Hence, the log-likelihood of observation $\bx$ is 
+\begin{equation}
+\log p(\bx) = \log \int p(\bx | \bz) p(\bz) dz \enspace . 
+\end{equation}
+
+Empirically we could get this by sampling $\bz$ from the prior $p(\bz)$
+\begin{equation}
+\log p(\bx) \approx \log \sum_i^K p(\bx | \bz_i), \quad \bz_i \sim p(\bz)  \enspace . 
+\end{equation}
+
+The problem with this one is that we may need a lot of samples to get a reasonable estimate of the log-likelihood - according to the prior we may be sampling $\bz$ in an area very unlikely for any $\bx$.
+
+Instead, adopting the importance sampling principles we may sample from the learned posterior $q(\bz|\bx)$ (the VAE decoder) so that
+
+\begin{eqnarray}
+\log p(\bx) & = & \log \int p(\bx | \bz) p(\bz) \frac{q(\bz | \bx)}{q(\bz | \bx)} dz  \nn
+& = & \log \int p(\bx | \bz) q(\bz | \bx) \frac{p(\bz) }{q(\bz | \bx)} dz  
+\enspace ,
+\end{eqnarray}
+with the empirical estimate
+\begin{equation}
+\log p(\bx) \approx \log \sum_i^K p(\bx | \bz_i) \frac{p(\bz_i) }{q(\bz_i| \bx)}, \quad \bz_i \sim q(\bz| \bx)  \enspace . 
+\end{equation}
+
+What we have in the loss-function (maximization of the ELBO) is the $\log$ of the probabilities. Therefore I introduce these in to the importance sampled log-likelihood
+\begin{eqnarray}
+\log p(\bx) 
+& = & \log \int q(\bz | \bx) p(\bx | \bz) \frac{p(\bz) }{q(\bz | \bx)} dz  \nn
+& = & \log \int q(\bz | \bx) \, \exp \left[ \log p(\bx | \bz)  + \log p(\bz) - \log q(\bz | \bx) \right] dz
+\enspace ,
+\end{eqnarray}
+with the empirical estimate
+\begin{eqnarray}
+\log p(\bx) &\approx& \log \sum_i^K \exp \left[ \log p(\bx | \bz_i)  + \log p(\bz_i) - \log q(\bz_i | \bx) \right], \quad \bz_i \sim q(\bz| \bx) \nn
+& = & \log \sum_i^K \exp \left[ \log p(\bx | \bz_i) - \log \frac{q(\bz_i | \bx)}{p(\bz_i)} \right], \quad \bz_i \sim q(\bz| \bx)
+  \enspace . 
+\end{eqnarray}
+
+Here $\log \frac{q(\bz_i | \bx)}{p(\bz_i)}$ is the log probability ratio and is better evaluated in the logs as 
+\begin{equation}
+\log \frac{q(\bz_i | \bx)}{p(\bz_i)} = \log q(\bz_i | \bx) - \log p(\bz_i) \enspace .
+\end{equation}
+Note that this is the single sample empirical estimate of the KL divergence which is the same as used in the ELBO calculation in the vampprior implementation of Tomczek (though in the ELBO there it is average across multiple samples).
+
+The first term $\log p(\bx | \bz_i)$ is simply the log conditional likelihood that is the RE part of the ELBO for a single sample $\bz$.
+
+To evaluate the logsumexp it is safer for numerical stability to use the equivalent form
+\begin{equation}
+\log p(\bx) \approx a + \log \sum_i^K \exp (a_i - a) \enspace ,
+\end{equation}
+where 
+$a_i = \log p(\bx | \bz_i) - \log \frac{q(\bz_i | \bx)}{p(\bz_i)}$ and $a = \max_i a_i$.
+
+This is actually often already implemented in python for example in the \emph{tf.reduce\_logsumexp}.

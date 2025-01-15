@@ -1,0 +1,171 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 28/12/2018 - Technical notes %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+\usepackage[T1]{fontenc}
+\usepackage{kpfonts}
+
+%% loads amsmath and some extra
+%\usepackage{mathtools}
+%\usepackage{amssymb}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% for proofs
+\usepackage{amsthm}
+% for indicator func
+\usepackage{bbm}
+
+% shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}%%
+\newcommand{\nn}{\nonumber \\}%
+
+% argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}%
+\DeclareMathOperator*{\argmax}{arg\,max}%
+\DeclareMathOperator{\tr}{tr}
+% shortands for common math
+\newcommand{\mR}{\mathbb{R}}%% real numbers
+\newcommand{\mN}{\mathbb{N}}%% natural numbers
+
+\newcommand{\bx}{\mathbf{x}}%%
+\newcommand{\bw}{\mathbf{w}}%%
+\newcommand{\bz}{\mathbf{z}}%%
+
+\newcommand{\mD}{\mathcal{D}}%% data space
+\newcommand{\mG}{\mathcal{G}}%% sub-Gaussian r.v.
+\newcommand{\mS}{\mathcal{S}}%% sigma algebra
+\newcommand{\mT}{\mathcal{T}}%% sigma algebra
+\newcommand{\mX}{\mathcal{X}}%% input space
+\newcommand{\mY}{\mathcal{Y}}%% output space
+\newcommand{\mZ}{\mathcal{Z}}%% input-output space
+
+\newcommand{\rE}{\mathrm{E}}%% expectation
+\newcommand{\rP}{\mathrm{P}}%% probability
+\newcommand{\ind}{\mathbbm{1}}%% indicator funciton
+
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\emph{\textbf{Note:} #1}} \else {} \fi}%
+\newcommand{\idea}[1]{\ifShowComments {\emph{\textbf{\color{red}Idea:} #1}} \else {} \fi}%
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}%
+
+% for coloring
+\usepackage{xcolor}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+
+% for compact item lists
+\usepackage{paralist}
+
+% form multirows in tables
+\usepackage{multirow}
+
+% for section references
+\usepackage{nameref}
+
+% path to images
+\usepackage{graphicx}
+\graphicspath{{Pics/}}
+
+% For theorems and definitions
+\usepackage{amsthm}
+\makeatletter
+\newtheoremstyle{noparens}%
+{}{}%
+{\itshape}{}%
+{\bfseries}{}%
+{ }%
+{\thmname{#1 }\thmnumber{#2}\thmnote{ (#3): }}
+
+\newtheoremstyle{noparensdef}%
+{}{}%
+{}{}%
+{\bfseries}{:}%
+{ }%
+{\thmname{#1 }\thmnumber{}\thmnote{#3}}
+
+\newtheoremstyle{note}%
+{}{}%
+{}{}%
+{\itshape}{:}%
+{ }%
+{\thmname{#1}\thmnumber{}\thmnote{}}
+
+\newtheorem{proposition}{Proposition}[section]
+
+\theoremstyle{noparens}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}[section]
+
+\theoremstyle{noparensdef}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{note}
+\newtheorem{prf}{Proof}
+\newtheorem{example}{Example}[section]
+\makeatother
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+{\Huge Magda's technical notes}
+
+This is the 2nd set of my notes on various ML topics.
+I started writing the 1st set when beginning my PhD and in retrospect keeping such a set of notes is a useful exercise.
+I've decided to begin a new set just because now that I finished the PhD it just feels I may want to give it a fresh new go.
+The 1st set has plenty of useful stuff and is still available from my Dropbox \href{https://www.dropbox.com/sh/nx6goql4kmadyqp/AACAquwkTfm9fQhf3AKUC4pWa?dl=0}{here}.
+
+The general purpose of the notes is to help me understand better the selected topics by re-explaining (\emph{re-} because these have been explained elsewhere many times), and to have a reference and possibly reusable material for later.
+
+This is a working document not meant to be polished. There may be typos and other editing errors. 
+Technical errors mean that I didn't quite understand something which I unfortunately cannot rule out.
+
+\textbf{Last update: \today, section \ref{sec:Inequalities} \nameref{sec:Inequalities}}
+
+
+% Print table of contents
+\tableofcontents
+
+
+\input{vae}
+
+\input{logistic}
+
+\input{ll_importance}
+
+\input{ineqaulities}
+
+
+% print index
+\phantomsection
+\cleardoublepage
+\addcontentsline{toc}{section}{\indexname}
+\printindex
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

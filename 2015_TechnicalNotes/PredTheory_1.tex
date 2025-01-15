@@ -1,0 +1,125 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 3/6/2016 - Prediction theory %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Basics of prediction theory}\label{sec:BasicPredictionTheory}
+
+Let $\vc{X} \in R^d$ be random vector input variable and $Y \in R$ be the random output variable.
+The learning task is to learn a function $f(\vc{X})$ to predict the values of $Y$. Any value $\hat{Y} \in R$ is a valid prediction so we need a measure of \emph{goodness} of the prediction - the loss function\index{Loss function}.
+In regression, habitual loss function is the squared error. (But others such as absolute error etc. are possible.) So we want to learn a function $f$ for which we can \emph{expect} that the predictions will be as close as possible (in the Euclidean distance sense) to the true values. The expected value of the squared distance (the prediction mean squared error)\index{Prediction MSE}
+$PMSE = E (err^2) = E (Y - f(\vc{X}))^2$  shall be minimal.
+\begin{equation}
+f^* = \argmin_f E (Y - f(\vc{X}))^2
+\end{equation}
+The optimal such function is the conditional expectation\index{conditional expectation} $f^*(\vc{X}) = E(Y|\vc{X}=\vc{x}) = E(Y|\vc{X})$ (so it is a function of the r.v. $\vc{X}$).
+
+\begin{proof}
+Let $g(\vc{X})$ be an arbitrary function and get its PMSE
+\begin{eqnarray*}
+E (Y - g(\vc{X}))^2 & = & E \Big( Y - E(Y|\vc{X}=\vc{x}) + E(Y|\vc{X}=\vc{x}) - g(\vc{X}) \Big)^2 \\
+& =& E \Big( Y - E(Y|\vc{X})\Big)^2 + 2 E \Big( \big( Y - E(Y|\vc{X}) \big) \big( E(Y|\vc{X}) - g(\vc{X}) \big) \Big) + E \Big( E(Y|\vc{X}) - g(\vc{X}) \Big)^2 \\
+& =& E \Big( Y - E(Y|\vc{X})\Big)^2 + E \Big( E(Y|\vc{X}) - g(\vc{X}) \Big)^2,
+\end{eqnarray*}
+We have no control over the first term. The 2nd term can be made zero if we put $g(\vc{X}) = E(Y|\vc{X})$.
+
+The middle term dropped out because
+\begin{eqnarray*}
+& & E \Big( \big( Y - E(Y|\vc{X}) \big) \big( E(Y|\vc{X}) - g(\vc{X}) \big) \Big) \\
+& = & E \Big( \big( Y - E(Y|\vc{X}) \big) h(\vc{X}) \Big) , \quad \text{where } h(\vc{X}) = E(Y|\vc{X}) - g(\vc{X}) \\
+& = & E \Big( Y h(\vc{X}) \Big) - E \Big( E(Y|\vc{X}) h(\vc{X}) \Big) \\
+& = & E \Big( Y h(\vc{X}) \Big) - E \Big( E(Y h(\vc{X})|\vc{X}) \Big) \qquad \text{because } E(Y h(\vc{X})|\vc{X}) = E(Y|\vc{X})h(\vc{X})\\
+& = & E \Big( Y h(\vc{X}) \Big) - E \Big( Y h(\vc{X}) \Big) = 0 \qquad \text{because } E_\vc{X}(E_Y(Y|\vc{X})) = E(Y)
+\end{eqnarray*}
+
+\end{proof}
+
+\subsection{Prediction as linear projection}\label{sec:LinProject}\index{Linear projection}
+Assume we restrict the function $f$ to the class of linear functions $f(\vc{X}) = \vc{a}' \vc{X}$. 
+Function $f$ for which the prediction error is orthogonal with the r.v. $\vc{X}$ is called the linear projection of $Y$ on $\vc{X}$ and it has the smallest prediction MSE.
+
+\begin{proof}
+In the probability space we define inner product between two scalar r.v. $\langle Y,X\rangle = E(YX)$ and therefore two scalar r.v. are orthogonal if $E(YX) = 0$\index{Orthogonal random variables}.
+If r.v. $Y$ is orthogonal to all  elements of vector r.v. $\vc{X}$ it is also orthogonal to any linear combination of those and therefore $E(Y \, \vc{h'X}) = 0$ for arbitrary $\vc{h}$. 
+The orthogonal projection of $Y$ on $\vc{X}$ thus has $E\big( (Y-\vc{a'X})X_j \big) = 0$ for every element $X_j$ of vector r.v. $\vc{X}$ and $E\big( (Y-\vc{a'X}) \vc{h'X} \big) = 0$ for any vector $\vc{h}$.
+
+Let $\vc{a}'\vc{X}$ be the orthogonal projection of $Y$ on $\vc{X}$ and $\vc{g}'\vc{X}$ be an arbitrary linear function. We get its PMSE
+\begin{eqnarray*}
+E (Y - \vc{g}'\vc{X})^2 & = & E \Big( Y - \vc{a}'\vc{X} + \vc{a}'\vc{X} - \vc{g}'\vc{X} \Big)^2 \\
+& =& E \Big( Y - \vc{a}'\vc{X} \Big)^2 + 2 E \Big( ( Y - \vc{a}'\vc{X} ) ( \vc{a}'\vc{X} - \vc{g}'\vc{X} ) \Big) + E \Big( \vc{a}'\vc{X} - \vc{g}'\vc{X} \Big)^2 \\
+& =& E \Big( Y - \vc{a}'\vc{X}\Big)^2 + E \Big( \vc{a}'\vc{X} - \vc{g}'\vc{X} \Big)^2,
+\end{eqnarray*}
+where the middle term
+\begin{eqnarray*}
+E \Big( ( Y - \vc{a}'\vc{X} ) ( \vc{a}'\vc{X} - \vc{g}'\vc{X} ) \Big) & = & E \Big( ( Y - \vc{a}'\vc{X} ) ( \vc{a}' - \vc{g}') \vc{X} \Big) \\
+& = & 0 \qquad \text{from the orthogonality } E \Big( \big( Y - \vc{a}'\vc{X} \big) \vc{h}' \vc{X} \Big) = 0 
+\end{eqnarray*}
+We have no control over the first term and the 2nd term can be made zero if we put $\vc{g} = \vc{a}$.
+\end{proof}
+
+To get the orthogonal projection parameter
+\begin{eqnarray}
+0 & = & E \Big( ( Y - \vc{a}'\vc{X} ) X_j \Big), \qquad \forall j \in \mathbb{N}_d \nonumber \\
+ E (Y X_j) & = & E( \vc{a'X} X_j)  \qquad \forall j \in \mathbb{N}_d \nonumber \\
+ \big[ E (Y X_1), \, E (Y X_2), \ldots, E (Y X_d) \big]  & = & \big[ E( \vc{a'X} X_j), \, E( \vc{a'X} X_2), \ldots, \vc{a}' E( \vc{X} X_d) \big] \nonumber \\
+\big[ E(Y\vc{X'}) \big] & = & \vc{a'} \big[ E(\vc{XX'}) \big] \nonumber \\
+\vc{a'} & = & \big[ E(Y\vc{X'}) \big] \big[ E(\vc{XX'}) \big]^{-1} \nonumber \\
+\vc{a} & = & \big[ E(\vc{XX'}) \big]^{-1} \big[ E(\vc{X}Y) \big], 
+\end{eqnarray}
+where we put square brackets $[ . ]$ around matrices.
+
+If the inverse does not exist, $a$ is not uniquely determined but $\vc{a}'\vc{X}$ is uniquely determined.
+
+The prediction MSE of the orthogonal projection is
+\begin{eqnarray}
+PMSE(Y,\vc{a'X}) = 
+E(Y - \vc{a'X})^2 & = & E(YY) - 2E(Y\vc{X'a}) + E(\vc{a'XX'a}) \nonumber \\
+& = & E(YY) - 2E(Y\vc{X'}) \vc{a} + \vc{a'} E(\vc{XX'}) \vc{a} \nonumber \\
+& = &  E(YY) - 2E(Y\vc{X'}) \big[ E(\vc{XX'}) \big]^{-1} \big[ E(\vc{X}Y) \big] \nonumber \\
+& & + \big[ E(Y\vc{X'}) \big] \big[ E(\vc{XX'}) \big]^{-1} E(\vc{XX'}) \big[ E(\vc{XX'}) \big]^{-1} \big[ E(\vc{X}Y) \big] \nonumber \\
+& = & E(YY) - \big[ E(Y\vc{X'}) \big] \big[ E(\vc{XX'}) \big]^{-1} \big[ E(\vc{X}Y) \big]
+\end{eqnarray}
+
+\subsection{Link to ordinary least squares}\label{sec:LinkOLS}\index{Ordinary least squares}\index{OLS}
+For a standard regression problem, we have got a set of observations $D = \{ \vc{y}_i,\vc{x}_i: \vc{y}_i \in \mathcal{Y} = \mathbb{R}, \vc{x}_i \in \mathcal{X}=\mathbb{R}^d \}_{i=1}^n$ and we want to learn the linear function $f(\vc{x}_i) = \vc{b' x_i}$ to predict $\vc{y}_i$.
+The OLS solution for the function parameters is
+\begin{equation}
+\vc{b}^{OLS} = (\vc{X'X})^{-1}\vc{X'y} = 
+\big( \sum_{i=1}^n \vc{x_i x_i'} \big)^{-1} \big( \sum_{i=1}^n \vc{x_i} y_i \big) =
+\big( \frac{1}{T}\sum_{i=1}^n \vc{x_i x_i'} \big)^{-1} \big( \frac{1}{T}\sum_{i=1}^n \vc{x_i} y_i \big),
+\end{equation}
+where $\vc{y}$ and $\vc{X}$ are the data vector and matrix with observations in rows.
+We see that OLS is constructed from the sample moments in the same way as linear projections is constructed from the population moments.
+
+The vector of OLS sample residuals
+\begin{equation}
+\vc{\hat{u}}^{OLS} = \vc{y} - \vc{X b}^{OLS} = \vc{y} - \vc{X}(\vc{X'X})^{-1}\vc{X'y} = \vc{y} - \vc{H_x y} = \vc{M_x y},
+\end{equation}
+where $\vc{H_x} = \vc{X}(\vc{X'X})^{-1}\vc{X'}$ and $\vc{M_x} = (\vc{I}_n - \vc{H}_x)$ and both $H_x$ and $M_x$ are symmetric and idempotent.
+Also $\vc{M_x X} = 0$ so that $\vc{\hat{u}}^{'OLS} \vc{X} = \vc{y' M_x X} = 0$ meaning that the residuals are orthogonal to the input variables.
+
+The true errors $\vc{u} = \vc{y}-\vc{Xb}$ so that $\vc{\hat{u}}^{OLS} = \vc{M_x} (\vc{Xb}+\vc{u})$ = $\vc{M_x u}$.
+
+For the parameters we have $\vc{b}^{OLS} = (\vc{X'X})^{-1}\vc{X'}(\vc{Xb} + \vc{u}) = \vc{b} + (\vc{X'X})^{-1}\vc{X' u}$
+
+
+\subsection{Vector outputs}\label{sec:VecOutput}
+If the output is a random vector $\vc{Y} \in \mathbb{R}^m$ than the linear projection of $\vc{Y}$ on $\vc{X}$ is the linear map $\vc{A X}$ such that each element of the prediction error $\vc{Y} - \vc{A X}$ is orthogonal to every element of r.v. $\vc{X}$.
+\begin{equation}
+E\big( (\vc{Y}-\vc{A X}) \vc{X}' \big) = \vc{0}
+\end{equation}
+From which we get for the projection coefficients
+\begin{eqnarray}
+E\big( (\vc{Y}-\vc{A X}) \vc{X}' \big) & = & \vc{0} \nonumber \\
+E\big( \vc{Y X'} \big) & = & E\big( \vc{A X} \vc{X}' \big) \nonumber \\
+\vc{A} & = & [E\big( \vc{Y X'} \big)] \, [E\big( \vc{X X'} \big)]^{-1}
+\end{eqnarray}
+
+And the PMSE is 
+
+\begin{equation}
+PMSE(\vc{Y},\vc{AX}) = 
+E(\vc{YY'}) - \big[ E(\vc{YX'}) \big] \big[ E(\vc{XX'}) \big]^{-1}  \big[ E(\vc{XY'})  \big]
+\end{equation}
+

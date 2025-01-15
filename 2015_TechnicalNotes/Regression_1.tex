@@ -1,0 +1,299 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 3/6/2016 - Regression %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+
+\section{Linear regression basics}\label{sec:LinReg}
+
+Based on \cite{Knight2000,Hoerl1970} and me.
+
+\subsection{Ordinary least squares}\label{sec:OlsRegression}
+
+Classical linear model 
+\begin{equation}\label{eq:linMod}
+y_i = \bx_i^T \pb + \epsilon_i, \quad i \in \mN_n \enspace,
+\end{equation}
+where $\bx_i$ is vector of known constants, $\pb$ are unknown coefficients and $\epsilon_i$ are i.i.d. from $\dN(0,\sigma^2)$.
+This is equivalent to saying that $y_i$ are i.i.d. from $\dN(\bx_i^T \pb, \sigma^2)$.
+
+Given the Gaussian assumptions the MLE coincides with the least squares problem
+\begin{equation}\label{eq:leastSquares}
+\hat{\pb} = \argmin_{\pb} \sum_i^n (y_i - \bx_i^T \pb)
+\end{equation}
+
+Instead of working across the $n$ individual observations we can concatenate them into random vectors and matrices so that the linear model is
+\begin{equation}\label{eq:linModMat}
+\by = \bX \pb + \pe 
+\end{equation}
+where $\bX$ is the design matrix, $\pe \sim \dMN(\vc{0},\sigma^2 \bI)$ and hence $\by \sim \dMN(\bX \pb, \sigma^2 \bI)$.
+The corresponding minimisation problem is 
+\begin{equation}\label{eq:leastSquaresMat}
+\hat{\pb} = \argmin_{\pb} ||\by - \bX \pb||_2^2
+\end{equation}
+
+If $(\bX^T \bX)^{-1}$ exists the minimising solution of \eqref{eq:leastSquaresMat}
+\begin{equation}\label{eq:OLS}
+\hat{\pb} = (\bX^T \bX)^{-1} \bX^T \by
+\end{equation}
+
+\begin{proposition}
+Assume $(\bX^T \bX)^{-1}$ exists, then the parameter estimates are $\hat{\pb} \sim \dN(\pb,\sigma^2 (\bX^T \bX)^{-1})$
+\end{proposition}
+\begin{proof}
+\begin{equation*}
+E[\hat{\pb}] = E[(\bX^T \bX)^{-1} \bX^T \by] = (\bX^T \bX)^{-1} \bX^T E[\by] = (\bX^T \bX)^{-1} \bX^T \bX \pb = \pb
+\end{equation*}
+\begin{equation*}
+Cov[\hat{\pb}] = Cov[(\bX^T \bX)^{-1} \bX^T \by] = (\bX^T \bX)^{-1} \bX^T \, \sigma^2 \bI \, \bX (\bX^T \bX)^{-T} = \sigma^2 (\bX^T \bX)^{-1}
+\end{equation*}
+The normality follows from the normality of $\by$.
+\end{proof}
+
+\begin{proposition}
+Assume $(\bX^T \bX)^{-1}$ exists, then the predictions are $\hat{\by} \sim \dN(\bX \pb,\sigma^2 \bX^T (\bX^T \bX)^{-1} \bX)$
+\end{proposition}
+\begin{proof}
+\begin{equation*}
+\hat{\by} = \bX \hat{\pb} = \bX (\bX^T \bX)^{-1} \bX \by
+\end{equation*}
+\begin{equation*}
+E[\hat{\by}] = E[\bX \hat{\pb}] = \bX \pb
+\end{equation*}
+\begin{equation*}
+Cov[\hat{\by}] = \bX^T Cov[\hat{\pb}] \bX = \sigma^2 \bX^T (\bX^T \bX)^{-1} \bX 
+\end{equation*}
+The normality follows from the normality of $\hat{\pb}$.
+\end{proof}
+
+\begin{proposition}\label{prop:ResidOrtho}
+Assume $(\bX^T \bX)^{-1}$ exists, then the predictions errors $\be = \by - \hat{\by}$ are $\be \sim \dMN(\vc{0},\sigma^2 \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T\right))$ and they are orthogonal to the column space of the design matrix $\bX^T \be = \vc{0}$
+\end{proposition}
+
+
+\begin{proof}
+\begin{equation*}
+\be = \by - \hat{\by} =  \by - \bX (\bX^T \bX)^{-1} \bX^T \by = \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by
+\end{equation*}
+\begin{equation*}
+E[\be] = \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) E[\by] = \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \bX \pb = \bX \pb - \bX \pb = \vc{0}
+\end{equation*}
+\begin{eqnarray*}
+Cov[\be] & = & E[\be \be^T] = E[\left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by  
+\by^T \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right)^T] \\
+& = & \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \sigma^2 \bI \, \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \\
+& = & \sigma^2 \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T\right)
+\end{eqnarray*}
+The normality follows from the normality of $\by$.
+\begin{equation*}
+\langle \bX, \be \rangle = \bX^T \be = \bX^T \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by = \left(\bX^T - \bX^T \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by = \left(\bX^T - \bX^T \right) \, \by = \vc{0}
+\end{equation*}
+\end{proof}
+
+\paragraph{Mean squared estimation error\index{Mean square estimation error} (MSEE)\index{MSEE}}
+\begin{eqnarray}\label{eq:MSEE}
+\text{MSEE} & = & E \left[ ||\pb - \hat{\pb}||_2^2 \right]
+ = E \left[ (\pb - \hat{\pb})^T (\pb - \hat{\pb}) \right] \nn
+ & = &
+ E \left[ (\pb^T \pb - 2 \hat{\pb}^T \pb + \hat{\pb}^T \hat{\pb}) \right] 
+ = \pb^T \pb - 2 \pb^T \pb + E[\hat{\pb}^T \hat{\pb}] \nn
+ & = & - \pb^T \pb + E[ \by^T \bX (\bX^T \bX)^{-1} (\bX^T \bX)^{-1} \bX^T \by ] \nn
+ & = & - \pb^T \pb + E[ \Tr \left( \bX (\bX^T \bX)^{-1} (\bX^T \bX)^{-1} \bX^T \by  \by^T \right) ] \nn
+ & = & - \pb^T \pb + \Tr \left( (\bX (\bX^T \bX)^{-1} (\bX^T \bX)^{-1} \bX^T )(Var[ \by ] + E[\by]E[\by^T]) \right) \nn
+ & = & - \pb^T \pb + \Tr \left( (\bX (\bX^T \bX)^{-1} (\bX^T \bX)^{-1} \bX^T )(\sigma^2 \bI + \bX \pb \pb^T \bX^T) \right) \nn
+  & = & - \pb^T \pb + \sigma^2 \Tr (\bX^T \bX)^{-1}
+   + \Tr  \left( \bX (\bX^T \bX)^{-1} (\bX^T \bX)^{-1} \bX^T \bX \pb \pb^T \bX^T \right) \nn
+  & = & - \pb^T \pb + \sigma^2 \Tr (\bX^T \bX)^{-1}
+   + \Tr  \left( \pb \pb^T \right) \nn
+  & = & \sigma^2 \Tr (\bX^T \bX)^{-1} = \sigma^2 \sum_i^m \frac{1}{\lambda_i} \geq  \sigma^2 \frac{1}{\lambda_{min}} \enspace,
+ \end{eqnarray}
+where $\lambda_i$ are the eigenvalues of $\bX^T \bX$.
+In result, \textbf{if the data is such that $\bX^T \bX$ has some very small eigenvalues, the MSEE will be very large}.
+
+\paragraph{Residual sum of squares\index{Residual sum of squares} (RSS)\index{RSS}}
+Residuals $\be = \by - \hat{\by}$
+\begin{eqnarray*}
+\text{RSS} & = & ||\by - \hat{\by}||_2^2 = \be^T \be = (\by - \bX \hat{\pb})^T (\by - \bX \hat{\pb}) \\
+& = & \by^T \by - 2 \by^T \bX \hat{\pb}  + \hat{\pb}^T \bX^T \bX \hat{\pb} \\
+& = & \by^T \by - 2 \by^T \bX  (\bX^T \bX)^{-1} \bX^T \by + 
+\by^T \bX  (\bX^T \bX)^{-1} \bX^T \bX  (\bX^T \bX)^{-1} \bX^T \by \\
+& = & \by^T \by - \by^T \bX  (\bX^T \bX)^{-1} \bX^T \by \\
+& = & \by^T \left( \bI - \bX  (\bX^T \bX)^{-1} \bX^T \right) \by \\
+& = & \by^T \by - \hat{\by}^T \by
+\end{eqnarray*}
+
+
+\paragraph{Total sum of squares\index{Total sum of squares} (TSS)\index{TSS}}
+\begin{eqnarray*}
+\text{TSS} & = & ||\by - \bar{\by}||_2^2 = (\by - \bar{\by})^T (\by - \bar{\by}) 
+= \by^T \by - 2 \by^T \bar{\by} + \bar{\by}^T \bar{\by}
+\end{eqnarray*}
+
+\paragraph{Explained sum of squares\index{Explained sum of squares} (ESS)\index{ESS}}
+\begin{eqnarray*}
+\text{ESS} & = & ||\hat{\by} - \bar{\by}||_2^2 = (\hat{\by} - \bar{\by})^T (\hat{\by} - \bar{\by}) 
+= \hat{\by}^T \hat{\by} - 2 \hat{\by}^T \bar{\by} + \bar{\by}^T \bar{\by} \\
+& = & 
+\by^T \bX  (\bX^T \bX)^{-1} \bX^T \bX  (\bX^T \bX)^{-1} \bX^T \by
+- 2 \by^T \bX  (\bX^T \bX)^{-1} \bX^T \bar{\by} + \bar{\by}^T \bar{\by} \\
+& = &  \by^T \bX  (\bX^T \bX)^{-1} \bX^T \by
+- 2 \by^T \bX  (\bX^T \bX)^{-1} \bX^T \bar{\by} + \bar{\by}^T \bar{\by} \\
+& = &  \hat{\by}^T \by
+- 2 \hat{\by}^T \bar{\by} + \bar{\by}^T \bar{\by} 
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\text{RSS} & = & \text{TSS} - \text{ESS} \\ 
+& = & \by^T \by - 2 \by^T \bar{\by} + \bar{\by}^T \bar{\by}
+- \hat{\by}^T \by + 2 \hat{\by}^T \bar{\by} - \bar{\by}^T \bar{\by}  \\
+& = & \by^T \by - 2 \by^T \bar{\by}
+- \hat{\by}^T \by + 2 \hat{\by}^T \bar{\by}  \\
+& = & \text{RSS} - 2 \by^T \bar{\by} + 2 \hat{\by}^T \bar{\by} \\
+& = & \text{RSS} - 2 \bar{y} \, (\by^T - \hat{\by}^T) \vc{1} = \text{RSS} - 2 \bar{y} \, \be^T \vc{1} \\
+& = & \text{RSS} \qquad (\text{because } \bX_{:,1}^T \be = \vc{1}^T \be = \vc{0})\\
+\end{eqnarray*}
+
+\paragraph{Mean squared prediction error\index{Mean squared prediction error} (MSPE)\index{MSPE}} (over the train samples)
+\begin{eqnarray*}
+\text{MSPE} & = &
+E[||\by - \hat{\by}||_2^2] = E[\be^T \be] = 
+E[ \by^T \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by] \\
+& = & E[ \by^T \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by]
+= E[ \Tr \left( \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, \by \by^T \right) ] \\
+& = & \Tr \left( \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, E[ \by \by^T ] \right) \\
+& = & \Tr \left( \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, Var[ \by ] + E[\by]E[\by^T] \right) \\
+& = & \Tr \left( \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right) \, 
+\left(\sigma^2 \bI + \bX \pb \pb^T \bX^T \right)\right) \\
+& = & \sigma^2  \Tr \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right)
++ \Tr \left( \bX \pb \pb^T \bX^T - \bX (\bX^T \bX)^{-1} \bX^T \bX \pb \pb^T \bX^T \right) \\
+& = & \sigma^2  \Tr \left(\bI - \bX (\bX^T \bX)^{-1} \bX^T \right)
++ \Tr \left( \bX \pb \pb^T \bX^T - \bX \pb \pb^T \bX^T \right) \\
+& = & \sigma^2 n + \sigma^2 \Tr \left(\bX (\bX^T \bX)^{-1} \bX^T \right) = \sigma^2 n + \sigma^2 \Tr \left((\bX^T \bX)^{-1} \bX^T \bX \right) \\
+& = & \sigma^2 n + \sigma^2 \Tr (\bI_m) = \sigma^2 (m+n)
+\end{eqnarray*}
+
+
+\subsection{Ridge regression}\label{sec:RidgeRegression}
+
+In \cite{Hoerl1970} the author proposes to estimate the parameters as
+\begin{equation}\label{eq:Ridge}
+\hat{\pb}_R = (\bX^T \bX + k \bI)^{-1} \bX^T \by = \bW \bX^T \by \enspace,
+\end{equation}
+which is a solution to the following optimisation problem
+\begin{equation}\label{eq:RidgeProblem}
+\hat{\pb}_R = \argmin_{\pb} ||\by - \bX \pb||_2^2 + k ||\pb||_2^2
+\end{equation}
+
+\begin{proposition}
+\begin{equation}
+\hat{\pb}_R = \left( I + k(\bX^T \bX)^{-1} \right)^{-1} \hat{\pb} = \bZ \hat{\pb}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+\begin{eqnarray*}
+\hat{\pb}_R & = & \left(\bI + k(\bX^T \bX)^{-1} \right)^{-1} \hat{\pb} \\
+& = &
+\left( \bI + k(\bX^T \bX)^{-1} \right)^{-1} (\bX^T \bX)^{-1} \bX^T \by \qquad \small{(I+A^{-1})^{-1} = (A + I)^{-1}} A\\
+& = &
+\left( \bI + \bX^T \bX/k \right)^{-1} \bX^T \bX /k (\bX^T \bX)^{-1} \bX^T \by  \\
+& = &
+\left( k\bI + \bX^T \bX \right)^{-1} \bX^T \by  \\
+\end{eqnarray*}
+\end{proof}
+
+We indicate by $\lambda_max = \lambda_1 \geq \lambda_2 \ldots \geq \lambda_d = \lambda_min$ the eigenvalues of $\bX^T \bX$. For the eigenvalues of $\bW$ and $\bZ$  we have
+\begin{equation}
+\xi_i(\bW) = \frac{1}{\lambda_i + k} \qquad \xi_i(\bZ) = \frac{\lambda_i}{\lambda_i + k}
+\end{equation}
+
+Relation between $\bZ$ and $\bW$ is
+\begin{eqnarray}
+\bZ & = & \left( I + k(\bX^T \bX)^{-1} \right)^{-1} 
+= \left( k\bI + \bX^T \bX \right)^{-1} \bX^T \bX \nn
+& = & \bW \bX^T \bX \qquad \qquad (\bX^T \bX = \bW^{-1} - k\bI)\nn
+& = &
+\bW (\bW^{-1} - k\bI)  = \bI - k \bW \\
+& = & \bI - k\left( k\bI + \bX^T \bX \right)^{-1} \nonumber
+\end{eqnarray}
+
+\begin{proposition}
+Ridge estimate is shorter (in $\ell_2$) than the OLS estimate $||\hat{\pb}_R||_2^2 \leq ||\hat{\pb}||_2^2$
+\end{proposition}
+\begin{proof}
+\begin{eqnarray}
+||\hat{\pb}_R||_2^2 & = & ||\bZ \hat{\pb}||_2^2 \qquad \text{(CS - need to use the operator norm)} \nn
+& \leq & ||\bZ||_2^2 \, ||\hat{\pb}||_2^2 
+= \xi_{max}^2(\bZ) \, ||\hat{\pb}||_2^2 \nn
+& = & \left( \frac{\lambda_{max}}{\lambda_{max}+k} \right)^2 ||\hat{\pb}||_2^2 \leq ||\hat{\pb}||_2^2 \qquad \qquad (k, \lambda_{max} \geq 0) 
+\end{eqnarray}
+\end{proof}
+As $k \to \infty$ the ridge estimates becomes a lot shorter than the OLS estimate.
+
+\paragraph{Residual sum of squares\index{Residual sum of squares} (RSS)\index{RSS}}
+Residuals $\be_R = \by - \hat{\by}_R$
+\begin{eqnarray*}
+\text{RSS}_R & = & ||\by - \hat{\by}_R||_2^2 = \be^T_R \be_R = (\by - \bX \hat{\pb}_R)^T (\by - \bX \hat{\pb}_R) \\
+& = & \by^T \by - 2 \by^T \bX \hat{\pb}_R  + \hat{\pb}^T_R \bX^T \bX \hat{\pb}_R \\
+& = & \by^T \by - 2 \by^T \bX \hat{\pb}_R  + \hat{\pb}^T_R (\bW^{-1} - k\bI) \hat{\pb}_R \\
+%& = & \by^T \by - 2 \by^T \bX \hat{\pb}_R  + \hat{\pb}^T_R \bW^{-1} \hat{\pb}_R - k \hat{\pb}^T_R \hat{\pb}_R \\
+& = & \by^T \by - 2 \hat{\pb}_R^T \bX^T \by + \hat{\pb}^T_R \bX^T \by - k \hat{\pb}^T_R \hat{\pb}_R \\
+& = & \by^T \by - \hat{\pb}_R^T \bX^T \by - k \hat{\pb}^T_R \hat{\pb}_R \\
+& = & \by^T \by - \hat{\by}^T_R \by - k \hat{\pb}^T_R \hat{\pb}_R \\
+\end{eqnarray*}
+which when compared to OLS has a correction for squared length of $\hat{\pb}_R$.
+
+\paragraph{Ridge trace}\index{Ridge trace} If $\bX^T \bX \not\approx \bI$ (it has $\lambda_{min} \approx 0$) the MSEE of OLS \eqref{eq:MSEE} will be large.
+
+For any estimate $\hat{\pb}_A$ of $\pb$ the residual sum of squares is ($\hat{\pb}$ is the OLS estimate)
+\begin{eqnarray*}
+\text{RSS}_A & = & ||\by - \hat{\by}_A||_2^2 = \be^T_A \be_A = (\by - \bX \hat{\pb}_A)^T (\by - \bX \hat{\pb}_A) \\
+& = & (\by - \bX (\hat{\pb}_A + \hat{\pb} - \hat{\pb}) )^T (\by - \bX (\hat{\pb}_A + \hat{\pb} - \hat{\pb}) ) \\
+& = & (\by - \bX \hat{\pb})^T (\by - \bX \hat{\pb}) + (\by - \bX \hat{\pb})^T \bX (\hat{\pb}_A - \hat{\pb}) +
+(\hat{\pb}_A - \hat{\pb})^T \bX^T \bX (\hat{\pb}_A - \hat{\pb}) \nn
+& = & (\by - \bX \hat{\pb})^T (\by - \bX \hat{\pb}) +
+(\hat{\pb}_A - \hat{\pb})^T \bX^T \bX (\hat{\pb}_A - \hat{\pb}) \qquad \text{(middle term gone due to proposition \eqref{prop:ResidOrtho})} \nn
+& = & RSS_{OLS} + || \bX \, \Delta \pb ||_2^2  = RSS_{OLS} + \Delta RSS
+\leq RSS_{OLS} + \lambda_{max} || \Delta \pb ||_2^2
+\end{eqnarray*}
+
+There may me multiple estimates $\bB$ on the same RSS contour. Ridge searches for $\bB$ with minimum length. That is 
+\begin{equation*}
+\hat{\pb}_R = \argmin_{\pb_A} \pb_A^T \pb_A, \quad \text{s.t. } (\hat{\pb}_A - \hat{\pb})^T \bX^T \bX (\hat{\pb}_A - \hat{\pb}) = \Delta RSS
+\end{equation*}
+which is equivalent to 
+\begin{equation*}
+\hat{\pb}_R = \argmin_{\pb_A} \pb_A^T \pb_A + 1/k  \left( (\hat{\pb}_A - \hat{\pb})^T \bX^T \bX (\hat{\pb}_A - \hat{\pb}) - \Delta RSS \right)
+\end{equation*}
+Taking derivative and equating to zero we get
+\begin{equation*}
+2 \hat{\pb}_R + 1/k \left( 2 \bX^T \bX \hat{\pb}_R - 2 \bX^T \bX \hat{\pb} \right) = 0
+\end{equation*}
+and 
+\begin{equation}
+\hat{\pb}_R = (k \bI + \bX^T \bX)^{-1} \bX^T \by
+\end{equation}
+
+
+\paragraph{Mean squared estimation error of ridge regression \index{Mean square estimation error} (MSEE$_R$)\index{MSEE}}
+\begin{eqnarray}\label{eq:MSEE}
+\text{MSEE}_R & = & E \left[ ||\pb - \hat{\pb}_R||_2^2 \right]
+ = E \left[ (\pb - \hat{\pb}_R)^T (\pb - \hat{\pb}_R) \right] \nn
+ \end{eqnarray}
+
+\begin{thebibliography}{9}
+
+\bibitem{Knight2000}
+Knight, K. (2000). Mathematical statistics. Chapman and Hall/CRC.
+
+\bibitem{Hoerl1970}
+Hoerl, A. E., \& Kennard, R. W. (1970). Ridge regression: biased estimation for nonorthogonal problems. Technometrics, 
+
+\end{thebibliography}
+
+
+
+
+
+

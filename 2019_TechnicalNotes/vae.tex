@@ -1,0 +1,527 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 29/12/2018 - vae %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Variational autoencoders}\label{sec:Vae}
+
+This is my take on variational autoencoders, mainly based on \cite{Doersch2016, Kingma2017, JaanVae}.
+
+\subsection{Maximum likelihood}\label{sec:Vae_maxLikelihood}
+
+
+
+We have got a data set $\mD$ of $n$ data points $x \in \mX$ generated i.i.d. from some unknown probability distribution with pdf $p^*(x)$.
+
+\note{When talking about distributions here, the functions $p(), q()$ are the probability density (or mass) functions.
+We use only these two letters for densities of all random variables but it should not be assumed that these are the \emph{same} pdfs.
+If $x$ and $y$ are two different random variables then $p(x)$ and $p(y)$ are not the same.
+We also stride away from the rigorous statistical notation and indicate both the random variable and its realization by lower-case letters.
+We hope that the true meaning will be clear from the context.}
+
+What we want is to be able to generate data that are \emph{close} to our or original data. 
+We hence want to learn a $p(x)$ which will be close enough to the original unknown $p^*(x)$ so that sampling from $p(x)$ will result in samples that have high probability under $p^*(x)$.
+
+\note{This kind of assumes that we are fairly sure about the support $\mX$ which I reckon should be something nice, without holes and such. Typically simply real vector.}
+
+We will consider a family of distributions $p_{\theta}(x)$. 
+The way to think about the parameters $\theta$ is not as of the standard distributional parameters (such as the mean and variance or the natural parameter of exponential family) but rather as parameters of the deterministic functions that specify these distributional parameters.
+For example, if the distributional family we consider were Gaussian we could write $p_{\theta}(x) = N(\mu = f(\theta), \, \sigma^2 = g(\theta))$.
+
+A classical approach to learning the parameters of a distribution (of a fixed family) is via \emph{maximizing the likelihood}\index{maximum likelihood} of the parameters given the dataset
+\begin{equation}
+\widehat{\theta} = \argmax_{\theta} \, p_{\theta}(\mD) = \argmax_{\theta} \prod_i^n p_{\theta}(x_i) \enspace ,
+\end{equation}
+where the decomposition into the product across the data points is possible due to the i.i.d. sampling assumption.
+
+Often times it may be more convenient to maximize the log-likelihood instead
+\begin{equation}
+\log p_{\theta}(\mD) = \sum_i^n \log p_{\theta}(x_i) \enspace .
+\end{equation}
+
+Some people find it useful to think about maximizing the log-likelihood as about minimizing the Kullback-Leibler (KL) divergence\index{Kullback–Leibler divergence} between the true and the estimated distribution as follows:
+
+First observe that 
+\begin{equation}\label{eg:var_likelihood}
+\frac{1}{n} \log p_{\theta}(\mD) = \frac{1}{n} \sum_i^n \log p_{\theta}(x_i) \approx \rE_{p^*(x)} \, \log p_{\theta}(x)
+\end{equation}
+is a sample estimate of the expectation $\rE_{p^*(x)} \, \log p_{\theta}(x)$ converging to it by the law of large numbers as $n \to \infty$.
+This indeed is equivalent to minimising the KL divergence as can be seen from 
+\begin{equation}
+D_{KL} \left( p^*(x) \, || \, p_{\theta}(x) \right) = \rE_{p^*(x)} \, \log \frac{p^*(x)}{p_{\theta}(x)} = 
+\rE_{p^*(x)} \, \log p^*(x) - \rE_{p^*(x)} \, \log p_{\theta}(x) \enspace .
+\end{equation}
+
+\subsection{Latent variable models}\label{sec:Vae_latent}
+
+For complex data distribution $p^*(x)$ fixing $p_{\theta}(x)$ to a chosen distribution family may be too much of a simplifying assumption.
+
+\note{People often say complex data. But in fact the data support $\mX$ cannot be too complex, what has to be complex is the generative / sampling distribution?}
+
+We therefore consider a latent variable model
+\begin{equation}\label{eq:vae_letentModel}
+p^*(x) = \int p^*(x, z) \, dz  = \int p^*(z) \, p^*(x|z) \, dz 
+\end{equation}
+%
+%\begin{equation}\label{eq:vae_letentModel}
+%p_{\theta}(x) = \int p_{\theta}(x, z) \, dz  = \int p_{\theta}(z) \, p_{\theta}(x|z) \, dz 
+%\end{equation}
+with latent random variables $z \in \mZ \subseteq \mR^k$.
+This is a mixture model which gives a better handle on approximating the possibly complex distribution $p^*(x)$.
+%\note{There is plenty of $\theta$'s above and it is not quite clear if these are the same or different or how they relate.
+%I think of these as of a very long vector parts of which are relevant for $p(z)$, parts for $p(x|z)$ and therefore the whole vector for $p(x, z)$ and $p(x)$.}
+
+\subsection{Decoder - reconstructions/generations}\label{sec:Vae_decoder}
+
+There are two problems here: we do not observe $z$, and we do not know the joint and the marginal or conditional distributions.
+So what we do is take assumptions.
+First we take a \emph{prior assumption} for the distribution $z \sim p(z)$ as $N(0,I)$.
+
+\note{The prior distribution should be something nice, simple, mathematically convenient. 
+Standard normal was used in the original Kingma's work because of its convenience for the reparametrization trick. 
+It has been later extend to multinomial with gumble-soft max trick - I don't have the references and don't know the math exactly - and probably to many more.}
+
+Second, we take a an assumption for the distribution family of the conditional typically to be a Gaussian $p_{\theta}(x|z) =  N(\mu_z = f(z, \theta), \, \sigma^2 \, I)$. 
+Note here the fixed diagonal covariance matrix.
+What $\sigma^2$ shall be here is not quite clear to me but I believe it's usually simply fixed to 1.
+
+
+\note{Since the log-likelihood over the data set is just a sum of the log-likelihood for each data point $x_i$ I will for simplicity drop the sum across the data speak about the likelihood for each data point $x_i$. 
+This is fine to do because the derivative of a sum is the sum of the derivatives and therefore translates easily into the optimisation step.}
+
+With these assumptions we could start maximizing the log-likelihood.
+\begin{equation}\label{eq:vae_decExpt}
+\log p_{\theta}(x_i) = \log \int p(z) \, p_{\theta}(x_i|z) \, dz
+= \log \int p_{\theta}(x_i, z) \, dz \enspace .
+\end{equation}
+
+To achieve this, we could sample a large number of $z$'s from $N(0, I)$ to approximate the expectation by a sample average
+\begin{equation}\label{eq:vae_decSum}
+\log p_{\theta}(x_i) \approx \log \frac{1}{m} \sum_j^m p_{\theta}(x_i|z_j) \enspace .
+\end{equation}
+
+The conditional distributions are $p_{\theta}(x_i|z_j) = N(\mu = f(z_j, \theta), \sigma^2 I)$, 
+where $f(z_j, \theta)$ is a function approximator such as neural network parametrized by $\theta$ with $z_j$ as the set of inputs.
+This is the reconstruction network, the \emph{\textbf{decoder}} of the VAE.
+With the $x$'s and $z$'s now given, the form of the log-likelihood and the function form $f$ fixed, we could in principle maximize the log-likelihood with respect to $\theta$ and find the solution by some form of gradient updates.
+
+The problem of the above approach is that the number of samples of $z$ we need to approximate the expectation in equation \eqref{eq:vae_decExpt} by the sample average in \eqref{eq:vae_decSum} may be huge, especially for higher dimensional $z$, so not doable in practice.
+
+\subsection{Importance sampling}\label{sec:Vae_importanceSamplint}
+The problem of needing a huge $z$ sample is also because by sampling from the prior we are very likely to sample $z$'s that have nothing to do with the $x$ samples in our data $\mD$ and for which the conditional $p_{\theta}(x_i|z)$ is nearly zero even for the best possible $\theta$.
+As a result, these contribute very little to the marginal likelihood $p_{\theta}(x)$.
+
+It would therefore make complete sense to sample $z$ from some distribution that takes into account our data so that we focus on the relevant region in the $\mZ \subseteq \mR^d$ space.
+Intuitively, the best such distribution is the posterior $p(z|x)$.
+
+Had we known the posterior, we could plug it into the the log-likelihood 
+\begin{equation}\label{eq:vae_decPosterior}
+\log p_{\theta}(x_i) = \log \int p(z) \, p_{\theta}(x_i|z) \, dz
+= \log \int p(z|x_i) \frac{p(z)}{p(z|x_i)} \, p_{\theta}(x_i|z) \, dz 
+\end{equation} 
+and use the \emph{importance sampling}\index{importance sampling} strategy \cite{ImportanceSampling} to approximate it
+\begin{equation}\label{eq:vae_importanceSampling}
+\log p_{\theta}(x_i) \approx \log \frac{1}{m} \sum_j^m \frac{p(z_j)}{p(z_j|x_i)} p_{\theta}(x_i|z_j)
+\quad z_j \sim p(z|x_i) \enspace .
+\end{equation}
+This sampling strategy should need fewer $z$ samples since instead of sampling from the prior $p(z)$ over the whole $\mZ \subseteq \mR^d$ we are sampling with higher probability samples relevant for our data (we then adjust for it by the likelihood ratio factor).
+
+The problem here is that we don't know the posterior and cannot easily get it since it depends again on the marginal likelihood (evidence) $p_{\theta}(x)$.
+\begin{equation}
+p_{\theta}(z|x) = \frac{p_{\theta}(x,z)}{p_{\theta}(x)} \enspace .
+\end{equation}
+
+\note{Pretty much a chicken and egg problem.}
+
+\subsection{Approximate posterior}\label{sec:Vae_approxPosterior}
+
+The strategy is therefore to replace the intractable posterior $p(z|x)$ by some other distribution $q_{\phi}(z|x)$.
+While in principle this could be any distribution we like, even one not depending on $x$, I make here the dependence on $x$ explicit because that is what we want: use $x$ to get more reasonable samples of $z$.
+
+
+Similarly as above, we can plug this into the log-likelihood and use the importance sampling with it
+\begin{equation}\label{eq:vae_decApproxPosterior}
+\log p_{\theta}(x_i) = \log \int p(z) \, p_{\theta}(x_i|z) \, dz
+= \log \int q_{\phi}(z|x_i) \frac{p(z)}{q_{\phi}(z|x_i)} \, p_{\theta}(x_i|z) \, dz 
+\end{equation} 
+and use the \emph{importance sampling}\index{importance sampling} strategy \cite{ImportanceSampling} to approximate it
+\begin{equation}\label{eq:vae_importanceApproxSampling}
+\log p_{\theta}(x_i) \approx \log \frac{1}{m} \sum_j^m \frac{p(z_j)}{q_{\phi}(z_j|x_i)} p_{\theta}(x_i|z_j)
+\quad z_j \sim q_{\phi}(z|x_i) \enspace .
+\end{equation}
+
+\note{It is important to understand that at this step we consider the approximate posterior $q_{\phi}(z_j|x_i)$ to be fixed so that we can sample from it and we will not optimize with respect to its parameters $\phi$.
+The parameters we optimize for are the $\theta$ parameter of the decoder network $f(z_j, \theta)$ in the distributions $p_{\theta}(x_i|z_j) = N(\mu = f(z_j, \theta), \sigma^2 I)$.
+While the $z_j$'s are different and therefore the distributions are different the parameters $\theta$ of the decoder are shared across all $x$'s. Is this sharing what people call amortised inference?
+}
+
+\subsection{Encoder - inference}\label{sec:Vae_encoder}
+So how do we get this approximate posterior distribution
+$q_{\phi}(z|x)$?  Typically, we assume the distribution to be a
+Gaussian (should be compatible with the prior on $z$) so that
+$q_{\phi}(z|x) = N(g_{\mu}(x,\phi), g_{\sigma}(x,\phi) I)$, where $g$
+is the \emph{\textbf{encoder}} (the \emph{inference}) network with $x$
+as inputs and the respective means and variances as outputs.
+
+There are multiple ways of thinking about how to optimize it.
+
+\subsubsection{Jensen's inequality}\label{sec:Vae_Jensens}
+
+This is a fairly classical approach though I found it rather
+non-intuitive.  From the Jensens's inequality\index{Jensens's
+  inequality} for $\log$ being a concave function we have
+\begin{equation}
+  \log \frac{\sum_i^n x_i}{n} \geq  \frac{\sum_i^n \log x_i}{n} \quad \text{and} \quad \log \rE (x) \geq \rE(\log x) \enspace .
+\end{equation}
+Hence
+\begin{equation}\label{eq:vae_Jensens}
+  \log p_{\theta}(x_i) = \log \int q_{\phi}(z|x_i) \frac{p(z) p_{\theta}(x_i|z)}{q_{\phi}(z|x_i)} \, dz =
+  \log \rE_{q_{\phi}(z|x_i)} \frac{p_{\theta}(x_i, z)}{q_{\phi}(z|x_i)} \geq 
+  \underbrace{\rE_{q_{\phi}(z|x_i)} \log \frac{p_{\theta}(x_i, z)}{q_{\phi}(z|x_i)}}_{ELBO} \enspace .
+\end{equation} 
+
+The last term is the so called \emph{Evidence Lower
+  BOund}\index{ELBO}\index{evidence lower bound} (ELBO).
+
+\note{\eqref{eq:vae_Jensens} is in the form of importance weighting as
+  discussed in the previous section.}
+\begin{equation}\label{eq:vae_ELBO}
+  \rE_{q_{\phi}(z|x_i)} \log \frac{p_{\theta}(x_i, z)}{q_{\phi}(z|x_i)} 
+  = \rE_{q_{\phi}(z|x_i)} \log \frac{p_{\theta}(z | x_i)}{q_{\phi}(z|x_i)} + \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i)
+  = \log p_{\theta}(x_i) - D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i) \right) \enspace .
+\end{equation} 
+In the last step above the expectation for the evidence disappears as
+it does not depend on $z$.
+
+In fact we get something very simple here:
+\begin{equation}
+  \log p_{\theta}(x_i) \geq \log p_{\theta}(x_i) - D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i) \right) \enspace ,
+\end{equation} 
+which is almost obvious if we realize that the KL divergence is always
+positive.
+
+\note{Some people say that by maximizing the log-likelihood
+  $\log p_{\theta}(x_i)$, we are actually minimising the KL divergence
+  between the approximate and true posterior
+  $D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i)
+  \right)$.  From the above, I can't see anything to support this
+  claim.  Whatever the KL, the inequality will always hold and we
+  don't touch it or the log-likelihood by minimizing the KL.  However,
+  I can see that by maximizing the ELBO we maximize the log-likelihood
+  and minimize the KL divergence at the same time.  By working with
+  ELBO in my head we thus move from optimising a single objective of
+  max-likelihood to optimising a composite objective. This links to
+  regularization perspective where the KL can be seen as a
+  regularization term.  I'm sure I've seen it discussed somewhere.}
+
+\note{Actually, not really. The optimization here is with respect to
+  $\phi$ of the approximate posterior $q_{\phi}(z|x_i)$.  It thus has
+  no influence on the log-likelihood, only on the ELBO and the KL
+  divergence.  So by maximizing ELBO with respect to $\phi$ we
+  minimize the KL divergence and do not touch the log-likelihood.}
+
+\subsubsection{Variational inference}\label{sec:Vae_varInference}
+Another point of view is starting by the objective of finding
+$q_{\phi}(z|x_i)$ which approximates well the intractable posterior
+$p_{\theta}(z | x_i)$.
+
+To achieve this, we will minimize the KL divergence between the two
+\begin{equation}
+  D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i) \right) =  
+  \underbrace{\rE_{q_{\phi}(z|x_i)} \log q_{\phi}(z|x_i) - \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i, z)}_{-ELBO} + \log p_{\theta}(x_i)
+  \enspace .
+\end{equation}
+Clearly
+\begin{equation}
+  \rE_{q_{\phi}(z|x_i)} \log q_{\phi}(z|x_i) - \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i, z) =
+  - \rE_{q_{\phi}(z|x_i)} \log \frac{p_{\theta}(x_i, z)}{q_{\phi}(z|x_i)}
+  \enspace .
+\end{equation}
+
+\note{Minimising the KL divergence with respect to $\phi$ is
+  equivalent to maximizing the ELBO and not touching the
+  log-likelihood.  It makes no sense to minimize the KL with respect
+  to $\theta$ as this is the distribution we want to approximate, not
+  change.  In fact we cannot minimize the KL directly with respect to
+  $\phi$ either because we do not know $p_{\theta}(z | x_i)$ so do not
+  know what it is we want to approximate.}
+
+\subsubsection{ELBO for optimisation}\label{sec:Vae_elboOptim}
+From the two previous sections we see that maximizing ELBO with
+respect to $\phi$ has the minimizing effect on the KL divergence
+$D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i) \right)$
+which we otherwise cannot optimize directly due to the intractable
+$p_{\theta}(z | x_i)$.
+
+Using the results above we rewrite the ELBO once again to get a form
+convenient for the VAE optimisation.
+\begin{eqnarray}\label{eq:vae_ELBOOptim}
+  ELBO & = & \log p_{\theta}(x_i) - D_{KL} \left( q_{\phi}(z|x_i) \, || \, p_{\theta}(z | x_i) \right) \nn
+  & = & \rE_{q_{\phi}(z|x_i)} \log \frac{p_{\theta}(x_i, z)}{q_{\phi}(z|x_i)} \nn
+  & = & \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i, z) - \rE_{q_{\phi}(z|x_i)} \log q_{\phi}(z|x_i) \nn
+  & = & \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z) + \rE_{q_{\phi}(z|x_i)} \log p(z) - \rE_{q_{\phi}(z|x_i)} \log q_{\phi}(z|x_i) \nn
+  & = & \underbrace{\rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z)}_{\text{reconstruction}} - \underbrace{D_{KL}\left( q_{\phi}(z|x_i) \, || \, \log p(z)\right)}_{\text{regularization}}
+\end{eqnarray}
+
+Equation \eqref{eq:vae_ELBOOptim} is the loss function of the VAEs.
+In practice, the most convenient is the last line, where the term in
+the left is the reconstruction loss and the KL can be seen as a
+regularization term.
+
+\note{The reconstruction loss in the left is very similar to equation
+  \eqref{eq:vae_decApproxPosterior} but it misses the likelihood
+  ratio.  I think this is the point of \cite{Burda2015, Cremer2017}
+  though I haven't read those in detail to really understand how they
+  link the ELBO back to the importance sampling.}
+
+\idea{If we want to re-examine the way the VAE shall generate then
+  this is what we need to look at.}
+
+\note{There is a link between the expectation
+  maximization\index{expectation maximization}(EM) algorithm.  I
+  haven't worked out the details but essentially optimising the loss
+  with respect to $\theta$ while $\phi$ fixed should be equivalent to
+  the M step and optimising with respect to $\phi$ with $\theta$ fixed
+  should be equivalent to the E step.  In the VAEs this split is not
+  explicit as the model is optimised end-to-end and not in alternating
+  steps.}
+
+\subsection{Objective optimization}\label{sec:Vae_optim}
+The above may seem very abstract but one needs to realize that maximizing the ELBO in equation \eqref{eq:vae_ELBOOptim} boils down to
+finding the $\theta$ and $\phi$ of the $f(z,\theta)$ and $g(x,\phi)$
+functions which specify the probability distributions we are
+learning. And these are all typically Gaussian for simplicity and
+mathematical convenience.
+
+\subsubsection{The regularization term (KL divergence)}\label{sec:Vae_klOptim}
+
+KL divergence for two Gaussian distributions $q(z) = N(\mu_q, \Sigma_q)$ and $p(z) = N(\mu_p, \Sigma_p)$ with $z \in \mR^k$ (proof in section \ref{sec:Vae_proofs})
+\begin{equation}
+  D_{KL}\left( q(z) \, || \, p(z)\right) 
+  = \frac{1}{2} \left( \log \frac{|\Sigma_p|}{|\Sigma_q|} - k + \tr \, (\Sigma_p^{-1} \Sigma_q) + (\mu_q - \mu_p)^T \Sigma_p^{-1} (\mu_q - \mu_p) \right)
+\end{equation}
+
+
+Recall that we consider the Gaussian approximate posterior $q_{\phi}(z|x) = N(\mu_q = g_{\mu}(x,\phi), \Sigma_q =
+g_{\sigma}(x,\phi) I)$ and the Gaussian prior $p(z) = N(\mu_p = 0, \Sigma_p = I)$.
+ We thus get for the KL divergence term (see section \ref{sec:Vae_proofs})
+\begin{equation}
+  D_{KL}\left( q_{\phi}(z|x_i) \, || \, p(z)\right) 
+  = \frac{1}{2} \sum_j^k \left(- 2 \log \sigma_{q_j} - 1 + \sigma_{q_j}^2 + \mu^2_{q_j} \right) \enspace ,
+\end{equation}
+where $k$ is the dimensionality of the latent space $\mZ \subseteq \mR^k$, and the means and variances are outputs of the
+encoder network $\mu_q = g_\mu(x,\phi)$ and $\sigma_q = g_\sigma(x, \phi)$.
+
+Remember from \eqref{eq:vae_ELBOOptim} that when we \emph{maximize} ELBO we \emph{minimize} the $D_{KL}$.
+
+\note{I have seen in some example code that it is more convenient (for
+  numerical reasons?) to train the encoder to output $\log \sigma_q$
+  instead of $\sigma_q$.  One reason I can see is that
+  $\log \sigma_q \in \mR^k$, while $\sigma_q \in \mR_+^k$.  I use this
+  in my code as well with the following tweak to the KL:}
+\begin{equation}
+  D_{KL}\left( q_{\phi}(z|x_i) \, || \, p(z)\right) 
+  = \frac{1}{2} \sum_j^k \left(- 2 \, ls_{q_j} - 1 + \exp 2 \, ls_{q_j} + \mu^2_{q_j} \right) \enspace ,
+\end{equation}
+where $ls_{q_j} = \log \sigma_{q_j} = g_\sigma(x, \phi)$ and
+$\mu_q = g_\mu(x, \phi)$ is the variance-related and mean output of
+the encoder network.
+
+\note{In my implementation $g$ is a single network with two sets of
+  outputs $\mu_q$ and $ls_q$}.
+
+
+
+\subsubsection{The reconstruction term}
+\label{sec:Vae_reconstructionTerm}
+
+The reconstruction term depends on our assumptions for the form of the conditional distribution $p(x_i | z)$.
+So far, we have assumed it be a Gaussian $p(x_i | z) = N(\mu = f(z, \theta), \sigma^2 I)$
+\begin{equation}
+  p(x_i| z)  = (2 \pi)^{-d/2} \sigma^{-d} \, \exp\left(-\frac{1}{2} (x_i - f(z, \theta))^T \Sigma^{-1} (x_i - f(z, \theta)) \right) \enspace .
+\end{equation}
+The corresponding log-likelihood is
+\begin{equation}
+  \log p(x_i| z)  = - \frac{d}{2} \log (2 \pi \sigma^{2}) - \left(\frac{1}{2} (x_i - f(z, \theta))^T \Sigma^{-1} (x_i - f(z, \theta)) \right) \enspace ,
+\end{equation}
+and hence maximising the reconstruction term (with respect to $\theta$) is equivalent to minimising the negative expectation
+\begin{eqnarray}
+ -\rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z) & = & \frac{1}{2 \sigma^2} \rE_{q_{\phi}(z|x_i)} (x_i - f(z, \theta))^T (x_i - f(z, \theta)) \nn
+ & \approx & \frac{1}{2m \sigma^2} \sum_j^m (x_i - f(z_j, \theta))^T (x_i - f(z_j, \theta)) \qquad z_j \sim q_{\phi}(z|x_i)
+ \enspace ,
+\end{eqnarray}
+where in the last line we approximate the expectation by its Monte-Carlo sample mean.
+
+In case we assume a Bernoulli distribution for our data
+$p(x_i | z) = \pi^{x_i} (1-\pi)^{(1-x_i)}, x_i \in \{0,1\}$ with $\pi = f(z,\theta)$.
+The log-likelihood is
+\begin{equation}
+\log p(x_i | z) = x_i \log f(z,\theta) + (1-x_i) \log (1- f(z,\theta))
+\end{equation}
+and the reconstruction term boils down to minimising
+\begin{equation}
+-\rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z) \approx
+\frac{-1}{m} \sum_j^m x_i \log f(z_j,\theta) + (1-x_i) \log (1- f(z_j,\theta))  \qquad z_j \sim q_{\phi}(z|x_i)
+ \enspace .
+\end{equation}
+
+\subsubsection{Final loss term}
+
+The optimisation problem then should be a minimization of the empirical negative ELBO for the whole dataset
+\begin{eqnarray}
+\argmin_{\theta, \phi} & & \sum_i^n \Big( \frac{1}{2} \sum_j^k \left(- 2 \, g_{\sigma_j}(x_i,\phi) - 1 + \exp 2 \, g_{\sigma_j}(x_i,\phi) + g_{\mu_j}(x_i,\phi)^2 \right) + \nn
+&& \frac{1}{2m \sigma^2} \sum_j^m (x_i - f(z_j, \theta))^T (x_i - f(z_j, \theta)) \qquad z_j \sim q_{\phi}(z|x_i) \Big)
+\end{eqnarray}
+
+In the above, $\sigma^2$ is typically fixed to 1 or can be used as a regularisation parameter which would probably lead onto something very similar to $\beta$-VAE. 
+Optimisation of the decoder network with respect to $\theta$ should be rather straightforward as soon as we sample $z_j \sim q_{\phi}(z|x_i)$. 
+What Kingma suggested is actually not to sample $m$ times for each observation but only once.
+Since we use a stochastic gradient descent where each sample will be revisited multiple times, in the end we will have multiple samples of $z$'s, though each from a somewhat different distribution $q_{\phi}(z|x_i)$ as the encoder network parameters $\phi$ got updated in the meantime.
+
+The update for $\phi$ is a little more tricky. In addition calculating the gradients through the decoder network $g$, the $\phi$ parameters also play a role in the sampling of $z$. 
+
+For this Kingma suggested the \textbf{reparametrization trick}\index{reparametrization trick}.
+Essentially, we rewrite $z$ as a deterministic transformation of a random variable $\epsilon \sim N(0,1)$ so that $z_j = g_{\mu_j}(x_i,\phi) + \exp g_{\sigma_j}(x_i,\phi) \epsilon_j$, where I use $\exp$ because the output of my encoder network is $\log \sigma$.
+
+
+
+
+
+
+
+
+
+
+\subsection{Proofs}\label{sec:Vae_proofs}
+
+\begin{proof}[Proof: Multivariate Gaussian KL divergence]
+
+\begin{equation}
+q(z) = N(\mu_q, \Sigma_q) = (2 \pi)^{-k/2} |\Sigma_q|^{-1/2} \, \exp\left(-\frac{1}{2} (x - \mu_q)^T \Sigma_q^{-1} (x - \mu_q)\right)
+\end{equation}
+\begin{equation}
+\log q(z) = -\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| -\frac{1}{2} (x - \mu_q)^T \Sigma_q^{-1} (x - \mu_q)
+\end{equation}
+
+\begin{eqnarray}
+D_{KL}\left( q(z) \, || \, p(z)\right) 
+& = & \rE_{q(z)} \log q(z) - \rE_{q(z)} \log p(z) \nn
+& = & \int q(z) \log q(z) \, dz - \int q(z) \log p(z) \, dz \nn
+& = & \frac{1}{2} \left( \log \frac{|\Sigma_p|}{|\Sigma_q|} - k + \tr \, (\Sigma_p^{-1} \Sigma_q) + (\mu_q - \mu_p)^T \Sigma_p^{-1} (\mu_q - \mu_p) \right)
+\end{eqnarray}
+
+\begin{eqnarray}
+\rE_{q(z)} \log q(z)
+& = &
+\rE_{q(z)} \left( -\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q|  -\frac{1}{2} (x - \mu_q)^T \Sigma_q^{-1} (x - \mu_q) \right) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \rE_{q(z)} \left( \frac{1}{2} (x - \mu_q)^T \Sigma_q^{-1} (x - \mu_q) \right) \quad (\rE \text{ of constants)} \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \frac{1}{2} \rE_{q(z)} \, \tr \left( (x - \mu_q)^T \Sigma_q^{-1} (x - \mu_q) \right) \quad \text{(trace of scalar)} \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \frac{1}{2} \tr \, \rE_{q(z)} \left( \Sigma_q^{-1} (x - \mu_q) (x - \mu_q)^T \right) \quad \text{(linearity of } \rE) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \frac{1}{2} \tr \, \Sigma_q^{-1} \rE_{q(z)} \left( (x - \mu_q) (x - \mu_q)^T \right) \quad \text{(linearity of } \rE) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \frac{1}{2} \tr \, \Sigma_q^{-1} \Sigma_q \quad \text{(definition of } \Sigma_q) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_q| - \frac{k}{2} \quad (= -H(x) \sim \text{entropy})
+\end{eqnarray}
+
+
+\begin{eqnarray}
+\rE_{q(z)} \log p(z)
+& = &
+\rE_{q(z)} \left( -\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_p|  -\frac{1}{2} (x - \mu_p)^T \Sigma_p^{-1} (x - \mu_p) \right) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_p| - \frac{1}{2} \tr \, \Sigma_p^{-1} \rE_{q(z)} \left( (x - \mu_p) (x - \mu_p)^T \right) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_p| - \frac{1}{2} \tr \, \Sigma_p^{-1} \rE_{q(z)} \left( [(x - \mu_q) + (\mu_q - \mu_p)] [(x - \mu_q) + (\mu_q - \mu_p)]^T \right) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_p| - \nn
+& & \frac{1}{2} \tr \, \Sigma_p^{-1} \left( \rE_{q(z)} (x - \mu_q) (x - \mu_q)^T + 2 \rE_{q(z)} (x - \mu_q) (\mu_q - \mu_p)^T + \rE_{q(z)} (\mu_q - \mu_p) (\mu_q - \mu_p)^T \right) \nn
+& = &
+-\frac{k}{2} \log(2 \pi) -\frac{1}{2} \log|\Sigma_p| - \frac{1}{2} \tr \, \Sigma_p^{-1} \Sigma_q + 0 
++ (\mu_q - \mu_p)^T \Sigma_p^{-1} (\mu_q - \mu_p)
+\end{eqnarray}
+
+\end{proof}
+
+\begin{proof}[Proof: KL divergence between $q_{\phi}(z|x) = N(\mu_q = g_{\mu}(x,\phi), \Sigma_q = g_{\sigma}(x,\phi) I)$
+and $p(z) = N(\mu_p = 0, \Sigma_p = I)$]
+\begin{eqnarray}
+D_{KL}\left( q_{\phi}(z|x_i) \, || \, p(z)\right) 
+& = & \frac{1}{2} \left( \log \frac{1}{\prod_j^k \sigma^2_{q_j}} - k + \sum_j^k \sigma^2_{q_j} + \mu_q^T \mu_q \right) \nn
+& = & \frac{1}{2} \left(- 2 \sum_j^k \log \sigma_{q_j} - k + \sum_j^k \sigma^2_{q_j} + \mu_q^T \mu_q \right) \nn
+& = & \frac{1}{2} \sum_j^k \left(- 2 \log \sigma_{q_j} - 1 + \sigma^2_{q_j} + \mu^2_{q_j} \right)
+\end{eqnarray}
+
+\end{proof}
+
+
+
+%
+%\paragraph{The reconstruction loss: $\rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z)$}
+%Here we assume $q_{\phi}(z|x_i)$ is known and fixed and therefore we can sample from it and estimate the expectation by the sample average
+%\begin{equation}
+%\rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z) \approx \frac{1}{m} \sum_j^m \log p_{\theta}(x_i | z_j), \qquad z_j \sim q_{\phi}(z|x_i)
+%\end{equation}
+%The distribution is normal, hence 
+%\begin{equation}
+%p_{\theta}(x_i | z_j) = N(f(z_j, \theta), I) = 
+%p(x_i|z_j) = \frac{1}{(2 \pi)^{d/2}} \exp \left( -0.5 \, (x_i - f(z_j, \theta))^T (x_i - f(z_j, \theta)) \right) \enspace .
+%\end{equation}
+%
+%Maximizing the decoder loss
+%\begin{equation}
+%\widehat{\theta} = \argmax_{\theta} \rE_{q_{\phi}(z|x_i)} \log p_{\theta}(x_i | z)
+%\end{equation}
+%hence boils down to
+%\begin{eqnarray}
+%\widehat{\theta} & = & \argmax_{\theta} \frac{1}{m} \sum_j^m \left( -0.5 \, (x_i - f(z_j, \theta))^T (x_i - f(z_j, \theta))\right) \nn
+%& = & \argmin_{\theta} \frac{1}{m} \sum_j^m \left( 0.5 \, (x_i - \widehat{x}_{ij})^T (x_i - \widehat{x}_{ij})\right) \enspace ,
+%\end{eqnarray}
+%where $\widehat{x}_{ij} = f(z_j, \theta)$ are the $x_i$ reconstructions from a specific $z_j$ and $\theta$.
+%
+%I believe in the original Kingma's paper he suggested to fix $m=1$ since anyway this is a stochastic gradient descent and each sample is going to be revisited multiple times across the epochs. 
+%Re-introducing the sums across all the data samples dropped in section \ref{sec:Vae_decoder}, the decoder part of the loss is
+%\begin{equation}
+%L_D(\theta, \phi) = \sum_i^n  0.5 \, (x_i - \widehat{x}_{i})^T (x_i - \widehat{x}_{i}) \enspace, 
+%\end{equation}
+%where $\widehat{x}_{i} = f(z, \theta)$ with $z$ sampled from 
+%
+
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Doersch2016}
+Doersch, Carl. "Tutorial on variational autoencoders." arXiv preprint arXiv:1606.05908 (2016).
+
+\bibitem{Kingma2017}
+Kingma, Diederik P. "Variational inference \& deep learning: A new synthesis." (2017).
+
+\bibitem{JaanVae}
+https://jaan.io/what-is-variational-autoencoder-vae-tutorial/
+
+\bibitem{ErmonVae}
+https://ermongroup.github.io/cs228-notes/extras/vae/
+
+\bibitem{ImportanceSampling}
+https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf
+
+\bibitem{Burda2015}
+Burda, Yuri, Roger Grosse, and Ruslan Salakhutdinov. "Importance weighted autoencoders." arXiv preprint arXiv:1509.00519 (2015).
+
+\bibitem{Cremer2017}
+Cremer, Chris, Quaid Morris, and David Duvenaud. "Reinterpreting importance-weighted autoencoders." arXiv preprint arXiv:1704.02916 (2017).
+
+
+
+\end{thebibliography}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "techNotes"
+%%% End:

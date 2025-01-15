@@ -1,0 +1,164 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 10/9/2015 - Question on proximals %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% loads amsmath and some extra
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% to allow IEEEeqnarray
+%\usepackage[retainorgcmds]{IEEEtrantools}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% enables commenting out sections of text
+\usepackage{verbatim}
+
+%shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}
+%argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\Tr}{Tr}
+\DeclareMathOperator*{\Vc}{Vec}
+%and some more
+\newcommand{\ts}{time-series}
+%\newcommand{\note}{note}
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\color{blue}\emph{Note: #1}} \else {} \fi}
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}
+\newcommand{\conclude}[1]{\ifShowComments {\color{blue}\emph{{\bf Conclusions:} #1}} \else {} \fi}
+
+% for advanced graphics
+%\usepackage{tikz}
+
+% for subfigures
+%\usepackage{caption,subcaption}
+
+% for coloring
+\usepackage{xcolor}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+% to inclued only sections in the table of contents
+%\setcounter{tocdepth}{2}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+
+% for compact item lists
+\usepackage{paralist}
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\paragraph{Question on proximals}
+
+I'm not sure about the non-negativity constraint on $\vc{\Theta}$ and proximals. I'm awraid, it is more complicated than I'd thought. But may be not :-)
+
+What I do is ...
+
+For practical reasons, we transorm the non-negative constraint on $\vc{\Theta}$ into an indicator function and integrate it into the regularizer $\widetilde{\Omega}(\vc{\Theta}) = \Omega(\vc{\Theta}) + \mathcal{I}(\vc{\Theta)}$
+\begin{equation}\label{eq:IndicatorFun}
+ \mathcal{I}(\vc{\Theta)} =
+  \begin{cases}
+    0 & \vc{\Theta} \in \ \mathbb{R}_+^{m \times B}\\
+    \infty & \vc{\Theta} \not\in \ \mathbb{R}_+^{m \times B} \\
+  \end{cases}
+\end{equation}
+so that the subproblem with respect to $\vc{\Theta}$ is
+\begin{equation}\label{eq:OptSubProblemTheta}
+\argmin_{\Theta \in \mathbb{R}^{m \times B}}
+J(\vc{C},\vc{\Theta}) := 
+\mathcal{L}(\vc{C},\vc{\Theta}) + \widetilde{\Omega}(\vc{\Theta})
+\end{equation}
+
+
+I use proximal gradient descent
+\begin{equation}\label{eq:proxStep}
+\vc{\Theta}^{k+1} = prox_{\alpha^k \widetilde{\Omega}} \big( \vc{\Theta}^k - \alpha^k \, \nabla_\theta \, \mathcal{L}(\vc{C},\vc{\Theta}) \big),
+\end{equation}
+The proximal operator of $\Omega(.)$ with scaling $\alpha$ is defined as
+\begin{equation}\label{eq:ProxOperator}
+ prox_{\alpha \Omega}(\vc{\Psi}) = \argmin_{\Theta \in \mathbb{R}^{m \times B}} \Big(\Omega(\vc{\Theta}) + \frac{1}{2\alpha} ||\vc{\Theta} - \vc{\Psi}||_2^2 \Big)
+\end{equation}
+Note that here I minimise over $\Theta \in \mathbb{R}^{m \times B}$ because $\widetilde{\Omega}(\vc{\Theta}) = \Omega(\vc{\Theta}) + \mathcal{I}(\vc{\Theta)}$.
+
+Now, some examples of norms and their proximals:
+
+\paragraph{$\ell_1$ norm $\Omega(\Theta) = ||\vc{\Theta}||_1$} the proximal is the soft-thresholding $ [ prox_{\alpha \Omega}(\vc{\Psi}) ]_{ij} = sgn(\psi_{ij}) (|\psi_{ij}| - \alpha)_+$.\\
+Is the proximal for $\widetilde{\Omega}(\vc{\Theta}) = ||\vc{\Theta}||_1 + \mathcal{I}(\vc{\Theta)}$ the non-negative part $ [ prox_{\alpha \widetilde{\Omega}}(\vc{\Psi}) ]_{ij} =  (\psi_{ij} - \alpha)_+$? \\
+Or is it more complicated?
+
+\paragraph{nuclear norm $\Omega(\Theta) = ||\vc{\Theta}||_*$} the proximal is the soft-thresholding of singular values $ prox_{\alpha \Omega}(\vc{\Psi})  = \sum_i^m (\sigma_i - \alpha)_+ \, \vc{u}_i \vc{v}'_i$.\\
+Is the proximal for $\widetilde{\Omega}(\vc{\Theta}) = ||\vc{\Theta}||_* + \mathcal{I}(\vc{\Theta)}$ the non-negative $ prox_{\alpha \widetilde{\Omega}}(\vc{\Psi}) = \Big( \sum_i^m (\sigma_i - \alpha)_+ \, \vc{u}_i \vc{v}'_i \Big)_+$? \\
+Or am I missing something and this is more complicated?
+
+
+
+
+\clearpage
+
+Optimisation problem with respect to $\vc{\Theta}$:
+
+\begin{eqnarray*}
+\mathcal{L}(\vc{\Theta}) & := &
+\frac{|| \vc{Y} - \sum_b^B \vc{K}^b \vc{CL}^b||_F^2}{2\lambda}  + \frac{\sum_b^B tr( \vc{C}' \vc{K}^b \vc{C} \vc{L}^b )}{2} \\
+& = & \frac{\sum_j^m || \vc{Y}_{:j} - \sum_b^B \theta_{jb} \vc{K}^b \vc{C}_{:j}||_2^2}{2\lambda}
+ + \frac{\sum_b^B \sum_j^m \theta_{jb} (\vc{C}_{:j})' \vc{K}^b \vc{C}_{:j} }{2} \\ 
+& = & \sum_j^m \Big( \frac{|| \vc{Y}_{:j} - \vc{A}^j (\vc{\Theta}_{j:})' ||_2^2}{2\lambda}
+ + \frac{\vc{\Theta}_{j:} \, \vc{z}^j }{2} \Big) 
+\end{eqnarray*}
+\begin{equation*}
+ \vc{A}^j =
+\begin{bmatrix}
+ \vc{K}^1 \vc{C}_{:j} &
+ \vc{K}^2 \vc{C}_{:j} &
+ \cdots &
+ \vc{K}^B \vc{C}_{:j} 
+\end{bmatrix} \qquad A^j_{ib} = \vc{K}_{i:}^b \vc{C}_{:j}
+\end{equation*}
+\begin{equation*}
+ \vc{z}^j =
+\begin{bmatrix}
+ \vc{C}_{:j})' \vc{K}^1 \vc{C}_{:j} \\
+ \vc{C}_{:j})' \vc{K}^2 \vc{C}_{:j} \\
+ \vdots \\
+ \vc{C}_{:j})' \vc{K}^B \vc{C}_{:j} 
+\end{bmatrix} \qquad z^j_{b} = \vc{C}_{:j})' \vc{K}^b \vc{C}_{:j}
+\end{equation*}
+
+Dropping the $j$ indexes from the above, this means solving the following problem for each task
+\begin{eqnarray*}
+\min_{\theta \in \mathbb{R}_+^B} \mathcal{L}(\theta) & := &
+ \frac{|| \vc{y} - \vc{A} \vc{\theta}||_2^2}{2\lambda}
+ + \frac{\vc{z}' \, \vc{\theta} }{2} \\
+& = & \frac{\vc{y'y} - 2 \vc{y'} \vc{A} \vc{\theta} + \vc{\theta} \vc{A'A} \vc{\theta}}{2 \lambda} + \frac{\vc{z}' \, \vc{\theta} }{2} \\
+& = & \frac{\vc{y'y}}{2\lambda} + ( \frac{\vc{z}'}{2} - \frac{\vc{y'} \vc{A}}{\lambda}) \vc{\theta} + \vc{\theta} \frac{\vc{A'A}}{2\lambda} \vc{\theta} \\
+& = & \frac{\vc{y'y}}{2\lambda} + ( \frac{\lambda \vc{z}' - 2 \vc{y'} \vc{A}}{2\lambda}) \vc{\theta} + \vc{\theta} \frac{\vc{A'A}}{2\lambda} \vc{\theta} \\
+& = & \frac{\vc{y'y} + ( \lambda \vc{z}' - 2 \vc{y'} \vc{A}) \vc{\theta} + \vc{\theta} \vc{A'A} \vc{\theta}}{2\lambda}
+\end{eqnarray*}
+which is a quadratic programme. 
+
+
+
+\end{document}

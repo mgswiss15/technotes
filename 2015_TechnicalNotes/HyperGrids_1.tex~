@@ -1,0 +1,55 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 21/8/2015 - Grids for hyperparameters %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Grids for hyperparameters}\label{sec:HyperGrids}
+
+How to derive reasonable grids for tunning hyperparameters?
+
+\subsection{Lasso example}
+
+The Lasso\index{Lasso} minimisation problem is
+\begin{equation}\label{eq:lasso}
+\argmin_w J(\vc{w}) := \frac{1}{n} \frac{||\vc{y} - \vc{X}\vc{w}||_2^2}{2\lambda} + ||\vc{w}||_1
+\end{equation}
+
+For $\lambda \rightarrow \infty$ the parameters $\vc{w}$ are shrank towards zero so that eventually (for big enough $\lambda$) they are all zero.
+We can find $\lambda_{max}$\index{$\lambda_{max}$} as the smallest value of $\lambda$ for which we get $\vc{w}=0$.
+
+The logic comes form the coordinate descent optimisation strategy.
+We assume we're at a point where all the other parameters have already been shrank (thresholded) to zero and we solve for the last remaining $w_i$ from 
+
+\begin{eqnarray}\label{eq:lassowi}
+\argmin_{w_i}  J(w_i) & := & \frac{1}{n} \frac{||\vc{y} - \vc{X}^{(-i)}\vc{w}^{(-i)} - \vc{X}_{:i} w_i||_2^2}{2\lambda} + ||\vc{w}||_1 \nonumber \\
+& = & \frac{1}{n} \frac{||\vc{y} - \vc{X}_{:i} w_i||_2^2}{2\lambda} + |w_i|,
+\end{eqnarray}
+where the equivalence comes from the assumption $\vc{w}^{(-i)} = 0$.
+
+We solve for $w_i$ as usual by equating to gradient to zero
+\begin{equation}
+ \frac{\partial J(w_i)}{\partial w_i} = \frac{-\vc{X}_{:i} \vc{y} + \vc{X}_{:i}' \vc{X}_{:i} w_i}{n \lambda} + \frac{\partial |w_i|}{\partial w_i} = 0
+\end{equation}
+From which we get
+\begin{equation}
+ w_i = 
+\begin{cases}
+\frac{\vc{X}_{:i} \vc{y} - n \lambda}{\vc{X}_{:i}' \vc{X}_{:i}} \qquad \qquad \text{ for } w_i > 0 \\
+\frac{\vc{X}_{:i} \vc{y} + n \lambda}{\vc{X}_{:i}' \vc{X}_{:i}} \qquad \qquad \text{ for } w_i < 0 \\        
+\frac{\vc{X}_{:i} \vc{y} - [-n \lambda;n \lambda]}{\vc{X}_{:i}' \vc{X}_{:i}} \qquad \text{for } w_i = 0 \\        
+\end{cases}
+\end{equation}
+From this we see that $w_i = 0$ if $|\vc{X}_{:i} \vc{y}| < n \lambda$ and therefore we set $\lambda_{max} = \max |\vc{X}_{:i} \vc{y}|/n$  
+
+
+
+
+
+
+
+
+
+
+
+

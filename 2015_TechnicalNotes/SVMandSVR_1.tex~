@@ -1,0 +1,261 @@
+\clearpage
+
+\section{Support vector machines and regression}
+
+\subsection{Support vector machines}
+
+This is based mainly on \cite{Scholkopf2002}.
+
+\subsubsection{Introduction}
+We have got a set of patterns $\{\vc{x}_i\}_{i=1}^n \in \mathcal{H}$ in a dot product space $\mathcal{H}$.
+Any hyperplane in this space can be written as
+\begin{equation}\label{eq:Plane}
+ \langle \vc{w},\vc{x} \rangle + b = 0, \qquad \vc{w},\vc{x} \in \mathcal{H}, b \in \mathbb{R}
+\end{equation}
+Here, $\vc{w}$ is a vector orthogonal to the hyperplane (pick two vectors on the hyperplane $\vc{x}_1$ and $\vc{x}_2$ and obseve that $\langle \vc{w},\vc{x}_1 \rangle + b = \langle \vc{w},\vc{x}_2 \rangle + b = 0$ so that $\langle \vc{w},\vc{x}_1 \rangle - \langle \vc{w},\vc{x}_2 \rangle = 0$ and $\langle \vc{w}, (\vc{x}_1 - \vc{x}_2) \rangle = 0$ where $(\vc{x}_1 - \vc{x}_2)$ is a vector within the hyperplane).
+
+The length $r$ of any vector $\vc{x}$ along $\vc{w}$ is given by $r = \langle \vc{w},\vc{x} \rangle / || \vc{w}||_2^2$. (To get this observe that $\langle \vc{w}, \vc{x} - r \vc{w} \rangle = 0$ where $r\vc{w}$ is the orthogonal projection of $\vc{x}$ on $\vc{w}$.)
+All points on the plane eq. \ref{eq:Plane} have the same length along $\vc{w}$, they all project onto the same point on the line spanned by $\vc{w}$.
+
+The distance $d$ of a point $\vc{x}$ from the plane \ref{eq:Plane} is given by $d = | \langle \vc{w},\vc{x} \rangle + b | / || \vc{w}||_2^2$. (To get this, observe that $\vc{x} = \vc{x}_p + d \vc{w}$, where $\vc{x}_p$ is the orthogonal projection of $\vc{x}$ onto the plane. Pre-multiplying both sides by $\vc{w}'$ and adding $b$ yields $\vc{w'x}+b = \vc{w'x}_p+b + d \vc{w'w}$, where $\vc{w'x}_p+b = 0$ from eq. \ref{eq:Plane}.)
+If we multiply the $\vc{w}$ and $b$ by the same constant the plane defined by eq. \ref{eq:Plane} and all the distance calculations do not change.
+
+We call the pair $\vc{w},b$ scaled so that
+\begin{equation}\label{eq:CanonicalHyperplane}
+ \min_{i=1,\ldots,n} ~ |\langle \vc{w},\vc{x} \rangle + b | / || \vc{w}||_2^2 = 1
+\end{equation}
+the \emph{cannonical form}\index{Canonical hyperplane} of the hyperplane with respect to $\{\vc{x}_i\}_{i=1}^n \in \mathcal{H}$.
+Basically, this says we scale $\vc{w}$ and $b$ so that the closest point to the hyperplane has distance from it $d = 1 / || \vc{w}||_2^2$. We call this distance the \emph{margin}\index{SVM margin}.
+There are technically still 2 such hyperplanes $\vc{w},b$ and $-\vc{w},-b$ which conincide but have different directions.
+
+If in addition to the patterns we have got the class labels $\{\vc{y}_i\}_{i=1}^n \in \{\pm 1\}$ we wish to distniguish these two cases to help us classify the patterns by a decision function
+\begin{equation}\label{eq:DecisionFunction}
+ f(\vc{x}) = sgn \big( \langle \vc{w},\vc{x} \rangle + b \big)
+\end{equation}
+
+In a classification problem, the margin from the separating hyperplane shall be as big as possible. As stated above the margin is $d = 1/|| \vc{w}||_2^2$ and therfore we can maximize it by minimising $|| \vc{w}||_2^2$.
+
+
+
+
+\subsubsection{Optimal margin hyperplanes}
+For a classificatin problem for a set of examples $\{\vc{x}_i,y_i\}_{i=1}^n \in \mathcal{H} \times \{ \pm 1\}$ we wish to find a decision function \ref{eq:DecisionFunction} satisfying $f(\vc{x_i}) = y_i$.
+If such a function exists (and using the canonical form of eq. \ref{eq:CanonicalHyperplane}) we have 
+\begin{equation}\label{eq:CorrectClassification}
+y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) \geq 1, \qquad i=1,\ldots,n 
+\end{equation}
+Note that this actually helps us to distinquish the two canonical forms $\vc{w},b$ and $-\vc{w},-b$ because only one of those will satisfy eq. \ref{eq:CorrectClassification}.
+
+In result, a seperating hyperplane that generalizes well can be found by solving the following optimisation problem
+\begin{eqnarray}\label{eq:SVMPrimal}\index{SVM primal problem}
+  \text{minimize }  & & \tau(\vc{w}):= 1/2 \, ||\vc{w}||_2^2 \nonumber \\
+  \text{subject to} & & y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) \geq 1 
+\qquad \forall i=1,\ldots,n
+\end{eqnarray}
+
+We formulate the Lagrangian of the problem \ref{eq:SVMPrimal} as
+\begin{equation}\label{eq:SVMLagrangian}\index{SVM Lagrangian}
+  L(\vc{w},b,\vc{\alpha}) =  1/2 \, ||\vc{w}||_2^2 
+- \sum_i^n \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 \Big)
+\end{equation}
+and the corresponding dual function
+\begin{equation}\label{eq:SVMDualFce}\index{SVM dual function}
+  g(\vc{\alpha}) =  \inf_{w,b} \, 1/2 \, ||\vc{w}||_2^2 
+- \sum_i^n \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 \Big)
+\end{equation}.
+
+Minimizing the Lagrangian with respect $\vc{w}$ and $b$ yields
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{w}}} = \vc{w} - \sum_i^n \alpha_i y_i \vc{x}_i = 0 \qquad \Longrightarrow \qquad \vc{w} = \sum_i^n \alpha_i y_i \vc{x}_i
+\end{equation}
+and
+\begin{equation}
+ \frac{\partial{L}}{\partial{b}} = \sum_i^n \alpha_i y_i = 0
+\end{equation}
+and therefore the SVM dual problem is (a convex problem)
+\begin{eqnarray}\label{eq:SVMDual}\index{SVM dual problem}
+  \text{maximize}  & & \varphi(\vc{\alpha}):= \sum_i^n \alpha_i - 1/2 \, \sum_{i,j}^n \alpha_i \alpha_j y_i y_j \langle \vc{x}_i, \vc{x}_j \rangle \\
+  \text{subject to} & & \alpha_i \geq 0 \\
+   & & \sum_i^n \alpha_i y_i = 0
+\end{eqnarray}
+
+The decision function \ref{eq:DecisionFunction} can now be written as
+\begin{equation}\label{eq:DecisionFunction2}
+ f(\vc{x}) = sgn \big( \sum_i^n \alpha_i y_i \langle \vc{x}_i, \vc{x} \rangle + b \big),
+\end{equation}
+where we can replace the inner product by a kernel function
+\begin{equation}\label{eq:DecisionFunctionKernel}
+ f(\vc{x}) = sgn \big( \sum_i^n \alpha_i y_i k( \vc{x}_i, \vc{x} ) + b \big),
+\end{equation}
+
+From the KKT conditions we have for every $i$ that $ \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 \Big) = \alpha_i \Big( y_i \big( \sum_j^n \alpha_j y_j k(\vc{x}_j,\vc{x}_i) + b \big) - 1 \Big) = 0$ and therefore once solved for $\vc{\alpha}$ from \ref{eq:SVMDual} we can solve for $b$ by for example (though other options may be more advantageous see \cite{Scholkopf2002} section 7.4) averaging over all $i \in \mathcal{S}$ where $\mathcal{S}$ is the set of support vectors for which $\alpha_i > 0$ (and observing that $1/y_i = y_i$)
+\begin{equation}\label{eq:SolveForB}
+b = \frac{1}{|\mathcal{S}|} \sum_{i \in \mathcal{S}} \Big( \sum_j^n \alpha_j y_j k(\vc{x}_j,\vc{x}_i) - y_i \Big)
+\end{equation}
+
+
+\subsubsection{Soft margin SVM}\label{sec:SoftMarginSVM}
+If the patterns are not separable eg. because of outlier etc. we may want to use a weaker constraint for the separation instead of \ref{eq:CorrectClassification}
+\begin{equation}\label{eq:CorrectClassificationSoft}
+y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) \geq 1 - \xi_i, \quad \xi \geq 0, \qquad i=1,\ldots,n
+\end{equation}
+Note the link to the \emph{hinge-loss}\index{Hinge loss} formulation
+\begin{equation}\label{eq:HingeLoss}
+\xi_i = \max \{ 1 - y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big),0 \}
+\end{equation}
+Whenever pattern is on the correct side of the decision surface beyond the margin it does not incur any loss and it does not carry any information about the decision surface.
+
+Clearly, if $\xi_i$ could be arbitrarily large condition \ref{eq:CorrectClassificationSoft} would be always satisfied.
+To avoid this trivial solution we penalize their size in the objective function so that the primal problem of \emph{soft-margin SVM}\index{Soft-margin SVM} is 
+\begin{eqnarray}\label{eq:SoftSVMPrimal}\index{Soft-margin SVM primal problem}
+  \text{minimize }  & & \tau(\vc{w},\vc{\xi}):= 1/2 \, ||\vc{w}||_2^2 + C \sum_i^n \xi_i, \qquad C>0 \nonumber \\
+  \text{subject to} & & y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) \geq 1 - \xi_i
+\qquad \forall i=1,\ldots,n \nonumber \\
+& & \xi_i \geq 0, \qquad \forall i=1,\ldots,n 
+\end{eqnarray}
+
+As before we formulate the Lagrangian of the problem \ref{eq:SVMPrimal} as
+\begin{equation}\label{eq:SoftSVMLagrangian}\index{Soft SVM Lagrangian}
+L(\vc{w},b,\vc{\xi},\vc{\alpha},\vc{\nu}) =  1/2 \, ||\vc{w}||_2^2 + C \sum_i^n \xi_i
+- \sum_i^n \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 + \xi_i\Big)  - \sum_i^n \nu_i \, \xi_i
+\end{equation}
+and the corresponding dual function
+\begin{equation}\label{eq:SoftSVMDualFce}\index{Soft-margin SVM dual function}
+  g(\vc{\alpha},\vc{\nu}) =  \inf_{w,b} \, 1/2 \, ||\vc{w}||_2^2 
+- \sum_i^n \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 + \xi_i\Big)  + \sum_i^n (C -\nu_i) \, \xi_i
+\end{equation}. 
+
+Minimizing the soft-margin SVM Lagrangian with respect $\vc{w}$, $b$ and $\vc{\xi}$ yields
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{w}}} = \vc{w} - \sum_i^n \alpha_i y_i \vc{x}_i = 0 \qquad \Longrightarrow \qquad \vc{w} = \sum_i^n \alpha_i y_i \vc{x}_i
+\end{equation}
+\begin{equation}
+ \frac{\partial{L}}{\partial{b}} = \sum_i^n \alpha_i y_i = 0
+\end{equation}
+and
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{\xi}_i}} = - \alpha_i + C-\nu_i = 0 
+ \qquad \Longrightarrow \qquad \nu_i = C -\alpha_i
+\end{equation}
+and because $\nu_i \geq 0$ we get $\alpha_i \leq C$.
+
+The soft-margin SVM dual prolem is therefore
+\begin{eqnarray}\label{eq:SoftSVMDual}\index{Soft-margin SVM dual problem}
+  \text{maximize}  & & \varphi(\vc{\alpha}):= \sum_i^n \alpha_i - 1/2 \, \sum_{i,j}^n \alpha_i \alpha_j y_i y_j k( \vc{x}_i, \vc{x}_j ) \\
+  \text{subject to} & & 0 \leq \alpha_i \leq C \\
+   & & \sum_i^n \alpha_i y_i = 0
+\end{eqnarray}
+
+From the KKT conditions we have for every $i$ that $ \alpha_i \Big( y_i \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - 1 + \xi_i \Big) = \alpha_i \Big( y_i \big( \sum_j^n \alpha_j y_j k(\vc{x}_j,\vc{x}_i) + b \big) - 1 + \xi_i \Big) = 0$ and therefore once solved for $\vc{\alpha}$ from \ref{eq:SVMDual} we can solve for $b$ by for example (though other options may be more advantageous see \cite{Scholkopf2002} section 7.4) averaging over all $i \in \mathcal{S}$ where $\mathcal{S}$ is the set of support vectors for which $0< \alpha_i \leq C$ and $\xi_i = 0$ so that they lie on the margin (and observing that $1/y_i = y_i$)
+\begin{equation}\label{eq:SolveForB}
+b = \frac{1}{|\mathcal{S}|} \sum_{i \in \mathcal{S}} \Big( \sum_j^n \alpha_j y_j k(\vc{x}_j,\vc{x}_i) - y_i \Big)
+\end{equation}
+
+
+
+%%%%%%%%%%%%%%%%% SVRs %%%%%%%%%%%%%%%%%
+
+\subsection{Support vector regression}
+To bring the idea about soft-margin from SVMs to \emph{support vector regression}\index{Support vector regression} (SVR) we use the \emph{$\epsilon$-insensitive loss}\index{$\epsilon$-insensitive loss}
+\begin{equation}\label{eq:EsensitiveLoss}
+ |y-f(\vc{x})|_{\epsilon} = max \{  |y-f(\vc{x})| - \epsilon ,0  \}
+\end{equation}.
+
+In the SVR problem we search for a linear (affine) function 
+\begin{equation}\label{eq:RegFunction}
+ f(\vc{x}) = \langle \vc{w},\vc{x} \rangle + b, \qquad \vc{w},\vc{x} \in \mathcal{H}, b \in \mathbb{R}
+\end{equation}
+based on a set of observations $\{\vc{x}_i,y_i\}_{i=1}^n \in \mathcal{H} \times \mathbb{R}$
+such that it minimizes the risk (or test error)
+\begin{equation}\label{eq:LearningRisk}
+ R[f] := \int \ell(f,x,y) dP(x,y),
+\end{equation}
+where $\ell(f,x,y)$ is a loss function (such as squared error) and $P$ is the probability of the data generation process.
+Since we cannot minimize eq. \ref{eq:LearningRisk} directly (we do not know the probability distribution $P$) we instead minimise the regularised empirical risk
+\begin{equation}\label{eq:EmpiricalRisk}
+ R_{emp}[f] := \frac{C}{n} \sum_1^n \ell_{emp}(f,x,y)+ \Omega(f), \quad C \geq 0
+\end{equation}
+In the case of SVR the regulariser is $\Omega(f) = 1/2 ||\vc{w}||_2^2$ and the empirical loss is the $\epsilon$-insensitive loss of eq. \ref{eq:EsensitiveLoss} (note that it does not have to be the same as the theoretical loss used in eq. \ref{eq:LearningRisk}).
+
+Unlike in SVM we minimise directly the $\ell_2$ norm of $\vc{w}$ instead of its negative so seemingly making the margin \emph{large} but it somehow works out the right way (see \cite{Scholkopf2002} Figure 9.1).
+
+The $\epsilon$-insensitive loss creates a tube around the regression curve $f(\vc{x}_i) - \epsilon \leq y_i \leq f(\vc{x}_i) + \epsilon$ when the loss is zero. But similarly as in SVMs we may want to further relax this to account for outliers etc. by introducing slack variables $\xi_i \geq 0$ so that now we require that $f(\vc{x}_i) - \epsilon - \xi^*_i \leq y_i \leq f(\vc{x}_i) + \epsilon + \xi_i$, where for each data point we need to slack variables. As in SVMs, if $\xi_i$ could be arbitrarily large we could get zero errors for all data points and therefore we control the size of the slack variables in the objective function of the primal SVR problem
+\begin{eqnarray}\label{eq:SVRPrimal}\index{SVR primal problem}
+  \text{minimize }  & & \tau(\vc{w},\vc{\xi}):= 1/2 \, ||\vc{w}||_2^2 + C \sum_i^n (\xi_i + \xi^*_i), \qquad C>0 \nonumber \\
+  \text{subject to} & & 
+  y_i - \big( \langle \vc{w},\vc{x}_i \rangle + b \big) \leq \epsilon + \xi_i \nonumber \\
+& & \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - y_i \leq \epsilon + \xi^*_i \nonumber \\ 
+& & \xi_i, \xi^*_i \geq 0
+\end{eqnarray}
+
+We construct the Lagrangian of the problem \ref{eq:SVRPrimal} as
+\begin{eqnarray}\label{eq:SVRLagrangian}\index{SVR Lagrangian}
+  L(\vc{w},b,\vc{\xi},\vc{\alpha},\vc{\nu}) & = & 1/2 \, ||\vc{w}||_2^2 + C \sum_i^n (\xi_i+ \xi^*_i) - \sum_i^n (\nu_i \, \xi_i + \nu^*_i \, \xi^*_i ) \nonumber \\
+& & + \sum_i^n \alpha_i \Big( y_i - \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - \epsilon - \xi_i\Big)  \nonumber \\
+& & + \sum_i^n \alpha^*_i \Big( \big( \langle \vc{w},\vc{x}_i \rangle + b \big) -y_i - \epsilon - \xi^*_i\Big)
+\end{eqnarray}
+and the corresponding dual function
+\begin{equation}\label{eq:SVRDualFce}\index{SVR dual function}
+    g(\vc{\alpha},\vc{\nu}) =  \inf_{w,b,\xi} L(\vc{w},b,\vc{\xi},\vc{\alpha})
+\end{equation}. 
+
+Minimizing the SVR Lagrangian with respect $\vc{w}$, $b$ and $\vc{\xi}$ yields
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{w}}} = \vc{w} + \sum_i^n (\alpha^*_i - \alpha_i) \vc{x}_i = 0 \qquad \Longrightarrow \qquad \vc{w} = \sum_i^n (\alpha_i - \alpha^*_i) \vc{x}_i
+\end{equation}
+\begin{equation}
+ \frac{\partial{L}}{\partial{b}} = \sum_i^n (\alpha^*_i - \alpha_i) = 0
+\end{equation}
+and
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{\xi}_i}} = C-\nu_i- \alpha_i = 0 
+ \qquad \Longrightarrow \qquad \nu_i = C -\alpha_i
+\end{equation}
+\begin{equation}
+ \frac{\partial{L}}{\partial{\vc{\xi}^*_i}} = C-\nu^*_i- \alpha^*_i = 0 
+ \qquad \Longrightarrow \qquad \nu^*_i = C -\alpha^*_i
+\end{equation}
+and because $\nu_i \geq 0$ we get $\alpha_i \leq C$.
+
+Substituting these results into the dual function we get the \emph{SVR dual problem}\index{SVR dual problem} 
+\begin{eqnarray}\label{eq:SVRDual}\index{Soft-margin SVM dual problem}
+  \text{maximize }  & & \varphi(\vc{\alpha},\vc{\alpha}^*) :=  - 1/2 \sum_{ij}^n (\alpha_i - \alpha^*_i)(\alpha_j - \alpha^*_j) \langle \vc{x}_i, \vc{x}_j \rangle
+\nonumber \\
+& & \qquad + \sum_i^n (\alpha_i - \alpha^*_i) y_i 
+- \sum_i^n (\alpha_i - \alpha^*_i) \epsilon \nonumber \\
+  \text{subject to} & & 0 \leq \alpha_i \leq C, \quad 0 \leq \alpha^*_i \leq C \nonumber \\
+   & & \sum_i^n (\alpha^*_i - \alpha_i) = 0
+\end{eqnarray}
+
+The linear function \ref{eq:RegFunction} can be expressed as
+\begin{equation}\label{eq:RegFunction2}
+ f(\vc{x}) = \sum_i^n (\alpha_i - \alpha^*_i) \langle \vc{x}_i, \vc{x} \rangle + b = \sum_i^n (\alpha_i - \alpha^*_i) \, k( \vc{x}_i, \vc{x} ) + b 
+\end{equation}
+
+After solving for $\alpha$ we can get the solution for $b$ by using the KKT conditions which in this case state that
+\begin{eqnarray}\label{eq:KKTSVR1}
+ \alpha_i \Big( y_i - \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - \epsilon - \xi_i \Big) = 0 \nonumber \\
+ \alpha^*_i \Big( \big( \langle \vc{w},\vc{x}_i \rangle + b \big) - y_i - \epsilon - \xi^*_i \Big) = 0 
+\end{eqnarray}
+and
+\begin{eqnarray}
+ \nu_i \xi_i = (C - \alpha_i)\xi_i = 0 \nonumber \\
+ \nu_i^* \xi^*_i = (C - \alpha^*_i)\xi^*_i = 0 
+\end{eqnarray}
+From which we can conclude:
+\begin{itemize}
+\item only examples with $C=\alpha^{(*)}_i$ can lie outside the $\epsilon$-insensitive tube with $\xi^{(*)} > 0$
+\item for $0 < \alpha^{(*)}_i \leq C$ we must have $\xi^*_i=0$
+\item $\alpha_i \, \alpha^*_i = 0$, that is they cannot be simultaneously both non-zero (but they can both be zeros)
+\end{itemize}
+
+Therefore we can use the support vectors $i \in \mathcal{S}$ for which $0 < \alpha^{(*)}_i \leq C$ to get $b$ by from \ref{eq:KKTSVR1}.
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Scholkopf2002}
+B. Schölkopf and A. J. Smola, Learning with kernels. The MIT Press, 2002.
+
+\end{thebibliography}

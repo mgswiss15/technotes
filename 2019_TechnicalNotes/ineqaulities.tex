@@ -1,0 +1,564 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 7/8/2019 - vae log-likelihood by importance sampling %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Some useful inequalities (or equalities) - in progress}\label{sec:Inequalities}
+
+Some useful inequalities or equivalences found around and worth remembering.
+
+
+\subsection{Numerical inequalities}\label{sec:NumericalIneq}
+
+Based on \cite{Casella2002}.
+
+\subsubsection{Triangle inequality}\index{Triangle inequality}
+\begin{equation}\label{eq:Triangle}
+|X+Y| \leq |X| + |Y|
+\end{equation}
+
+\subsubsection{Holder's inequality}\label{sec:Holder}\index{Holder's inequality}
+
+Let $a, b > 0$ and $p, q > 1$ be any numbers satisfying
+\begin{equation}\label{eq:pqPowers}
+\frac{1}{p} + \frac{1}{q} = 1 \qquad p+q = pq \qquad (p-1)q = p
+\end{equation}
+then
+\begin{equation}\label{eq:powersEq}
+\frac{1}{p}a^p + \frac{1}{q}b^q \geq ab
+\end{equation}
+with equality only if $a^p = b^q$.
+
+\begin{prf}
+Fix $b$ and minimize the function $g(a) = \frac{1}{p}a^p + \frac{1}{q}b^q - ab$.
+To minimize, we set the derivative equal to zero $d g(a) = a^{p-1} - b = 0 \Rightarrow b = a^{p-1}$. 
+The value of the function at minimum is 
+$\frac{1}{p}a^p + \frac{1}{q}(a^{p-1})^q - aa^{p-1} = (\frac{1}{p}-1)a^p + \frac{1}{q}a^p = 0$.
+So the minimum is $0$ and \eqref{eq:powersEq} is established.
+\end{prf}
+
+We use this to get the \textbf{Holder's inequality} Let $X$ and $Y$ be two r.v. and let $p, q$ satisfy \eqref{eq:pqPowers}.
+Then 
+\begin{equation}\label{eq:Holders}
+|\rE XY| \leq \rE |XY| \leq (\rE|X|^p)^{1/p} (\rE|Y|^q)^{1/q}
+\end{equation}
+
+\begin{prf}
+The first inequality follows from the Jensen's inequality \eqref{eq:Jensens}. 
+Define $a = \frac{|X|}{(\rE|X|^p)^{1/p}}$ and $b = \frac{|Y|}{(\rE|Y|^q)^{1/q}}$.
+Applying \eqref{eq:powersEq} we have
+\begin{align*}
+\frac{1}{p}\frac{|X|^p}{\rE|X|^p} + \frac{1}{q}\frac{|Y|^q}{\rE|Y|^q} & \geq \frac{|XY|}{(\rE|X|^p)^{1/p} (\rE|Y|^q)^{1/q}} \nn
+\frac{1}{p}\frac{\rE|X|^p}{E|X|^p} + \frac{1}{q}\frac{\rE|Y|^q}{\rE|Y|^q} & \geq \frac{\rE|XY|}{(\rE|X|^p)^{1/p} (\rE|Y|^q)^{1/q}} \qquad \text{(taking expectation on both sides)} \nn
+1 & \geq \frac{\rE|XY|}{(\rE|X|^p)^{1/p} (\rE|Y|^q)^{1/q}} \nn
+(\rE|X|^p)^{1/p} (\rE|Y|^q)^{1/q} & \geq \rE|XY| \qquad \qquad \text{QED}
+\end{align*}
+\end{prf}
+
+\textbf{Cauchy-Schwarz inequality}\index{Cauchy-Schwarz inequality} is the special case of Hodler's for $p=q=2$
+\begin{equation}\label{eq:CS}
+|\rE XY| \leq \rE |XY| \leq (\rE|X|^2)^{1/2} (\rE|Y|^2)^{1/2}
+\end{equation}
+
+An example of CS is the \textbf{covariance inequality}\index{covariance inequality}
+\begin{align}
+|\rE (X-\rE X)(Y-\rE Y)| & \leq \rE |(X-\rE X)(Y-\rE Y)| \leq (\rE (X-\rE X)^2)^{1/2} (\rE (Y-\rE Y)^2)^{1/2} \nn
+Cov(X,Y)^2 & \leq (\rE (X-\rE X)^2) (\rE (Y-\rE Y)^2) = \rho_X^2 \rho_Y^2
+\end{align}
+
+Another form of \textbf{covariance inequality} for two functions of a random variable states that
+for $g(X), h(X)$ \textbf{both non-decreasing or both non-increasing} and therefore having $Cov(g(X)h(X)) \geq 0$
+\begin{equation}
+\rE(g(X)h(X)) \geq \rE g(X) \rE h(X) \enspace .
+\end{equation}
+For $g(X), h(X)$ \textbf{one non-decreasing the other non-increasing} and therefore having $Cov(g(X)h(X)) \leq 0$
+\begin{equation}
+\rE(g(X)h(X)) \leq \rE g(X) \rE h(X) \enspace .
+\end{equation}
+
+\paragraph{Other useful variants:} \
+
+Let $Y = 1$, we get $\rE |X| \leq (\rE |X|^p)^{1/p}$ for $1 < p < \infty$.
+
+Let $Y = 1$ and $1 < r < p < \infty$ we get $\rE |X|^r \leq (\rE |X|^{rp})^{1/p}$.
+
+For \textbf{Liupanov's inequality}\index{Liupanov's inequality} put
+$s = pr \Rightarrow 1/p = r/s$ and observe that $s > r$ so that
+$1 < r < s < \infty$.
+By rearranging the above we get $(\rE |X|^r)^{1/r} \leq (\rE |X|^{s})^{1/s}$.
+
+\subsubsection{Minkowski's inequality}\label{sec:Minkowski}\index{Minkowski's inequality}
+
+Let $X, Y$ be r.v., then for $1 \leq p < \infty$
+\begin{equation}\label{eq:Minkowski}
+\left(\rE |X+Y|^p\right)^{1/p} \leq \left(\rE |X|^p\right)^{1/p} + \left(\rE |Y|^p\right)^{1/p}
+\end{equation}
+
+\begin{prf}
+From the triangle inequality \eqref{eq:Triangle} we have
+\begin{equation*}
+\rE |X+Y|^p = \rE\left(|X+Y| |X+Y|^{p-1}\right) \leq \rE\left(|X| |X+Y|^{p-1}\right) + \rE\left(|Y| |X+Y|^{p-1}\right) \enspace .
+\end{equation*}
+Using Hodler's to the terms on the right side we have
+\begin{equation*}
+\rE\left(|X| |X+Y|^{p-1}\right) \leq (\rE |X|^p)^{1/p} (\rE |X+Y|^{q(p-1)})^{1/q}
+\end{equation*}
+with $p,q$ satisfying \eqref{eq:pqPowers} and therefore
+\begin{align*}
+\rE |X+Y|^p & \leq (\rE |X|^p)^{1/p} \left(\rE |X+Y|^{q(p-1)}\right)^{1/q} + (\rE |Y|^p)^{1/p} \left(\rE |X+Y|^{q(p-1)}\right)^{1/q} \\
+\frac{\rE |X+Y|^p}{\left(\rE |X+Y|^{q(p-1)}\right)^{1/q}}
+& \leq (\rE |X|^p)^{1/p} + (\rE |Y|^p)^{1/p} \\
+\left(\rE |X+Y|^{p}\right)^{1 - 1/q}
+& \leq (\rE |X|^p)^{1/p} + (\rE |Y|^p)^{1/p} \qquad q(p-1) = p \text{ from \eqref{eq:pqPowers}} \\
+\left(\rE |X+Y|^{p}\right)^{1/p}
+& \leq (\rE |X|^p)^{1/p} + (\rE |Y|^p)^{1/p} \qquad \qquad \text{QED}
+\end{align*}
+\end{prf}
+
+\subsection{Optimization}\label{sec:Optimization}
+
+\subsubsection{Change max to min}\index{max to min}
+
+\begin{equation}
+\min f(x) = - \max -f(x)
+\end{equation}
+
+\begin{prf}
+$m \leq f(x)$ for any $f(x)$ is the minimum.
+We know that $-m \geq -f(x)$ which tells us that $-m$ is the maximum of $-f(x)$, that is $- m = \max - f(x)$.
+Multiplying both sides by $-1$ we get the result.
+\end{prf}
+
+\subsubsection{Min of monotonic function}
+
+For a non-decreasing function $f$ we have $\max f(x) = f(\max x)$.
+
+\begin{prf}
+If $f$ is non-decreasing then for all $x \geq x'$ we have $f(x) \geq f(x')$.
+For $\max f(x) = f^* = f(x^*)$ we know that $f(x^*) \geq f(x)$ and therefore
+$x^* \geq x$ for any $x$ which gives $x^* = \max x$ and therefore $\max f(x) = f(\max x)$.
+\end{prf}
+
+
+\subsubsection{Min of exponential}
+
+Using the previous results we have ($\exp$ is monotonically increasing)
+\begin{equation}\label{eq:MinExp}
+\min \exp( - a) = \exp (\min -a) = \exp (- \max a)
+\end{equation}
+
+\subsubsection{Jensen's inequality}\index{Jensen's inequality}
+
+A function $f$ is convex\index{convex function} if for all $x_1, x_2 \in \mX{}$ and all $t \in [0,1]$ we have
+\begin{equation}\label{eq:ConvexDef}
+f(tx_1 + (1-t)x_2) \leq t f(x_1) + (1-t)f(x_2)
+\end{equation}
+In words, convex function of an average of two points is below the average of the function evaluations at the two points.
+
+This can be extended from averages to expectations for a convex function $f$ (e.g. $\exp$)
+\begin{equation}\label{eq:Jensens}
+f(\rE{X}) \leq \rE{f(X)} \enspace .
+\end{equation}
+
+For a concave function $g$ (e.g. $\log$) the inequality reverses into
+\begin{equation}
+g(\rE{X}) \geq \rE{g(X)} \enspace .
+\end{equation}
+
+
+\subsection{Basic probability}\label{sec:BasicProb}
+
+\subsubsection{Union bound}\index{union bound}
+
+Based on \cite{Casella2002}.
+
+For a countable set of events $A_1, A_2, \ldots, A_n$ we have
+\begin{equation}
+\rP (\cup_i^n A_i) \leq \sum_i^n \rP (A_i)
+\end{equation}
+
+\begin{prf}
+From the basic laws of probability we have $\rP(A \cup B) = \rP(A) + \rP(B) - \rP(A \cap B) \leq \rP(A) + \rP(B)$.
+We indicate by $A = \cup_i^{n-1} A_i$ and $B = A_n$ to get
+\begin{equation}
+\rP (\cup_i^n A_i) = \rP(\cup_i^{n-1} A_i \cup A_n) \leq \rP(\cup_i^{n-1} A_i) + \rP(A_n)
+\end{equation}
+from which by induction we get the result.
+\end{prf}
+
+\subsection{Variable transformation}\label{sec:VarTransform}\index{variable transformation}
+
+Based on \cite{random}.
+
+We have a r.v. $X$ taking values in a set $S$ with a known probability distribution $\rP$.
+
+A function $g: S \to T$ is a new r.v. $Y = g(X)$ with values in $T$.
+
+For $B \subseteq T$, $g^{-1}(B) = \{x \in S: g(x) \in B\}$ is the \emph{inverse image}\index{inverse image} (preimage)\index{preimage} of $B$ under $g$ and the probability is $P(Y \in B) = P(g(X) \in B) = P(X \in g^{-1}(B))$. 
+
+If the function $g(x) = y$ is \textbf{one-to-one} than it has an inverse \emph{function} $g^{-1}(y) = x$ which is as well one-to-one.
+
+If $g(x) = y$ is \textbf{strictly increasing} then the cumulative distribution function is
+\begin{equation}
+G(y) = P(Y \leq y) = P(g(X) \leq g(x)) = P(X \leq x) = F(x) \enspace ,
+\end{equation}
+where $F$ is the cdf of X and $x = g^{-1}(y)$.
+
+If $g(x) = y$ is \textbf{strictly decreasing} then
+\begin{equation}
+G(y) = P(Y \leq y) = P(g(X) \leq g(x)) = P(X \geq x) = 1 - F(x) \enspace .
+\end{equation}
+
+
+However, if the function $g(x) = y$ is \textbf{many-to-one} than it does not have an inverse \emph{function}, and $g^{-1}(y) = \{ x_1, x_2, \ldots \}$ is the one-to-many inverse image. In the general case, we cannot make similar claims about cdf (or pdf) of Y as above.
+
+Still, for a \textbf{non-decreasing} function $g(x) = y$ with an inverse image $g^{-1}(y) = (x_1, x_2), \ x_1 \leq x_2$ we have
+\begin{eqnarray}
+\text{case 1} \quad G(y) = P(Y \leq y) = P(g(X) \leq g(x_1)) & > & P(X \leq x_1) = F(x_1) \nn
+\text{case 2} \quad G(y) = P(Y \leq y) = P(g(X) \leq g(x_2)) & = & P(X \leq x_2) = F(x_2) \nn
+\text{in general} \quad G(y) = P(Y \leq y) = P(g(X) \leq g(x)) & \geq & P(X \leq x) = F(x) \nn
+& \text{and} & \\
+\text{case 1} \quad 1 - G(y) = P(Y \geq y) = P(g(X) \geq g(x_1)) & = & P(X \geq x_1) = 1 - F(x_1) \nn
+\text{case 2} \quad 1 - G(y) = P(Y \geq y) = P(g(X) \geq g(x_2)) & > & P(X \geq x_2) = 1 - F(x_2) \nn
+\text{in general} \quad 1 - G(y) = P(Y \geq y) = P(g(X) \geq g(x)) & \geq & P(X \geq x) = 1 - F(x) \nonumber
+\end{eqnarray}
+
+\begin{table}[h!]
+\caption{Example of probability distribution of a non-decreasing variable transformation $g(x)$.}
+\label{tab:VarTransform}
+\vskip 0.15in
+\begin{center}
+\begin{tabular}{cccc | cccc}
+\hline
+$x$ & $P(X=x)$  & $P(X \leq x)$ & $P(X \geq x)$ & $g(x)$ & $P(g(X)=g(x))$ & $P(g(X) \leq g(x))$ & $P(g(X) \geq g(x))$ \\
+\hline
+1    & 1/6 & 1/6 & 1 &\multirow{2}{*}{2} & \multirow{2}{*}{1/3} & \multirow{2}{*}{1/3} & \multirow{2}{*}{1}\\
+2    & 1/6 & 1/3 & 5/6 \\
+\hline
+3    & 1/6 & 1/2 & 2/3 &\multirow{2}{*}{4} & \multirow{2}{*}{1/3} & \multirow{2}{*}{2/3} & \multirow{2}{*}{2/3}\\
+4    & 1/6 & 2/3 & 1/2 \\
+\hline
+5    & 1/6 & 5/6 & 1/3 &\multirow{2}{*}{6} & \multirow{2}{*}{1/3} & \multirow{2}{*}{1} & \multirow{2}{*}{1/3}\\
+6    & 1/6 & 1 & 1/6 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+
+
+\subsection{Concentration bounds}\label{sec:concentrationBounds}
+
+Based on \cite{Boucheron2013}.
+
+By concentration inequality we usually mean an upper bound for the probability that a r.v. $Z$ differs from its expected value by more than some amount $t > 0$. That is we seek upper bounds on the probabilities in the form
+\begin{equation}
+\rP{(Z-\rE{Z} \geq t)} \quad \text{ and } \quad \rP{(Z-\rE{Z} \leq -t)}
+\end{equation}
+or equivalently on the probability
+\begin{equation}
+\rP{(|Z-\rE{Z}| \geq t)} \enspace .
+\end{equation}
+
+\subsubsection{Markov's inequality}\index{Markov's inequality}
+
+Based on \cite{Casella2002}.
+
+For a non-negative random variable $Y$, i.e. $\rP(Y < 0) = 0$, and all $t > 0$ we have
+\begin{equation}\label{eq:Markov}
+\rP(Y \geq t) \leq \frac{\rE Y}{t}
+\end{equation}
+
+By fixing $t = r \, \rE Y$ we get the equivalent
+\begin{equation}
+\rP(Y \geq r \, \rE Y) \leq \frac{1}{r}
+\end{equation}
+
+\begin{prf}
+Following \cite{Casella2002}. For a given $t > 0$ it holds that 
+\begin{eqnarray*}
+t \, \ind(Y \geq t) & \leq & Y \ \quad \ (\ind(Y \geq t) = 1 \text{ if } Y \geq t \text{ and 0 otherwise})\\
+\rE (t \,\ind(X \geq t)) & \leq & E Y \quad \text{(by monotonicity of expectation)} \\
+t \, \big( 1 \, \rP(Y \geq t) + 0 \, \rP(Y < t) \big) & \leq & \rE Y  \quad \text{(expanding the expectation)} \\
+\rP(Y \geq t) & \leq & \frac{\rE Y}{t} \quad \text{QED}
+\end{eqnarray*}
+\end{prf}
+
+We can apply \eqref{eq:Markov} to a non-negative random function $Y = g(Z)$ of r.v. $Z$ taking values in $I \subseteq \mR$ so that 
+\begin{equation}
+\rP(g(Z) \geq t) \leq \frac{\rE g(Z)}{t}
+\end{equation}
+and for non-decreasing nonnegative $g$ with $Z, t \in I \subseteq \mR$ so that $g(t) > 0$
+\begin{equation}\label{eq:MarkovFunc}
+\rP(Z \geq t) \leq \rP(g(Z) \geq g(t)) \leq \frac{\rE g(Z)}{g(t)}
+\end{equation}
+
+\subsubsection{Chebyshev's inequality}\index{Chebyshev's inequality}
+
+Based on \cite{Boucheron2013}.
+
+Taking $g(t) = t^2$ and $Y = |Z - \rE{Z}|$, we get from \eqref{eq:MarkovFunc}
+\begin{eqnarray}\label{eq:Chebyshev}
+\rP(|Z - \rE{Z}|^2 \geq t^2) & \leq & \frac{\rE (|Z - \rE{Z}|^2)}{t^2} \nn
+\rP(|Z - \rE{Z}| \geq t) & \leq & \frac{Var \, Z}{t^2}
+\end{eqnarray}
+
+More generally, we may take $g(t) = t^q$ for some $q>0$ and all $t>0$ to get the general \textbf{moment bounds}\index{moment bounds}
+\begin{eqnarray}\label{eq:momentBound}
+\rP(|Z - \rE{Z}| \geq t) & \leq & \frac{\rE (|Z - \rE{Z}|^q)}{t^q}
+\end{eqnarray}
+and we may choose $q$ to optimize the upper bound. 
+
+Nevertheless, variance (that is $q = 2$) is probably the easiest to handle.
+
+For a \textbf{sum of independent} r.v. $Z = \sum_i^n X_i$ we have for the expectation $\rE{Z} = \sum_i^n \rE{X_i}$, for the variance $Var Z = \sum_i^n Var X_i$ and therefore from \eqref{eq:Chebyshev}
+\begin{eqnarray}\label{eq:ChebyshevSum}
+\rP\left(\Big| \sum_i^n X_i - \rE{\sum_i^n X_i} \Big| \geq t\right) & \leq & \frac{Var \, \sum_i^n X_i}{t^2} \nn
+\rP\left(\Big| \sum_i^n (X_i - \rE{X_i}) \Big| \geq t\right) & \leq & \frac{\sum_i^n Var X_i}{t^2} \nn
+\rP\left(\frac{1}{n} \Big| \sum_i^n (X_i - \rE{X_i}) \Big| \geq \frac{t}{n}\right) & \leq & \frac{\sum_i^n Var X_i}{t^2} \nn
+\rP\left(\frac{1}{n} \Big| \sum_i^n (X_i - \rE{X_i}) \Big| \geq r \right) & \leq & \frac{n^{-1} \sum_i^n Var X_i}{n r^2} \qquad \frac{t}{n} = r, \ t^2 = r^2n^2
+\end{eqnarray}
+
+\subsubsection{Cramer-Chernoff method}\index{Cramer-Chernoff method}
+
+Based on \cite{Boucheron2013}.
+
+For r.v. $Z \in \mR$ and $g(t) = e^{\lambda t}$ where $\lambda > 0$ we get from Markov's \eqref{eq:MarkovFunc}
+\begin{equation}\label{eq:MarkovExp}
+\rP(Z \geq t) \leq \frac{\rE e^{\lambda Z}}{e^{\lambda t}} \enspace ,
+\end{equation}
+where $F(\lambda) = \rE e^{\lambda Z}$ is the \emph{moment generating function}\index{moment generating function} (in general defined for all $\lambda \in \mR{}$).
+We will optimize for $\lambda \geq 0$ to get the best possible concentration bound.
+
+Define $\psi_Z(\lambda) := \log \rE e^{\lambda Z}$ for all $\lambda \geq 0$ and introduce \emph{Cramer transform}\index{Cramer transform} of $Z$
+\begin{equation}\label{eq:CramerTransform}
+\psi_Z^*(t) = \sup_{\lambda \geq 0}(\lambda t - \psi_Z(\lambda))
+\end{equation}
+
+From \eqref{eq:MarkovExp} we get the \textbf{Chernoff's inequality}\index{Chernoff's inequality}
+\begin{equation}\label{eq:Chernoff}
+\rP(Z \geq t) \leq \exp (- \psi_Z^*(t))
+\end{equation}
+
+\begin{prf}{Chernoff's inequality}
+\begin{eqnarray*}
+\rP(Z \geq t) & \leq & e^{-\lambda t}\rE e^{\lambda Z} =
+\exp \log (e^{-\lambda t}\rE e^{\lambda Z}) =
+\exp (\psi_Z(\lambda) - \lambda t) \nn
+\rP(Z \geq t) & \leq & \min_\lambda \exp (\psi_Z(\lambda) - \lambda t)  \qquad  \qquad (\text{true for any } \lambda \geq 0 \text{ so also for } \min) \nn
+\rP(Z \geq t) & \leq & \exp (- \max \lambda t - \psi_Z(\lambda)) = \exp (- \psi_Z^*(t)) \qquad (\text{use } \eqref{eq:MinExp}) \qquad \text{QED}
+\end{eqnarray*}
+\end{prf}
+
+For $\lambda = 0$ we have $\psi_Z(0) := \log \rE e^{0 Z} = \log 1 = 0$ and hence (as we can always opt for $\lambda = 0$ if there is no better $\lambda$)
+\begin{equation}\label{eq:cramer_positive}
+\psi_Z^*(t) = \sup_{\lambda \geq 0}(\lambda t - \psi_Z(\lambda)) \geq 0
+\end{equation}
+
+By Jensen's inequality \eqref{eq:Jensens} we have $\psi_Z(\lambda) := \log \rE e^{\lambda Z}$.
+Therefore for \textbf{negative} $\lambda < 0$ we get for all $t \geq \rE{Z}$ 
+\begin{eqnarray}
+t &\geq& \rE{Z} \nn
+\lambda t &\leq& \lambda \rE{Z} \qquad (\lambda < 0) \nn
+\lambda t &\leq& \psi_Z(\lambda) \qquad (\log \rE e^{\lambda Z} \geq \rE \log e^{\lambda Z} = \lambda \rE Z)\nn
+\lambda t - \psi_Z(\lambda) &\leq& 0
+\end{eqnarray}
+
+For all $t \geq \rE{Z}$ we can therefore extend the supremum in \eqref{eq:CramerTransform} over $\lambda \in \mR$ because none of the $\lambda < 0$ will be considered due to \eqref{eq:cramer_positive}.
+\begin{equation}\label{eq:FenchelTransform}
+\psi_Z^*(t) = \sup_{\lambda \in \mR}(\lambda t - \psi_Z(\lambda))
+\end{equation}
+which is known as the \emph{Fenchel-Legendre transform}\index{Fenchel-Legendre transform} or as the \emph{convex conjugate}\index{convex conjugate} of $\psi_Z(\lambda)$.
+
+Chernoff's inequality is trivial if $\psi_Z^*(t) = 0$ (simply $\rP(Z \geq t) \leq 1$). This happens whenever $\psi_Z(\lambda) = \infty$ for all positive $\lambda > 0$ or if $t \leq \rE{Z}$.
+
+\begin{prf}
+If $t \leq \rE{Z}$ and $\lambda \geq 0$ then
+\begin{eqnarray*}
+t &\leq& \rE{Z} \nn
+\lambda t &\leq& \lambda \rE{Z} \leq \psi_Z(\lambda) \qquad (\lambda > 0) \nn
+\lambda t - \psi_Z(\lambda) &\leq& 0 \qquad \text{QED}
+\end{eqnarray*}
+\end{prf}
+
+To avoid the trivial situation, we assume that there exists $\lambda > 0$ such that $\rE e^{\lambda Z} \leq \infty$.
+Denote by $b$ the supremum of the interval of such $\lambda$ so that $0 < b < \infty$.
+Then $\psi_Z(\lambda)$ is convex and infinitely many times differentiable on $I=(0,b)$ (strictly convex if $Z$ is not almost surely constant).
+
+\begin{prf} of convexity using convex function definition \eqref{eq:ConvexDef} and Holder's inequality \eqref{eq:Holders} with $X = e^{t\lambda_1 Z}$, $Y = e^{(1-t)\lambda_2 Z}$ and $p = 1/t$ and $q = 1/(1-t)$.
+
+\begin{align*}
+\rE e^{t\lambda_1 Z} e^{(1-t)\lambda_2 Z} & \leq \left(\rE e^{\lambda_1 Z}\right)^t \left(\rE e^{\lambda_2 Z}\right)^{1-t} \\
+\log \rE e^{[t\lambda_1 + (1-t)\lambda_2] Z} & \leq t \log \rE e^{\lambda_1 Z} + (1-t) \log \rE e^{\lambda_2 Z} \qquad \text{QED}
+\end{align*}
+\end{prf}
+
+The differentiability means that the Cramer transform $\psi_Z^*(t)$ can be obtained by differentiating$ \lambda t - \psi_Z(\lambda)$ with respect to $\lambda$ to get
+\begin{equation}
+\psi_Z^*(t) = \lambda_t t - \psi_Z(\lambda_t) \enspace ,
+\end{equation}
+where $\lambda_t$ is such that $t = \psi'_Z(\lambda_t)$.
+
+Because $\psi_Z(\lambda)$ is convex the derivative $\psi'$ and its inverse $(\psi')^{-1}$ are increasing.
+We get $\lambda_t = (\psi')^{-1}(t)$.
+
+\begin{example}
+For a \textbf{centred normal random variable} $Z$ with variance $\sigma^2$ and the mgf
+$\rE e^{\lambda Z} = e^{\sigma^2 \lambda^2/2}$ we have $\psi_Z(\lambda) = \sigma^2 \lambda^2/2$,
+$\psi'_Z(\lambda) = \sigma^2 \lambda$ and therefore $\lambda_t = t/\sigma^2$.
+
+For every $t > 0$, 
+\begin{equation}
+\psi_Z^*(t) = \lambda_t t - \psi_Z(\lambda_t) = \frac{t^2}{\sigma^2} - \frac{\sigma^2 t^2}{2 \sigma^4} =  \frac{t^2}{2\sigma^2}
+\end{equation}
+so that the Chernoff's inequality \eqref{eq:Chernoff} in this case gives
+\begin{equation}
+\rP(Z \geq t) \leq e^{- t^2/(2\sigma^2)}
+\end{equation}
+\end{example}
+
+
+\paragraph{Sums of independent random variables}
+Though Chernoff's inequality may not be as sharp as the moment bounds \eqref{eq:momentBound}, it is particularly convenient for sums of independent random variables.
+
+For a \textbf{sum of independent} r.v. $Z = \sum_i^n X_i$ we have for the moment generating function
+\begin{equation}
+\rE e^{\lambda Z} = \rE e^{\lambda \sum_i^n X_i} = \rE \prod_i^n e^{\lambda X_i} = \prod_i^n \rE e^{\lambda X_i}
+\end{equation}
+and therefore 
+\begin{equation}
+\psi_Z(\lambda) = \log \rE e^{\lambda Z} = \log \prod_i^n \rE e^{\lambda X_i} = \sum_i^n \log \rE e^{\lambda X_i} = n \psi_X(\lambda)
+\end{equation}
+
+\begin{equation}
+\psi_X^*(t) = \lambda_t t - \psi_X(\lambda_t) \enspace ,
+\end{equation}
+where $\lambda_t$ is such that $t = \psi'_X(\lambda_t)$.
+
+\begin{equation}
+\psi_Z^*(t) = \lambda_t t - n \psi_X(\lambda_t) \enspace ,
+\end{equation}
+where $\lambda_t$ is such that $t = n \ \psi'_X(\lambda_t)$ so that
+\begin{equation}
+\psi_Z^*(t) = n \psi_X^*\left(\frac{t}{n}\right) 
+\end{equation}
+
+
+\subsection{Sub-Gaussian random variables}\label{sec:SubGaussian}\index{Sub-Gaussian random variables}
+Many r.v. have tail probabilities decreasing at least as rapidly as Gaussian r.v.
+
+\begin{definition}[sub-Gaussian r.v.]
+A centered r.v. $X$ is said to be sub-Gaussian with variance factor $\nu$ (bound on the variance of $X$) if its $\log$ mgf is
+\begin{equation}
+\psi_X(\lambda) \leq \frac{\lambda^2 \nu}{2}
+\end{equation}
+We denote the collection of such r.v. by $\mG(\nu)$.
+\end{definition}
+In other words, $X$ belongs to $\mG(\nu)$ if its mgf is dominated by that of a centered Gaussian r.v. with variance $\nu$.
+If independent r.v. $X_1, \ldots, X_n$ are all sub-Gaussian $X_i \leq \mG(\nu_i)$ then $\sum_i X_i \in \mG \left(\sum_i^n \nu_i\right)$.
+
+\paragraph{Other properties:}
+
+From Chernoff's inequality, if $X$ belongs to $\mG(\nu)$ then for every $t > 0$ (see the Gaussian example)
+\begin{equation}
+\rP(X > t) \lor \rP(-X > t) \leq e^{- t^2/(2\nu)} \enspace ,
+\end{equation}
+where $a \lor b$ denotes the maximum of $a$ and $b$.
+
+\begin{theorem}
+Let $X$ be r.f. with $\rE X = 0$. If for some $\nu > 0$ 
+\begin{equation*}
+\rP(X > x) \lor \rP(-X > x) \leq e^{- t^2/(2\nu)} \qquad \text{for all } x > 0
+\end{equation*}
+then for every integer $q \geq 1$
+\begin{equation}\label{eq:bound_esauared}
+\rE X^{2q} \leq 2q!(2\nu)^q \leq q!(4\nu)^q \enspace .
+\end{equation}
+Conversely, if for some constant $C > 0$
+\begin{equation*}
+\rE X^{2q} \leq q!(C)^q
+\end{equation*}
+then $X \in \mG(4C)$ (sub-Gaussian with $\nu = 4C$).
+\end{theorem}
+
+
+\begin{prf}
+Wlg we may assume $\nu = 1$ because otherwise we can apply a simple transformation $X / \sqrt{v}$.
+With $q \geq 1$, the random variable $Y = X^2q = |X|^2q \geq 0$ is \textbf{nonnegative}.
+
+\begin{theorem}[Fubini's]\index{Fubini's theorem}
+For a product probability space $(S \times T, \mS \otimes \mT, \mu \otimes \nu)$ and $f : S \times T \to \mR$ measurable, the integral with respect to the product measure $(\mu \otimes \nu)$ is equivalent to the iterated integrals
+\begin{equation}
+\int_{S \times T} f(x,y) d(\mu \otimes \nu)(x,y) = \int_{S} \int_{T} f(x,y) d \nu(y) d \mu(x) = 
+\int_{T} \int_{S} f(x,y) d \mu(x) d \nu(y)
+\end{equation}
+\end{theorem}
+
+For nonnegative $Y$ we have 
+\begin{align*}
+\int_0^\infty \rP(Y \ge y) dy & = \int_0^\infty \int_y^\infty p(t) dt \, dy \qquad \text{(definition of density)}\\
+& = \int_0^\infty \int_0^y p(t) dy \, dt \qquad \text{(swap integrals }, \infty > y > 0, \infty > t > y, \Rightarrow \infty > t > 0, t > 0 > 0)\\
+& = \int_0^\infty [y \, p(t)]_0^t \, dt \qquad \text{(integral of constant)}\\
+& = \int_0^\infty t \, p(t) \, dt = \rE Y
+\end{align*}
+
+Therefore 
+\begin{align*}
+\rE X^{2q} & = \int_0^\infty \rP(|X|^{2q} \ge x) dx \\
+& = \int_0^\infty \rP(|X| \ge x^{1/(2q)}) dx
+\end{align*}
+Substitute
+\begin{align*}
+u & = x^{1/(2q)} & du & = 1/(2q) \, x^{1/(2q)-1} \, dx \\
+u^{2q} & = x & 2q \, du & = \frac{x^{1/(2q)}}{x} \, dx \\
+ & & 2q \, du & = \frac{u}{u^{2q}} \, dx \\
+ & & 2q \, u^{2q-1} du & = dx 
+\end{align*}
+and continue from above
+\begin{align*}
+\rE X^{2q} 
+& = \int_0^\infty \rP(|X| \ge x^{1/(2q)}) dx \\
+& = \int_0^\infty 2q \, u^{2q-1} \rP(|X| \ge u) du \\
+& = \int_0^\infty 2q \, u^{2q-1} \big(\rP(X \ge u) + \rP(-X \ge u)\big) du \\
+& \leq 4q \, \int_0^\infty u^{2q-1} e^{- u^2/(2\nu)} du
+\end{align*}
+Substitute
+\begin{align*}
+u & = \sqrt{2t\nu} & du & = \sqrt{2\nu}  \, \frac{1}{2} t^{-0.5} \, dt \\
+\frac{u^{2}}{2\nu} & = t & 2 \, du & = 1/u \, dt \\
+ & & 2u \, du & = dt \\
+\end{align*}
+and continue from above
+\begin{align*}
+\rE X^{2q} 
+& \leq 4q \, \int_0^\infty u^{2q-1} e^{- u^2/(2\nu)} du \\
+& = 4q \, \int_0^\infty (2t\nu)^{q-0.5} e^{-t}\sqrt{2\nu}  \, \frac{1}{2} t^{-0.5} \, dt \\
+& = 4q \, \int_0^\infty 2^{q-0.5+0.5-1} \nu^{q-0.5+0.5} t^{q-0.5 -0.5} e^{-t} dt \\
+& = 2^{q+1} q \, \nu^{q}  \int_0^\infty t^{q-1} e^{-t} dt \\
+& = 2^{q+1} q \, \nu^{q}  (q-1)! \qquad \href{https://en.wikipedia.org/wiki/List\_of\_integrals\_of\_exponential\_functions}{\text{(wiki, intergrals of exp func)}}\\
+& = 2^{q+1} \, \nu^{q}  q! = 2 q! \, (2 \nu)^q \leq  q! \, (4 \nu)^q \qquad \text{QED } \eqref{eq:bound_esauared}
+\end{align*}
+
+
+\end{prf}
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Casella2002}
+Casella, G., Berger, R. L.: Statistical Inference. Duxbury. 2002
+
+\bibitem{Boucheron2013}
+Boucheron, Stéphane, Gábor Lugosi, and Pascal Massart. Concentration Inequalities: A Nonasymptotic Theory of Independence. Oxford University Press, 2013.
+
+\bibitem{random} Kyle Siegrist, Random website, https://www.randomservices.org/random/
+
+\bibitem{Mohri2012}
+Mohri, M., Rostamizadeh, A., \& Talwalkar, A.: Foundations of Machine Learning. MIT Press (2012)
+
+\end{thebibliography}
+

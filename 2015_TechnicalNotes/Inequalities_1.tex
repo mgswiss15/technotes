@@ -1,0 +1,195 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 07/11/2016 - Inequalities %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Some useful inequatlities}\label{sec:Inequalities}
+
+\begin{theorem}[Markov's inequality]\index{Markov's inequality}
+Let $X$ be a non-negative random variable such that $P(X \ge 0) = 1$ and $P(X = 0) < 1$ and $EX < \infty$. Then for any $r > 0$
+\begin{equation*}
+P(X \geq r) \leq \frac{EX}{r} \quad \text{ and } \quad P(X \geq t \, EX) \leq \frac{1}{r}
+\end{equation*} 
+\end{theorem}
+
+\begin{prf}
+Following \cite{Casella2002}. For a given $r$ it holds that 
+\begin{eqnarray*}
+r \,I_{(X \geq r)} & \leq & X \ \quad \ (I_{(X \geq r)} = 1 \text{ if } X \geq r \text{ and zero otherwise})\\
+E(r \,I_{(X \geq r)}) & \leq & E X \quad \text{(by monotonicity of expectation)} \\
+r \, \big( 1 \, P(X \geq r) + 0 \, P(X < r) \big) & \leq & E X  \quad \text{(expanding the expectation)} \\
+P(X \geq r) & \leq & \frac{EX}{r} \quad \text{QED}
+\end{eqnarray*}
+
+Alternatively following \cite{Mohri2012}
+\begin{eqnarray*}
+P(X \geq r \, EX) & = & \sum_{x \geq r \, EX} P(X = x) \\\
+& \leq & \sum_{x \geq r \, EX} P(X = x) \frac{x}{r \, E X} \quad (\text{from } \frac{x}{r \, E X} \geq 1) \\
+& \leq & \sum_{x} P(X = x) \frac{x}{r \, E X} \\
+& = & E \Big( \frac{x}{r \, E X} \Big) = \frac{1}{r} \quad \text{QED}
+\end{eqnarray*}
+\end{prf}
+
+\ \\
+
+\begin{theorem}[Chebyshev's inequality (generalised)]\index{Chebyshev's inequality}
+Let $X$ be a random variable and $g(x)$ a non-negative function such that $P(g(X) \ge 0) = 1$ and $P(g(X) = 0) < 1$ and $E g(X) < \infty$. Then for any $r > 0$
+\begin{equation*}
+P(g(X) \geq r) \leq \frac{E g(X)}{r} \quad \text{ and } \quad P(g(X) \geq r \, E g(X)) \leq \frac{1}{r}
+\end{equation*} 
+\end{theorem}
+
+\begin{prf} Following \cite{Casella2002}
+Let $f_X(x)$ be the probability density function of the r.v. $X$.  For a given $r > 0$ it holds that 
+\begin{eqnarray*}
+E g(X) & = & \int g(x) f_X(x) dx \\
+& = & \int_{x: g(x) \geq r} g(x) f_X(x) dx + \int_{x: g(x) < r} g(x) f_X(x) dx \\
+& \geq & \int_{x: g(x) \geq r} g(x) f_X(x) dx \\
+& \geq & \int_{x: g(x) \geq r} r \, f_X(x) dx \quad (\text{from } g(x) \geq r) \\
+& = & r \, P(g(X) \geq r) \quad \text{QED}
+\end{eqnarray*}
+
+Alternatively
+\begin{eqnarray*}
+P(g(X) \geq r \, E g(X)) & = & \int_{x: g(x) \geq r \, E g(X)} f_X(x) dx \\
+& \leq & \int_{x: g(x) \geq r \, E g(X)} f_X(x) dx \frac{g(x)}{r \, E g(X)} \quad (\text{from } \frac{g(x)}{r \, E g(X)} \geq 1) \\
+& \leq & \int f_X(x) dx \frac{g(x)}{r \, E g(X)} \\
+& = & E \Big( \frac{g(x)}{r \, E g(X)} \Big) = \frac{1}{r} \quad \text{QED}
+\end{eqnarray*}
+
+\begin{example} Following \cite{Casella2002}
+For $X$ with $EX = \mu$ and $Var X = \sigma^2$ we have
+\begin{equation*}
+P\Big( \frac{(X-\mu)^2}{\sigma^2} \geq r^2 \Big) \leq \frac{1}{r^2} E \frac{(X-\mu)^2}{\sigma^2} = \frac{1}{r^2}
+\end{equation*}
+and therefore we get the classical Chebyshev's bound on deviation from mean \index{Chebyshev's inequality}
+\begin{equation*}
+P( |X-\mu| \geq r\sigma) \leq \frac{1}{r^2}
+\end{equation*}
+\end{example}
+\end{prf}
+
+\ \\
+
+\begin{theorem}[Chernoff's bound]\index{Chernoff's bound}
+Let $X_i$ be a random variable and fix $r > 0$. Then for any $t > 0$
+\begin{equation*}
+P(X_i \geq r) \leq \frac{E e^{tX_i}}{e^{tr}} 
+\end{equation*}
+Let $X$ be the sum of $n$ independent random variables $X = \sum_i^n X_i$. Then for any $t,r > 0$
+\begin{equation*}
+P(X \geq r) \leq \frac{E \, \prod_i^n e^{tX_i}}{e^{tr}} 
+\end{equation*}
+The bound is found as
+\begin{equation*}
+P(X_i \geq r) \leq \min_{t>0} \frac{E e^{tX_i}}{e^{tr}} 
+\end{equation*}
+
+\end{theorem}
+
+\begin{prf} 
+Follows trivially from Chebyshev's inquality by setting $g(X_i) = e^{tX_i}$ and observing that $P(X_i \geq r) = P(e^{tX_i} \geq e^{tr})$.
+Similarly, the second part follows from setting $g(X) = e^{tX} = e^{t\sum X_i} = \prod^n_i e^{tX_i}$.
+\end{prf}
+
+\ \\
+
+\begin{lemma}[Hoeffding's lemma]
+Let $X$ be a random variable wiht $EX = 0$ such that $P(a \leq X \leq b) = 1$.
+Then the following inequality for the moment generating function $M_X(t) = E e^{tX}$ holds
+\begin{equation*}
+E e^{tX} \leq \exp \frac{t^2(b-a)^2}{8}
+\end{equation*}
+\end{lemma}
+
+\begin{prf} Following \cite{Mohri2012}
+\begin{eqnarray*}
+e^{tX} & \leq & \frac{b-x}{b-a} e^{ta} + \frac{x-a}{b-a} e^{tb} \qquad (\text{by convexity of } e^{tX}) \\
+E e^{tX} & \leq & E \Big( \frac{b-X}{b-a} e^{ta} + \frac{X-a}{b-a} e^{tb} \Big) \qquad (\text{by monotonocity of } E) \\
+& = & \frac{b}{b-a} e^{ta} + \frac{-a}{b-a} e^{tb} \qquad (\text{from } E(X)=0) \\
+& = & e^{ta} \Big( \frac{b}{b-a} + \frac{-a}{b-a}e^{tb-ta} \Big) \\
+& = & e^{ta} \frac{-a}{b-a} \Big( \frac{-b}{a} + e^{t(b-a)} \Big) \\
+& = & e^{ta} \frac{-a}{b-a} \Big( \frac{b-a}{-a} + \frac{a}{-a} + e^{t(b-a)} \Big) \\
+& = & e^{ta} u \Big( \frac{1}{u} - 1 + e^{t(b-a)} \Big), \qquad \text{were } u=\frac{-a}{b-a} \\
+& = & e^{ta} - e^{ta} u  + e^{ta} u e^{t(b-a)}  \\
+& = & (1 - u  + u e^{t(b-a)}) e^{ta u / u }  \\
+& = & (1 - u  + u e^{t(b-a)}) e^{-tu(b-a)}  \\
+& = & e^{\phi(t)}, \quad \text{where } \\
+\phi(t) & = & \log \Big( (1 - u  + u e^{t(b-a)}) e^{-tu(b-a)} \Big) \\
+& = & -tu(b-a) + \log \big( 1 - u  + u e^{t(b-a)} \big) \\
+\phi(0) & = & -0 + \log \big( 1 - u  + u \big) = 0\\
+\phi'(t) & = & -u(b-a) + \frac{u(b-a)e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} \\
+\phi'(0) & = & a + \frac{-a}{1 - u  + u} = 0 \\
+\phi''(t) & = & \frac{-a(b-a) e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} + \frac{ua(b-a)e^{2t(b-a)}}{(1 - u  + u e^{t(b-a)})^2} \\
+\phi''(t) & = & \frac{u(b-a)^2 e^{t(b-a)}}{1 - u  + u e^{t(b-a)}}\frac{1 - u + u e^{t(b-a)} - u e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} \\
+& = & \frac{u e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} \Big( 1 - \frac{u e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} \Big) (b-a)^2 \\
+ & = & z(1-z) (b-a)^2, \qquad \text{where } z =  \frac{u e^{t(b-a)}}{1 - u  + u e^{t(b-a)}} = \frac{-a e^{t(b-a)}}{b - a e^{t(b-a)}}(b-a)^2 > 0\\
+ & \leq & 1/4 (b-a)^2 \qquad (\max z (1 - z) = 1/4 \text{ at } z=1/2) \\
+\end{eqnarray*}
+\end{prf}
+
+Using Taylor's approximation with Lagrange form of remainder we know that for every $t >0$ there exist $s \in [0,t]$ such that
+\begin{equation*}
+\phi(t) = \phi(0) + t\phi'(0) + \frac{1}{2} t^2 \phi''(s) \leq \frac{1}{2} t^2 1/4 (b-a)^2 = \frac{t^2 (b-a)^2}{8}
+\end{equation*}
+
+So that finally
+\begin{equation*}
+E e^{tX} \leq e^(\phi(t)) \leq \exp \frac{t^2 (b-a)^2}{8} \quad \text{QED}
+\end{equation*}
+
+\ \\
+
+\begin{theorem}[Hoeffding's inequality]\index{Hoeffding's inequality}
+Let $\{X_i\}_{i=1}^n$ be independent random variable such that $P(a_i \leq X_i \leq b_i) = 1$ and $S = \sum_{i=1}^n X_i$. Then for any $r > 0$
+\begin{eqnarray*}
+P(S - E S \geq r) \leq \exp \frac{-2r^2}{\sum_{i=1}^n (b_i - a_i)^2} \\
+P(S - E S \leq -r) \leq \exp \frac{-2r^2}{\sum_{i=1}^n (b_i - a_i)^2}
+\end{eqnarray*}
+\end{theorem}
+
+\begin{prf}  Following \cite{Mohri2012}
+Using Chernoff's for any $t,r > 0$
+\begin{eqnarray*}
+P(S - E S \geq r) & \leq & \frac{E e^{t (S - E S)}}{e^{tr}} = \frac{E e^{t (\sum_i^n X_i - E \sum_i^n X_i)}}{e^{tr}} \\
+& = & \prod_i^n \frac{E e^{t (X_i - E X_i)}}{e^{tr}} \qquad (\text{by independence})\\
+& = & \prod_i^n \frac{E e^{t (Y_i)}}{e^{tr}} \qquad (Y_i = X_i - E X_i, P(a-E X_i \leq Y_i \leq b - E X_i) = 1)\\
+& \leq & e^{-tr} \, \prod_i^n \exp \frac{(t^2 (a_i - E X_i - b_i + E X_i)^2}{8} \qquad (\text{by Hoeffding's inequality}) \\
+& = & \exp \Big( \frac{1}{8} t^2 \sum_i^n (a_i - b_i)^2 - tr\Big)
+\end{eqnarray*}
+Now find the minimum of this with respect to $t > 0$.
+\begin{eqnarray*}
+L(t) & = & \exp \Big( \frac{1}{8} t^2 \sum_i^n (a_i - b_i)^2 - tr\Big) \\
+L'(t) & = & \Big( \frac{2}{8} t \sum_i^n (a_i-b_i)^2 - r \Big) \exp \Big( \frac{1}{8} t^2 (a_i - b_i)^2 - tr\Big) \\
+0 & = & \Big( \frac{2}{8} t \sum_i^n (a_i-b_i)^2 - r \Big) \exp \Big( \frac{1}{8} t^2 (a_i - b_i)^2 - tr\Big) \\
+t & = & \frac{4r}{\sum_i^n (a_i-b_i)^2} 
+\end{eqnarray*}
+and plug this back
+\begin{eqnarray*}
+P(S - E S \geq r) & \leq & \min_{t>0} \, \exp \Big( \frac{1}{8} t^2 \sum_i^n (a_i - b_i)^2 - tr\Big) \\
+ & = & \exp \Big( \frac{16r^2}{8 (\sum_i^n (a_i - b_i)^2 )^2} \sum_i^n (a_i - b_i)^2 - \frac{4r^2}{\sum_i^n (a_i-b_i)^2} \Big) \\
+ & = & \exp \frac{-2r^2}{\sum_i^n (a_i - b_i)^2} \qquad \text{QED}
+\end{eqnarray*}
+\end{prf}
+
+\begin{definition}[Martingale Difference]\index{Martingale Difference}
+A sequence of random variables $V_1, V_2, \ldots$ is a martingale difference sequence with respect to $X_1, X_2, \ldots$ if for all $i > 0$ $V_i$ is a function of $X_1,\ldots,X_i$ and
+\begin{equation*}
+E ( V_{i+1} | X_1,\ldots,X_i ) = 0
+\end{equation*}
+\end{definition}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Casella2002}
+Casella, G., Berger, R. L.: Statistical Inference. Duxbury. 2002
+
+\bibitem{Mohri2012}
+Mohri, M., Rostamizadeh, A., \& Talwalkar, A.: Foundations of Machine Learning. MIT Press (2012)
+
+\end{thebibliography}
+
+
+

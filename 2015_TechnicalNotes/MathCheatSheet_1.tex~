@@ -1,0 +1,188 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 30/7/2015 - Math cheatsheet %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% loads amsmath and some extra
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% to allow IEEEeqnarray
+%\usepackage[retainorgcmds]{IEEEtrantools}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% enables commenting out sections of text
+\usepackage{verbatim}
+
+%shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}
+%argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\Tr}{Tr}
+\DeclareMathOperator*{\Vc}{Vec}
+%and some more
+\newcommand{\ts}{time-series}
+%\newcommand{\note}{note}
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\color{blue}\emph{Note: #1}} \else {} \fi}
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}
+\newcommand{\conclude}[1]{\ifShowComments {\color{blue}\emph{{\bf Conclusions:} #1}} \else {} \fi}
+
+% for advanced graphics
+%\usepackage{tikz}
+
+% for subfigures
+%\usepackage{caption,subcaption}
+
+% for coloring
+\usepackage{xcolor}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+% to inclued only sections in the table of contents
+%\setcounter{tocdepth}{2}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+
+% for compact item lists
+\usepackage{paralist}
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\section{Math cheat-sheet}
+
+\subsection{Vec operator}
+\begin{equation}
+ vec({\vc{AB}}) = (\vc{I} \otimes \vc{A}) \, vec(\vc{B}) = (\vc{B}' \otimes \vc{I}) \, vec(\vc{A})
+\end{equation}
+\begin{equation}
+ vec({\vc{ABC}}) = (\vc{C} \otimes \vc{A}) \, vec(\vc{B})
+\end{equation}
+\begin{equation}
+ tr(\vc{ABC}) =  vec(\vc{A'})' (\vc{I} \otimes \vc{B}) vec(\vc{C}) =  vec(\vc{A'})' (\vc{C}' \otimes \vc{I}) vec(\vc{B})
+\end{equation}
+\begin{equation}
+ tr(\vc{ABCD}) =  vec(\vc{A'})' (\vc{I} \otimes \vc{B}) vec(\vc{CD}) =  vec(\vc{A'})' (\vc{D}' \otimes \vc{B}) vec(\vc{C})
+\end{equation}
+
+\subsection{Matrix multiplications}
+For $(m \times p)$ matrix $\vc{A}$, $(p \times n)$ matrix $\vc{B}$ and $(m \times n)$ matrix $\vc{AB}$ we have
+\begin{equation}
+ \vc{AB}_{ij} = \sum_k^p A_{ik} B_{ki}
+\end{equation}
+\begin{equation}
+\vc{AB} =
+ \begin{bmatrix}
+  \vc{A}_{1:} \\
+  \vc{A}_{2:} \\
+  \vdots \\
+  \vc{A}_{m:}
+ \end{bmatrix}
+ \begin{bmatrix}
+  \vc{B}_{:1} &
+  \vc{B}_{:2} &
+  \cdots &
+  \vc{B}_{:n}  
+ \end{bmatrix} =
+ \begin{bmatrix}
+  \vc{A}_{1:}\vc{B} \\
+  \vc{A}_{2:}\vc{B} \\
+  \vdots \\
+  \vc{A}_{m:}\vc{B}
+ \end{bmatrix} =
+ \begin{bmatrix}
+  \vc{A}\vc{B}_{:1} &
+  \vc{A}\vc{B}_{:2} &
+  \cdots &
+  \vc{A}\vc{B}_{:n}  
+ \end{bmatrix}
+\end{equation}
+\begin{equation}
+ \vc{AB} =
+ \begin{bmatrix}
+  \vc{A}_{:1} &
+  \vc{A}_{:2} &
+  \cdots &
+  \vc{A}_{:p}
+ \end{bmatrix}
+ \begin{bmatrix}
+  \vc{B}_{1:} \\
+  \vc{B}_{2:} \\
+  \vdots \\
+  \vc{B}_{p:}  
+ \end{bmatrix} =
+\sum_k^p \vc{A}_{:k} \otimes \vc{B}_{k:} = \sum_k^p \vc{A}_{:k} (\vc{B}_{k:})'
+\end{equation}
+For matrix $\vc{A}$ and vectors $\vc{c}$ and $\vc{b}$
+\begin{equation}
+ \sum_i^n c_i \vc{A}_{:i} = \vc{A} \vc{c} \qquad \sum_i^n c_i \vc{A}_{i:} = \vc{c}' \vc{A} \qquad
+\sum_i^n \sum_j^m c_i b_j \vc{A}_{ij} = \sum_i^n c_i \vc{A}_{i:} \vc{b} =  \vc{c}' \vc{A} \vc{b}
+\end{equation}
+\begin{equation}
+ \sum_i^n \sum_j^m c_j \vc{A}_{ij} \sum_k^m b_k \vc{A}_{ik} = \sum_i^n \vc{A}_{i:} \vc{c} \, \vc{A}_{i:} \vc{b} =  \vc{c}' \vc{A}' \vc{A} \vc{b}
+\end{equation}
+
+For matrix $\vc{A}$ and diagonal matrix $\vc{D}$
+\begin{equation}
+ \vc{AD} = 
+\begin{bmatrix}
+ D_{11} \vc{A}_{:1} &
+ D_{22} \vc{A}_{:2} &
+ \cdots &
+ D_{nn} \vc{A}_{:n} &
+\end{bmatrix}
+\end{equation}
+
+
+\subsection{Matrix traces}
+
+\begin{equation}
+ tr(\vc{A}) = \sum_i A_{ii} \qquad tr(\vc{AB}) = \sum_{ij} A_{ij} B_{ji}
+\end{equation} 
+\begin{equation}
+ ||\vc{A}||_F^2 = tr(\vc{A'A}) = tr(\vc{AA'}) = \sum_i \sum_k A_{ik} A'_{ki} = \sum_i
+\langle \vc{A}_{i:}, \vc{A}_{i:} \rangle = \sum_i ||\vc{A}_{i:}||_2^2 = \sum_k
+||\vc{A}_{:k}||_2^2
+\end{equation}
+\begin{equation}
+ \langle \vc{A},\vc{B} \rangle_F = tr(\vc{A'B}) = \sum_i \langle \vc{A_{i:}},\vc{B_{i:}}
+\rangle = \sum_k \langle \vc{A_{:k}},\vc{B_{:k}} \rangle
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

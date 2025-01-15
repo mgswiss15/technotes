@@ -1,0 +1,107 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 18/02/2017 - Perturbations=Tikhonov %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Training with noise is equivalent to Tikhonov regularisation}\index{Tikhonov regularization}
+
+Bishop has a paper on this \cite{Bishop1995} which deals with NNs and derives the equivalence for non-linear functions in a rather elaborate way through Taylor expansion.
+This is to provide some intuition using simple linear regression.
+
+For simplicity, here below I use a very specific example of data and perturbations\index{Perturbations}. But the intuition should extend to more complex cases.
+
+Let's have a dataset of $n$ input-output pairs $\mathcal{D} = \{ (\vc{x}_i,y_i) \in (\mathbb{R}^n \times \mathbb{R}) \}_{i=1}^n$. Note that the dimensionality of the input space is the same as the number of samples so that the design matrix $\vc{X}$ is square $n \times n$. The aim is to learn a function $f : \mathbb{R}^n \to \mathbb{R}$ mapping the inputs to the outputs and here we stick to the class of linear functions in the form $f(\vc{x}) = \vc{x}^T \vc{w}$, where $\vc{w}$ is the $n$-dimensional parameters vector.
+
+The classical ordinary least squares method finds the optimal $\vc{\widehat{w}}$ from the minimisation problem
+\begin{equation}
+\vc{\widehat{w}} = \argmin_w ||\vc{y} - \vc{X}\vc{w}||_2^2
+\end{equation} 
+with the analytical form solution 
+\begin{equation}
+( \vc{X}^T \vc{X} ) \, \vc{\widehat{w}} =  \vc{X}^T \vc{y}
+\end{equation}
+
+Bishop discusses the option to perturb the input samples $\vc{x}$ by a random noise $\vc{\xi}$ to stabilise the learning. The noise is a $n$-dimensinal random variable typically centred at zero ($E(\vc{\xi}) = 0$) and is uncorrelated between input dimensions $E(\xi_i \xi_j) = \mu \, \delta_{ij}$. He does not speak about symmetry but it helps the intuition in the example below.
+
+Next we do the perturbations to our data. Here, I generate a random noise vector $\vc{\xi}$. For each instance the perturbations shall impact only single dimension so that the perturbed inputs matrix is $\vc{X}_1 = \vc{X} +\Xi$, where $\Xi$ is the diagonal matrix constructed from $\xi$. For the sake of symmetry, I will perturb the data once more with the negative noise as $\vc{X}_2 = \vc{X} - \Xi$. Note: This seems a bit as a cheat here (I need it to show what I want) but remember that normally I would do many more perturbations. So each dimension would be perturbed many times, with some positive some negative perturbations with overall $E(\xi_i) = 0$.
+
+The least square problem with these augmented data now amounts to
+\begin{equation}\label{eq:AugProblem}
+\vc{\widehat{w}}_A = \argmin_w \left\Vert
+\begin{bmatrix}
+\vc{y}\\
+\vc{y}\\
+\vc{y}
+\end{bmatrix} -
+\begin{bmatrix}
+\vc{X} \\
+\vc{X}_1\\
+\vc{X}_2
+\end{bmatrix}
+\vc{w} \right\Vert_2^2
+\end{equation}
+and has the OLS solution
+\begin{equation}
+\left( \begin{bmatrix}
+\vc{X} \\
+\vc{X}_1\\
+\vc{X}_2
+\end{bmatrix}^T \begin{bmatrix}
+\vc{X} \\
+\vc{X}_1\\
+\vc{X}_2
+\end{bmatrix} \right) \, \vc{\widehat{w}}_A =  \begin{bmatrix}
+\vc{X} \\
+\vc{X}_1\\
+\vc{X}_2
+\end{bmatrix}^T \begin{bmatrix}
+\vc{y}\\
+\vc{y}\\
+\vc{y}
+\end{bmatrix}
+\end{equation}
+
+Now some linear algebra to rewrite the above
+\begin{eqnarray}\label{eq:AugSolutoin}
+\big( \vc{X}^T\vc{X} + \vc{X}_1^T\vc{X}_1 +\vc{X}_2^T\vc{X}_2 \big) \, \vc{\widehat{w}}_A & = &
+\vc{X}^T\vc{y} + \vc{X}_1^T\vc{y} +\vc{X}_2^T\vc{y} \nn
+\big( \vc{X}^T\vc{X} + (\vc{X} + \Xi)^T(\vc{X} + \Xi) +(\vc{X} - \Xi)^T(\vc{X} - \Xi) \big) \, \vc{\widehat{w}}_A & = &
+\vc{X}^T\vc{y} + (\vc{X} + \Xi)^T\vc{y} +(\vc{X}-\Xi)^T\vc{y} \nn
+\big( \vc{X}^T\vc{X} + \vc{X}^T\vc{X} + \vc{X}^T\Xi + \Xi^T\vc{X} + \Xi^T\vc{\Xi} + \vc{X}^T\vc{X} - \vc{X}^T\Xi - \Xi^T\vc{X} + \Xi^T\Xi \big)
+\, \vc{\widehat{w}}_A & = &
+3 \vc{X}^T\vc{y} + \Xi^T\vc{y} - \Xi^T\vc{y} \nn
+\big( 3 \vc{X}^T\vc{X} + 2 \Xi^T\Xi \big)
+\, \vc{\widehat{w}}_A & = &
+3 \vc{X}^T\vc{y}
+\end{eqnarray}
+
+The critical point in the above elimination was the positive and negative application of the perturbations to the same set of instances. Without those, this simple example would fall apart.
+However, what I show is an example of 1 experiment over 1 data sample with 1 random noise vector.
+To be rigorous, this analysis should be done in expectations over the sampling and noise distributions. Then the properties of the noise (centered, uncorrelated) should kick in and I would imagine should boil down to something similar. Showing this is too much work if I just need some simple intuition so ... not done here.
+
+Next consider the regularised least squares problem with the generalised norm $||\vc{w}||^2_Q = \langle \vc{w} , \vc{Q} \vc{w} \rangle$
+\begin{equation}\label{eq:RegProblem}
+\vc{\widehat{w}}_R = \argmin_w ||\vc{y} - \vc{X}\vc{w}||_2^2 + ||\vc{w}||^2_Q,
+\end{equation}
+with the analytical form solution 
+\begin{equation}\label{eq:RegSolutoin}
+( \vc{X}^T \vc{X} + \vc{Q}) \, \vc{\widehat{w}}_R =  \vc{X}^T \vc{y}
+\end{equation}
+Clearly, with $\vc{Q} = 2/3 \, \Xi^T\Xi$ the minimising solutions of the regularised problem \eqref{eq:RegProblem} and the augmented data problem \eqref{eq:AugProblem} coincide.
+
+For the classical ridge regression problem\index{Ridge regression}
+\begin{equation}
+\vc{\widehat{w}}_R = \argmin_w ||\vc{y} - \vc{X}\vc{w}||_2^2 + \frac{3}{2} \, \lambda \, ||\vc{w}||_2^2,
+\end{equation}
+the corresponding data-augmentation matrix would be $\Xi = \sqrt{\lambda} I$. The constant $3/2$ is due to the specific data-augmentation strategy consisting of the 3 data parts.
+
+More complicated augmentation strategies and particularly non-stochastic ones (or without the noise being zero centered etc.) may not translate this simply but the intuition should be similar.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Bishop1995}
+C. M. Bishop: Training with noise is equivalent to Tikhonov regularization, Neural Computation 1995.
+
+\end{thebibliography}

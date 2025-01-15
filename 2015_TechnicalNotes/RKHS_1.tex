@@ -1,0 +1,405 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 10/9/2015 - Learning in RKHS %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Learning functions in RKHS}\label{sec:RKHS}
+
+Warning: Tihs does not give the full details on the \emph{RKHS}\index{RKHS} theory and uses some basics facts without explaining.
+
+\subsection{Learning for scalar output with squarred norm regularization}\label{sec:RKHSScalar}
+
+To warm up to the problem, I begin with the simple scalar output problem with squarred norm regularizer.
+The more complete and general theory is in section \ref{sec:LearningVectorOutput}.
+
+From the \emph{representer theorem}\index{Representer theorem}, the minimisation problem of a functional
+\begin{equation}\label{eq:SingleLearningProblem}
+ \min_{f \in \mathcal{H}} J(f):= \sum_i^n \big( y_i - f(\vc{x}_i) \big)^2 + \lambda ||f||_\mathcal{H}^2 
+\end{equation}
+has a solution $f^*$ which admits a representation 
+\begin{equation}\label{eq:RepresenterMinimizer}
+ f^*(\vc{x}) = \sum_i^n c_i \, k(\vc{x}_i,\vc{x}),
+\end{equation}
+where n is the number of instances, $k: \mathcal{X} \times \mathcal{X}
+\rightarrow \mathbb{R}$ is a kernel function and $\vc{c}$ is a vector of the
+parameters to be learned.
+
+Introducing the \emph{Gram matrix}\index{Gram matrix} $\vc{K}$ with elements $\vc{K}_{ij} =
+k(\vc{x}_i,\vc{x}_j)$ and the $n$-long vectors $\vc{y}$ and $\vc{c}$ problem \eqref{eq:SingleLearningProblem} can be rewritten as a finite-dimensional optimisation
+\begin{equation}\label{eq:SingleLearningProblem2}
+ \min_{\vc{c}} J(\vc{c}):= ||\vc{y} - \vc{K} \vc{c}||_2^2 +
+\lambda \vc{c}' \vc{K} \vc{c}
+\end{equation}
+
+\begin{small}
+\emph{Proof:} Using the kernel \emph{reproducing property}\index{Reproducing property} $\langle k(\vc{x}_i,.), k(\vc{x}_j,.) \rangle_\mathcal{H} = k(\vc{x}_i,\vc{x}_j)$ and the linearity of inner product
+\begin{eqnarray*}
+J(f) & = & \sum_i^n \big( y_i - f(\vc{x}_i) \big)^2 + \lambda ||f||_\mathcal{H}^2  =
+ \nonumber \\
+ & = & \sum_i^n \big( y_i - \sum_j^n c_j \, k(\vc{x}_i,\vc{x}_j) \big)^2 + \lambda
+\langle \sum_i^n c_i \, k(\vc{x}_i,.), \sum_j^n c_j \, k(\vc{x}_j,.)
+\rangle_\mathcal{H}  \nonumber \\
+ & = & \sum_i^n y^2_i - 2 \sum_i^n \sum_j^n y_i  c_j \, k(\vc{x}_i,\vc{x}_j) + \sum_i^n \sum_j^n c_j \, k(\vc{x}_i,\vc{x}_j) \sum_l^n c_l \, k(\vc{x}_i,\vc{x}_l)
++ \lambda \sum_{ij}^n c_i c_j \langle k(\vc{x}_i,.), k(\vc{x}_j,.)
+\rangle_\mathcal{H} \nonumber \\
+ & = & \vc{y}' \vc{y} - 2 \vc{y}' \vc{K} \vc{c} + \vc{c}' \vc{K}' \vc{K} \vc{c} +
+\lambda \vc{c}' \vc{K} \vc{c} \qquad \text{ (see math cheat-sheet)} \nonumber \\
+ & = & ||\vc{y} - \vc{K} \vc{c}||_2^2 +
+\lambda \vc{c}' \vc{K} \vc{c},
+\end{eqnarray*}
+\end{small}
+
+We differentiate and equate to zero
+\begin{equation}\label{eq:RKHSJC}
+ \frac{\partial{J}}{\partial{\vc{c}}} = - 2 \vc{K}' \vc{y} + 2 \vc{K}' \vc{K}
+\vc{c} + 2 \lambda \vc{K}' \vc{c} = 0 
+\end{equation}
+and get a closed form solution for the learned parameters 
+\begin{equation}\label{eq:SingleCSolution}
+ \vc{c} = (\vc{K} + \lambda \vc{I})^{-1} \vc{y}
+\end{equation}
+The minimizier \eqref{eq:RepresenterMinimizer} then is
+\begin{equation}\label{eq:KernelSolution}
+ f(\vc{x}) = \vc{k}(\vc{x})' \vc{c} = \vc{k}(\vc{x})' (\vc{K} + \lambda
+\vc{I})^{-1} \vc{y},
+\end{equation}
+where the vector $\vc{k}(\vc{x})$ has elements $\vc{k}(\vc{x})_i =
+k(\vc{x}_i,\vc{x})$.
+
+\subsubsection{Kernel ridge regression}
+We can show the equivalence of the above to \emph{ridge regression}\index{Ridge regression}.
+
+We choose a simple \emph{linear kernel}\index{Linear kernel} $k(\vc{x}_i,\vc{x}_j) = \langle \vc{x}_i,
+\vc{x}_j \rangle$.
+We get for $f(\vc{x}_j) = \sum_i^n c_i \, k(\vc{x}_i,\vc{x}_j) = \sum_i^n c_i
+\langle \vc{x}_i, \vc{x}_j \rangle = \langle \sum_i^n c_i \vc{x}_i, \vc{x}_j
+\rangle$.
+By putting $\vc{w} = \sum_i^n c_i \vc{x}_i$ we get $f(\vc{x}_j) = \langle
+\vc{w}, \vc{x}_j \rangle = \vc{x}'_j \vc{w}$.
+
+The regularizer $||f||_\mathcal{H}^2 = \langle \sum_i^n c_i \, k(\vc{x}_i,.),
+\sum_i^n c_j \, k(\vc{x}_j,.) \rangle_\mathcal{H} = 
+\sum_{ij} c_i c_j \langle k(\vc{x}_i,.), k(\vc{x}_j,.) \rangle_\mathcal{H} =
+\sum_{ij} c_i c_j k(\vc{x}_i,\vc{x}_j) = \sum_{ij} c_i c_j \langle
+\vc{x}_i,\vc{x}_j \rangle = 
+\langle \sum_{i} c_i \vc{x}_i, \sum_{j} c_k \vc{x}_j \rangle = \langle \vc{w},
+\vc{w} \rangle = ||\vc{w}||^2$.
+
+Using these substitutions, we can rewrite problem \eqref{eq:SingleLearningProblem} as
+\begin{equation}\label{eq:RidgeRegression}
+ J:= \sum_i^n \big( y_i - \vc{x}'_j \vc{w} \big)^2 + \lambda ||\vc{w}||^2,
+\end{equation}
+where $\vc{w} = \sum_i^n c_i \vc{x}_i = \vc{X}' \vc{c}$.
+
+In this sense, solving problem \eqref{eq:SingleLearningProblem} with linear kernel in the
+form $k(\vc{x}_i,\vc{x}_j) = \langle \vc{x}_i, \vc{x}_j \rangle$ is equivalent
+to solving the ridge regression problem \eqref{eq:RidgeRegression} whose
+minimising solution is
+\begin{eqnarray}\label{eq:RidgeEquivalence}
+ \vc{w} & = & (\vc{X}'\vc{X} + \lambda \vc{I})^{-1} \vc{X}' \vc{y} \nonumber \\
+& = & \vc{X}' \vc{c} \nonumber \\
+& = & \vc{X}' (\vc{K} + \lambda \vc{I})^{-1} \vc{y} \nonumber \\
+& = & \vc{X}' (\vc{X} \vc{X}' + \lambda \vc{I})^{-1} \vc{y},
+\end{eqnarray}
+where the equality of the first and last line is indeed confirmed by the
+\emph{inversion identity lemma}\index{Inverstion identity lemma} for positive definite $\vc{P}$ and $\vc{R}$ (here $\vc{B} =
+\vc{X}$, $\vc{P} = 1/\lambda \vc{I}_D$ and $\vc{R} = \vc{I}_N$)
+\begin{equation}\label{eq:MatrixInversion}
+ (\vc{P}^{-1} + \vc{B}' \vc{R}^{-1} \vc{B} )^{-1} \vc{B}' \vc{R}^{-1} =
+\vc{P} \vc{B}' (\vc{B} \vc{P} \vc{B}' + \vc{R})^{-1}
+\end{equation}
+
+
+\subsection{Learning for vector-output}\label{sec:LearningVectorOutput}
+
+\subsubsection{Representer theorem for vector-output problems}
+
+From the \emph{representer theorem}\index{Representer theorem}, the minimisation of a functional
+\begin{equation}\label{eq:VectorProblem}
+ \min_{\vc{f} \in \mathcal{H}} J(\vc{f}):= \sum_i^n \mathcal{L}\big( \vc{y}_i,\vc{f}(\vc{x}_i)\big) + \lambda
+\Omega(||\vc{f}||_\mathcal{H}) 
+\end{equation}
+has a solution $\vc{f}^* \in \mathcal{H}$ which admits a representation 
+\begin{equation}\label{eq:RepresenterMinimizerVector}
+ \vc{f}^*(\vc{x}) = \sum_i^n \vc{H}(\vc{x}_i,\vc{x}) \, \vc{c}_i  = \sum_i^n \sum_j^m
+c_{ij} \, \vc{H}(\vc{x}_i,\vc{x})_{:j},
+\end{equation}
+where $n$ is the number of instances of the input-output pairs $\{ (\vc{x}_i,\vc{y}_i):
+\vc{x}_i \in \mathcal{X} \subset \mathbb{R}^d, y_i \in \mathcal{Y} \subset
+\mathbb{R}^m \}$, 
+$\mathcal{L}(.)$ is an arbitrary loss function, $\Omega(.)$ is a monotonically
+increasing function, $|| . ||_\mathcal{H}$ is a norm in the RKHS $\mathcal{H}$,
+$\vc{H}(.,.): \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{R}^{m \times m} $ is the \emph{matrix-valued kernel}\index{Matrix-valued kernel} associated with $\mathcal{H}$,
+and $\vc{H}(\vc{x}_i,\vc{x})_{:j}$ is its j-th column.
+
+Note that $\vc{H}$ is a $m \times m$ matrix with $t,s$ elements being the scalar-valued kernels 
+%(\cite{Micchelli2005} eq. 2.5) 
+\begin{equation}\label{eq:KernelElements}
+\vc{H}(\vc{x}_i,\vc{x}_j)_{t,s} = h\big(  (\vc{x}_i,t),(\vc{x}_j,s) \big) 
+= \langle \vc{e}_t, \vc{H}(\vc{x}_i,\vc{x}_j) \vc{e}_s \rangle
+= \langle \vc{H}(\vc{x}_i,.) \vc{e}_t, \vc{H}(\vc{x}_j,.) \vc{e}_s \rangle_\mathcal{H},
+\end{equation}
+where $\vc{e}_t$ is the t-th standard coordinate basis vector of $\mathbb{R}^m$.
+
+From eq. \eqref{eq:RepresenterMinimizerVector} and \eqref{eq:KernelElements} we get that the
+solution for task
+$t$ admits the representation
+\begin{equation}
+f(\vc{x},t) = \sum_i^n \sum_s^m c_{is} \, h\big((\vc{x}_i,s),(\vc{x},t)\big),
+\end{equation}
+where $h: \mathcal{X} \times \mathbb{N}_m \times \mathcal{X} \times \mathbb{N}_m
+\rightarrow \mathbb{R}$ is a scalar-valued kernel.
+
+We will furher assume that the scalar kernels $h$ are \emph{seperable}\index{Separable kernels} so that 
+\begin{equation}\label{eq:SeparableKernel}
+\vc{H}(\vc{x}_i,\vc{x}_j)_{s,t} =  h\big( (\vc{x}_i,s),(\vc{x}_j,t) \big) =
+k(\vc{x}_i,\vc{x}_j) \, l(s,t),
+\end{equation} 
+where $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{R}$ and $l: \mathbb{N}_m
+\times \mathbb{N}_m \rightarrow \mathbb{R}$ are scalar-valued input and output kernels
+respectively.
+
+Equivalently,
+\begin{equation}\label{eq:SeparableKernel2}
+ \vc{H}(\vc{x}_i,\vc{x}_j) = \vc{L} \, k(\vc{x}_i,\vc{x}_j),
+\end{equation} 
+with $\vc{L}$ being the $m \times m$ Gram matrix with elements $L_{st}=l(s,t)$ (here $s,t$
+are the task indices).
+
+\subsubsection{Solving with least squares and squarred regularizer}\label{sec:VectorSqESqR}
+
+For the simple case 
+\begin{equation}\label{eq:VectorSqESqR}
+ \min_{\vc{f} \in \mathcal{H}} J(\vc{f}):= \sum_i^n || \vc{y}_i - \vc{f}(\vc{x}_i) ||_2^2 + \lambda
+||\vc{f}||_\mathcal{H}^2
+\end{equation} 
+we can learn the functions from the equivalent finite-dimensional problem
+\begin{equation}\label{eq:VectorKernelProblem}
+ \min_{\vc{C}} J(\vc{C}) = || \vc{Y} - \vc{KCL} ||_F^2 + \lambda \, \langle \vc{C'KC}, \vc{L}
+\rangle_F
+\end{equation}
+where we use eq. \eqref{eq:RepresenterMinimizerVector} and eq. \eqref{eq:SeparableKernel2},
+and where $\vc{K}$ is the Gram matrix with the elements $K_{ij} = k(\vc{x}_i, \vc{x}_j)$,
+$\vc{Y}$ is
+the $n \times m$ output matrix, and $\vc{C}$ is the $n \times m$ parameters matrix.
+(note: the choice of the kernels $k(.,.)$ and $l(.,.)$ specifies the space $\mathcal{H}$
+we work with).
+
+\begin{small}
+\emph{Proof:} Using the property
+%operator-valued kernel \emph{reproducing property}\index{Reproducing property}
+$\langle \vc{H}(\vc{x}_i,.) \, \vc{z}, \vc{H}(\vc{x}_j,.) \, \vc{y} \rangle_\mathcal{H}
+= \langle \vc{z}, \vc{H}(\vc{x}_i,\vc{x}_j) \, \vc{y} \rangle$ 
+\begin{eqnarray*}
+J(\vc{f}) & = & \sum_i^n || \vc{y}_i - \vc{f}(\vc{x}_i) ||_2^2 + \lambda
+||\vc{f}||_\mathcal{H}^2 \nonumber \\
+& = &
+\sum_i^n || \vc{y}_i ||_2^2
+- 2 \sum_i^n \langle \vc{y}_i , \sum_j^n \vc{H}(\vc{x}_i,
+\vc{x}_j) \, \vc{c}_j \rangle
++ \sum_i^n || \sum_j^n \vc{H}(\vc{x}_i,
+\vc{x}_j) \, \vc{c}_j ||_2^2 \\
+& & + \lambda \, \langle \sum_i^n \vc{H}(\vc{x}_i,
+.) \, \vc{c}_i , \sum_j^n \vc{H}(\vc{x}_j,
+.) \, \vc{c}_j \rangle_\mathcal{H} \\
+& = &
+|| \vc{Y} ||_F^2
+- 2 \sum_i^n \langle \vc{y}_i , \sum_j^n k(\vc{x}_i,
+\vc{x}_j) \vc{L} \, \vc{c}_j \rangle
++ \sum_i^n || \sum_j^n k(\vc{x}_i,
+\vc{x}_j)\vc{L} \, \vc{c}_j ||_2^2 \\
+& & + \lambda \, \sum_{ij}^n \langle \vc{c}_i , \vc{H}(\vc{x}_i,
+\vc{x}_j) \, \vc{c}_j \rangle \\
+& = &
+|| \vc{Y} ||_F^2
+- 2 \sum_{ij}^n K_{ij} \langle \vc{y}_i , \vc{L} \, \vc{c}_j \rangle
++ \sum_{ijz}^n K_{ij} K_{iz} \langle \vc{L} \, \vc{c}_j, \vc{L} \, \vc{c}_z \rangle
++ \lambda \, \sum_{ij}^n K_{ij} \langle \vc{c}_i , \vc{L} \, \vc{c}_j \rangle \\
+& = &
+|| \vc{Y} ||_F^2
+- 2 \langle \vc{Y},\vc{KCL} \rangle_F
++ || \vc{KCL} ||_F^2
++ \lambda \, \langle \vc{C'KC},\vc{L} \rangle_F \\
+& = &
+|| \vc{Y} - \vc{KCL} ||_F^2
++ \lambda \, \langle \vc{C'KC},\vc{L} \rangle_F,
+\end{eqnarray*}
+where we used the symmetry of the Gram metrices $\vc{L'}=\vc{L}$, $\vc{K'}=\vc{K}$ and
+\begin{eqnarray*}
+& \sum_{ij} K_{ij} \langle \vc{Y}_{i:}, \vc{L} \vc{C}_{j:} \rangle = 
+ \sum_{ij} K_{ij} \langle \vc{Y}_{i:}, \sum_k \vc{L}_{:k} C_{jk} \rangle =
+ \sum_{ij} K_{ij} \sum_l Y_{il} \sum_k L_{lk} C_{jk} = 
+ \sum_{ijkl} K'_{ji} Y_{il} L_{lk} C'_{kj} & \\
+& = tr(\vc{K'YLC'}) =
+ tr(\vc{YLC'K'}) =
+ \langle \vc{Y}, \vc{KCL} \rangle_F &
+\end{eqnarray*}
+\begin{eqnarray*}
+& \sum_{ijz} K_{ij} K_{iz} \langle \vc{L} \vc{C}_{j:}, \vc{L} \vc{C}_{z:} \rangle = 
+ \sum_{ijz} K_{ij} K_{iz} \langle \sum_k \vc{L}_{:k} C_{jk}, \sum_l \vc{L}_{:l} C_{zl} \rangle =
+ \sum_{ijzkl} K_{ij} K_{iz}  C_{jk} C_{zl} \langle \vc{L}_{:k}, \vc{L}_{:l}  \rangle \\
+& \sum_{ijzklp} K_{ij} C_{jk} L'_{kp} L_{pl} C'_{lz} K'_{zi} 
+ = tr(\vc{KCL'LC'K'}) =
+ \langle \vc{KCL}, \vc{KCL} \rangle_F  = ||\vc{KCL}||_F^2 &
+\end{eqnarray*}
+\end{small}
+
+
+We will solve the vectorised version of \eqref{eq:VectorKernelProblem} with $\vc{\tilde{c}} =
+vec(\vc{C})$ and $\vc{\tilde{y}} = vec(\vc{Y})$
+\begin{equation}\label{eq:VecKernelProblem}
+ J(\vc{\tilde{c}}) = || \vc{\tilde{y}} - (\vc{L} \otimes \vc{K}) \, \vc{\tilde{c}} ||_2^2 + \lambda \,
+\vc{\tilde{c}}' \, (\vc{L} \otimes \vc{K}) \, \vc{\tilde{c}}
+\end{equation}
+
+In analogy to eq. \eqref{eq:SingleCSolution} we get (after differentiating and equating to zero) the closed form for the minimiser
+\begin{equation}\label{eq:VectorCSolution}
+ \vc{\tilde{c}} = \big( (\vc{L} \otimes \vc{K}) + \lambda \vc{I} \big)^{-1} \vc{\tilde{y}}
+\end{equation} 
+
+\subsubsection{Kernel multioutput ridge regression}\label{sec:VectorRidge}
+
+If the RKHS we chose to work with in problems \eqref{eq:VectorProblem} is associated with
+a simple linear input kernel $k(\vc{x}_i,\vc{x}_j) = \langle \vc{x}_i,\vc{x}_j \rangle$ (with
+Gram matrix $\vc{K} = \vc{XX'}$, $\vc{X}$ being the $n \times d$ input matrix) 
+we essentially choose to work with simple linear functions of the form 
+$\vc{f}(\vc{x}) = \langle \vc{x} , \vc{W} \rangle$ with the link between the parameters being $\vc{W} = \vc{X'CL}$.
+
+\begin{small}
+\emph{Proof:}
+\begin{eqnarray*}
+\vc{f}(\vc{x}_j) & = & \sum_i^n \, \vc{H}(\vc{x}_i,\vc{x}_j) \vc{c}_i 
+= \sum_i^n \, k(\vc{X}_{i:},\vc{X}_{j:}) \vc{L} \, \vc{C}_{i:} 
+= \sum_i^n \, \langle \vc{X}_{i:},\vc{X}_{j:} \rangle \, \vc{L} \, \vc{C}'_{:i} 
+= \sum_i^n \sum_p^d X_{ip} X_{jp} \, (\vc{L} \, \vc{C}')_{:i} \\
+& = & \sum_p^d X_{jp} \, \vc{LC'} \vc{X}_{:p} = \vc{L C'X} \vc{X}'_{j:} 
+ =  \langle \vc{X' C L}, \vc{X}'_{j:} \rangle = \langle \vc{W}, \vc{x}_j  \rangle
+\quad \text{with } \vc{W} = \vc{X'CL}
+\end{eqnarray*}
+\end{small}
+
+For simple linear input kernel, the corresponding squared norm regularizer is 
+\begin{equation}
+ ||\vc{f}||_\mathcal{H}^2 = \langle \vc{C'KC,L} \rangle = tr(\vc{C'XX'CL}) = tr(\vc{L^{-1/2}LC'X\,X'CLL^{-1/2}}) = ||\vc{WL}^{-1/2}||_F^2, 
+\end{equation}
+where $\vc{L}^{-1/2} = \vc{L'}^{-1/2}$ and $\vc{L}^{-1/2} \vc{L}^{-1/2} = \vc{L}^{-1}$ due the the PD property of $\vc{L}$.
+
+Problem \eqref{eq:VectorKernelProblem} with simple linear kernel is thus equivalent to a \emph{multi-output ridge regression}\index{Multi-output ridge regression}
+\begin{equation}\label{eq:VectorRidge}
+R(\vc{W}) = ||\vc{Y} - \vc{XW}||_F^2 + \lambda ||\vc{WL}^{-1/2}||_F^2
+\end{equation}
+
+If we further choose the output kernel to be diagonal (with diagonal Gram matrix) so that $l(t,s) = \delta_{ts} L_{ts}$ the link between the parameters further simplifies so that the columns $\vc{W}_{:t} = L_{tt} \vc{X'C}_{:t}$.
+Moreover, for the spherical output kernel $\vc{L} = \mu \vc{I}$ this reduces to $\vc{W} = \mu \vc{X'C}$.
+
+In the spherical case 
+the problem \eqref{eq:VectorKernelProblem} is equivalent to a standard \emph{ridge regression}\index{Ridge regression}
+\begin{equation}\label{eq:Ridge}
+R(\vc{W}) = ||\vc{Y} - \vc{XW}||_F^2 + \lambda/\mu \,
+||\vc{W}||_F^2
+\end{equation}
+
+To show the equivalence of the solutions of \eqref{eq:VectorKernelProblem} and \eqref{eq:Ridge} we use the vectorisation of the transposed problem using $\vc{\tilde{y}} = vec(\vc{Y}')$ and $\vc{\tilde{w}} = vec(\vc{W}')$
+\begin{equation}\label{eq:VecVectorRidge}
+R(\vc{\tilde{w}}) = ||\vc{\tilde{y}} - (\vc{X} \otimes \vc{I}) \vc{\tilde{w}}||_2^2 + \lambda/\mu \,
+||\vc{\tilde{w}}||_2^2
+\end{equation}
+
+The minimiser of the ridge regression problem \eqref{eq:Ridge} has a known closed
+form solution in a vectorised form (easy to derive by differentiating and equating to zero)
+\begin{equation}\label{eq:VectorWSolution}
+ \vc{\tilde{w}} = \big( (\vc{X'X} \otimes \vc{I}) + \lambda/\mu \, \vc{I})^{-1} \, (\vc{X'} \otimes \vc{I}) \vc{\tilde{y}}
+\end{equation} 
+which indeed coincides with the minimising solution for $\vc{\tilde{c}}$ with $\vc{\tilde{w}} = \mu (\vc{X} \otimes \vc{I}) \vc{\tilde{c}}$
+
+\begin{small}
+\emph{Proof:} We use $vec(\vc{W'}) = \mu \, vec(\vc{C'X}) = \mu (\vc{X}' \otimes \vc{I}) \vc{\tilde{c}}$ and the
+matrix inversion identity lemma for positive definite $\vc{P}$ and $\vc{R}$
+\begin{equation}
+ (\vc{P}^{-1} + \vc{B}' \vc{R}^{-1} \vc{B} )^{-1} \vc{B}' \vc{R}^{-1} =
+\vc{P} \vc{B}' (\vc{B} \vc{P} \vc{B}' + \vc{R})^{-1}
+\end{equation}
+where we put $\vc{B} =
+(\vc{X} \otimes \vc{I})$, $\vc{P} = \vc{I}$ and $\vc{R} = \lambda/\mu \vc{I}$
+\begin{eqnarray*}
+\vc{\tilde{w}} & = & \big( (\vc{X'X} \otimes \vc{I}) + \lambda/\mu \, \vc{I})^{-1} \, (\vc{X'} \otimes \vc{I}) \vc{\tilde{y}}\\
+& = &  \mu (\vc{X}' \otimes \vc{I}) \vc{\tilde{c}} \\
+& = &  \mu (\vc{X}' \otimes \vc{I}) \big( (\vc{K} \otimes \vc{L}) + \lambda \vc{I} \big)^{-1} \vc{\tilde{y}}\\
+& = &  \mu (\vc{X}' \otimes \vc{I}) \big( (\vc{XX'} \otimes \mu \vc{I}) + \lambda \vc{I} \big)^{-1} \vc{\tilde{y}}\\
+& = &  (\vc{X}' \otimes \vc{I}) \big( (\vc{XX'} \otimes \vc{I}) + \lambda/\mu \vc{I} \big)^{-1} \vc{\tilde{y}}\\
+\end{eqnarray*}
+\end{small}
+
+\subsubsection{Output kernel vs. covariance matrix for Gaussian errors and Gaussian priors on the parameters}
+We formulate Guassian linear regression problem with Gaussian priors on the parameters $\vc{Z}$
+\begin{equation}
+\vc{y}_i = \vc{Z}' \vc{x}_i + \vc{e}_i, \ \vc{e}_i \sim \mathcal{N}(\vc{0},\vc{\Sigma}), \ Cov(\vc{e}_i,\vc{e}_j) =0, \ z_{kl} \sim \mathcal{N}(0,\sigma^2), \ Cov(z_{kl},z_{sr})=0, \  \forall i,j \in \mathbb{N}_n
+\end{equation}
+
+Multivariate \emph{Gaussian}\index{Gaussian} distribution density is
+\begin{equation}
+f(\vc{y}_i) = (2\pi)^{-0.5k} |\vc{\Sigma}|^{-0.5} e^{-\frac{1}{2} (\vc{y}_i - \vc{Z}'\vc{x}_i)' \vc{\Sigma}^{-1} (\vc{y}_i - \vc{Z}'\vc{x}_i)}
+\end{equation}
+so that the likelihood is
+\begin{equation}
+\mathcal{L}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) = \prod_{i=1}^n (2\pi)^{-0.5k} |\vc{\Sigma}|^{-0.5} e^{-\frac{1}{2} (\vc{y}_i - \vc{Z}' \vc{x}_i)' \vc{\Sigma}^{-1} (\vc{y}_i - \vc{Z}' \vc{x}_i)}
+\end{equation}
+And the posterior is
+\begin{equation}
+\mathcal{P}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) \propto \mathcal{L}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n)
+\prod_{kl} (2\pi)^{-0.5} \sigma^{-1} e^{-\frac{z_{kl}^2}{2\sigma^2} } 
+\end{equation}
+
+To find optimal parameters $\vc{Z}$ we will minimize the negative log of the posterior (instead of maximizing the posterior directly
+\begin{eqnarray*}
+- \ln \mathcal{P}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) & \propto & \sum_i^n \frac{1}{2} (\vc{y}_i - \vc{Z}' \vc{x}_i)' \vc{\Sigma}^{-1} (\vc{y}_i - \vc{Z}' \vc{x}_i) + \sum_{kl} \frac{z_{kl}^2}{2\sigma^2} \nonumber \\
+& = & \frac{1}{2} tr \Big( (\vc{Y}-\vc{XZ}) \vc{\Sigma}^{-1} (\vc{Y}-\vc{XZ})' \Big) + \frac{1}{2\sigma^2} ||\vc{Z}||_F^2 \nonumber \\
+& = & \frac{1}{2} || (\vc{Y}-\vc{XZ}) \vc{\Sigma}^{-1/2}||_F^2 + \frac{1}{2\sigma^2} ||\vc{Z}||_F^2, \quad \text{where } \vc{\Sigma}^{-1/2} = \vc{\Sigma'}^{-1/2} \nonumber \\
+& = & \frac{1}{2} || (\vc{Y}\vc{\Sigma}^{-1/2}-\vc{XW})||_F^2 + \frac{1}{2\sigma^2} ||\vc{W\Sigma}^{1/2}||_F^2, \quad \text{where } \vc{W} = \vc{Z\Sigma}^{-1/2}
+\end{eqnarray*}
+
+We will use this change of variable to formulate the final optimisation problem
+\begin{equation}\label{eq:MAP}
+\argmin_W \ \frac{1}{2} || (\vc{Y}\vc{\Sigma}^{-1/2}-\vc{XW})||_F^2 + \frac{1}{2\lambda^2} ||\vc{W\Sigma}^{1/2}||_F^2
+\end{equation}
+which is similar to \eqref{eq:VectorRidge} but not quite.
+
+Next, we will assume a covariance in the Gaussian priors of the parameters $\vc{Z}$ so that $\Vc(\vc{Z}) = \vc{z} \sim \mathcal{N}(\vc{0},\vc{\Sigma}_z)$ and the error covariance $\vc{\Sigma} = \vc{I}$.
+
+The posterior is then
+\begin{equation}
+\mathcal{P}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) \propto \mathcal{L}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) \,
+(2\pi)^{-0.5kd} |\vc{\Sigma}_z|^{-0.5} e^{-\frac{1}{2} \vc{z}' \vc{\Sigma}_z^{-1} \vc{z}}
+\end{equation}
+
+And the negative log-likelihood
+\begin{eqnarray*}
+- \ln \mathcal{P}(\vc{Z}|\vc{y}_i,\vc{x}_i, i \in \mathbb{N}_n) & \propto & \sum_i^n \frac{1}{2} (\vc{y}_i - \vc{Z}' \vc{x}_i)' \vc{\Sigma}^{-1} (\vc{y}_i - \vc{Z}' \vc{x}_i) + \frac{1}{2} \vc{z}' \vc{\Sigma}_z^{-1} \vc{z} \nonumber \\
+& = & \frac{1}{2} tr \Big( (\vc{Y}-\vc{XZ}) \vc{I} (\vc{Y}-\vc{XZ})' \Big) + \frac{1}{2} ||\vc{\Sigma}_z^{-1/2} \vc{z}||_2^2, \quad \text{where } \vc{\Sigma}_z^{-1/2} = \vc{\Sigma'}_z^{-1/2}  \nonumber \\
+& = & \frac{1}{2} || (\vc{Y}-\vc{XZ})||_F^2 + \frac{1}{2} ||\vc{AZB}||_F^2, \quad \text{where } \vc{\Sigma}_z^{-1/2} = \vc{B} \otimes \vc{A}  \nonumber \\
+\end{eqnarray*}
+
+For $\vc{A}=\vc{I}$, which is equivalent to the prior on $\vc{Z}$ as being composed of $d$ independent identically distributed rows each of which is Gaussian with $\vc{Z}_{i:} \sim \mathcal{N}(\vc{0},(\vc{BB'})^{-1})$,
+\note{
+\begin{eqnarray*}
+||\vc{AZB}||_F^2 -> tr (\vc{B'Z'A'AZB}) -> tr (\vc{BB'Z'A'AZ})
+\end{eqnarray*}}
+
+we get the optimisation problem
+\begin{equation}
+\argmin_W \ \frac{1}{2} || (\vc{Y}-\vc{XZ})||_F^2 + \frac{\lambda}{2} ||\vc{ZB}/\lambda||_F^2
+\end{equation}
+By comparison to \eqref{eq:VectorRidge} we see that the $\vc{L}^{-1/2} = \vc{B}/\lambda$ and therefore $\vc{L}^{-1} = \vc{BB'}/\lambda^2$ and $\vc{L} = \lambda^2 (\vc{BB'})^{-1}$ which is the scaled covariance matrix of the prior on the independent rows of the parameters matrix $\vc{Z}$.
+ 
+
+
+
+
+
+
+
+
+
+
+

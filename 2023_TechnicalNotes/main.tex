@@ -1,0 +1,137 @@
+%%%% Preamble %%%%
+\documentclass[a4paper, oneside, 10pt]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% for coloring
+\usepackage[dvipsnames]{xcolor}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+\newcommand{\addidx}[1]{\emph{#1}\index{\lowercase{#1}}}
+
+% for better lists
+\usepackage{enumitem}
+
+% for images
+\usepackage{graphicx}
+\graphicspath{{./Pics/}}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% for declaring math operators
+\usepackage{amsthm}
+
+% wrap text around figures
+\usepackage{wrapfig}
+
+% chagne format of section titles
+\usepackage{titlesec}
+
+% \titleformat*{\section}{\LARGE\bfseries}
+% \titleformat*{\subsection}{\Large\bfseries}
+% \titleformat*{\subsubsection}{\large\bfseries}
+\titleformat*{\paragraph}{\bfseries\itshape}
+% \titleformat*{\subparagraph}{\large\bfseries}
+
+% nice text boxes
+\usepackage{tcolorbox}
+\newtcbox{\note}{on line, boxrule=0pt, boxsep=0pt, arc=0pt, outer arc=0pt, left=1pt, right=1pt, top=2pt, bottom=2pt, fontupper=\itshape}
+% \newtcolorbox{notebox}{boxrule=0pt}
+\newtcolorbox{notebox}[1][colback=black!5]{boxrule=0pt, #1}
+
+% biblatex seetings for better referencing
+\usepackage[backend=biber,
+            citestyle=authoryear,
+            bibstyle=numeric,
+            block=space,
+            backref=true,
+            date=year,
+            maxcitenames=5,
+            mincitenames=1,
+            url=false,
+            doi=false,
+            isbn=false,
+            eprint=false]{biblatex}
+\addbibresource{refs.bib}
+
+%%% theorem environments
+\theoremstyle{plain}
+\newtheoremstyle{mytheoremstyle} % name
+    {\topsep}{\topsep}{}{}%
+    {\bfseries}% Theorem head font
+    {}{.5em}%
+    {\thmname{#1}\thmnumber{ #2}\thmnote{ (#3)}}  % Theorem head spec (can be left empty, meaning ‘normal’)
+\theoremstyle{mytheoremstyle}
+\newtheorem{theorem}{Theorem}[section]
+
+\theoremstyle{definition}
+\newtheoremstyle{mydefstyle} % name
+    {\topsep}{\partopsep}{}{}%
+    {\bfseries}% Theorem head font
+    {}{.5em}%
+    {\thmname{#1}\thmnumber{ #2}\thmnote{ (#3)}}  % Theorem head spec (can be left empty, meaning ‘normal’)
+\theoremstyle{mydefstyle}
+\newtheorem{definition}{Definition}[section]
+
+% \input{math_commands}
+\input{custom_commands}
+%%% new shorthand commands
+\newcommand{\nn}{\nonumber \\}%
+
+\newcommand{\tldr}{\textbf{TLDR: }}
+\newcommand{\concl}{\textbf{Concluding remarks: }}
+
+
+\begin{document}
+
+% where pics are
+\graphicspath{ {./Pics/} }
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+{\large Magda's 3rd set of technical notes}
+
+{\hfill Last update: \today}
+
+This is the 3rd set of my technical notes on various ML topics.
+I started writing the 1st set when beginning my PhD and the 2nd set when starting my PostDoc.
+Now I am a professor and have even less time than before but it feels that picking up at least some of the good old habits might help in bringing me back from admin to research.
+Both of the previous docs are available in my GitHub repo \url{https://github.com/mgswiss15/technotes}.
+
+The general purpose of the notes is to help me understand better the selected topics by re-explaining (\emph{re-} because these have been explained elsewhere many times), and to have a reference and possibly reusable material for later.
+
+This is a working document not meant to be polished. There may be typos and other editing errors. 
+Technical errors mean that I didn't quite understand something which I unfortunately cannot rule out.
+
+
+% Print table of contents
+\tableofcontents
+
+\input{diffusion_basics}
+
+\input{classifier_guidance}
+
+\input{ddim}
+
+
+\clearpage 
+\printbibliography
+
+
+
+% print index
+\phantomsection
+\cleardoublepage
+\addcontentsline{toc}{section}{\indexname}
+\printindex
+
+\end{document}

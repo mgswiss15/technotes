@@ -1,0 +1,442 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 30/8/2016 - Multiple kernel learning %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Multiple kernel learning}\label{sec:MKL}
+
+The multiple kernel learning (MKL)\index{MKL} problem is cast in similar form as the standard function learning in RKHS (section \ref{sec:RKHS}, equation \eqref{eq:SingleLearningProblem})
+\begin{equation}\label{eq:MKL_F}
+ \min_{\gamma \in \Delta} \min_{f \in \mathcal{H}} J(f) := \sum_i^n \big( y_i - f(\vc{x}_i) \big)^2 + \lambda \, ||f||_\mathcal{H}^2
+\end{equation}
+
+The RKHS $\mathcal{H}$ is endowed with a kernel function $k(.,.) = \sum_{j=1}^m \gamma_j k_j(.,.)$, where the domain $\Delta$ of $\vc{\gamma}$ is the simplex $\Delta = \{ \vc{\gamma} \in \mathbb{R}^m:  \gamma_j \geq 0, \, \sum_{j=1}^m \gamma_j = 1\}$
+
+Using the representer theorem, introducing the Gram matrices $\vc{K}_j(l,s) = k_j(x_l,x_s)$ and $\vc{K} = \sum_{j=1}^m \gamma_j \vc{K}_j$, problem \eqref{eq:MKL_F} can be rewritten as a finite-dimensional optimisation problem
+\begin{equation}\label{eq:MKL_K}
+\min_{\gamma \in \Delta} \min_{\vc{c} \in \mathbb{R}^n} J(\vc{c},\vc{\gamma}):= ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} 
+\end{equation}
+
+\begin{small}
+\emph{Proof:} Follows simply from the equivalent proof in section \ref{sec:RKHSScalar}
+\end{small}
+
+
+\subsection{Kernel normalization}
+The original MKL learning problem in \cite{Lanckriet2004} was in the form \eqref{eq:SingleLearningProblemMKL2} with the following constraints $\sum_j \gamma_j \vc{K}_j \succeq 0$, $\gamma_j \geq 0$ and $\Tr (\sum_j \gamma_j \vc{K}_j ) \leq c$.
+If all the individual kernels are PSD the first constraint can be dropped due to the non-negative constraint on $\gamma_j$.
+Also, if the kernels are normalised so the $k_j(\vc{x}_i,\vc{x}_i)=1$ for all $i,j$ the trace constraint reduces to $\sum_j \gamma_j = 1$ and thus we get the simplex constraint on $\vc{\gamma}$.
+
+How do we normalize the kernels so that we can use this simple constraint?
+
+For a kernel function $k(.,.) = \langle \Phi(.), \Phi(.) \rangle$ and the corresponding gram matrix $\vc{K}$ we want to have a normalised kernel function $\tilde{k}(.,.)$ and gram matrix $\vc{\widetilde{K}}$ such that $\vc{\widetilde{K}}_{ii} = \tilde{k}(\vc{x}_i,\vc{x}_i) = \langle \widetilde{\Phi}(\vc{x}_i), \widetilde{\Phi}(\vc{x}_i) \rangle = 1$.
+This is true, if we define $\widetilde{\Phi}(\vc{x}_i)$ as the normalised version of $\Phi(\vc{x}_i)$ so that $\widetilde{\Phi}(\vc{x}_i) = \Phi(\vc{x}_i) / \sqrt{\langle \Phi(\vc{x}_i), \Phi(\vc{x}_i) \rangle}$.
+
+Now, given a non-normalised gram matrix $\vc{K}$ we want to find the corresponding $\vc{\widetilde{K}}$.
+\begin{eqnarray}
+\vc{\widetilde{K}}_{ij} & = & \tilde{k}(\vc{x}_i,\vc{x}_j) 
+= \langle \widetilde{\Phi}(\vc{x}_i), \widetilde{\Phi}(\vc{x}_j) \rangle 
+= \Big\langle \frac{\Phi(\vc{x}_i)}{\sqrt{\langle \Phi(\vc{x}_i), \Phi(\vc{x}_i) \rangle}}, \frac{\Phi(\vc{x}_j)}{\sqrt{\langle \Phi(\vc{x}_j), \Phi(\vc{x}_j) \rangle}} \Big\rangle  \nonumber \\
+& = & \frac{\vc{K}_{ij}}{\sqrt{\vc{K}_{ii} \vc{K}_{jj}}}
+= \frac{k(\vc{x}_i,\vc{x}_j)}{\sqrt{k(\vc{x}_i,\vc{x}_i),k(\vc{x}_j,\vc{x}_j)}} 
+\end{eqnarray}
+
+\subsection{Solving MKL}
+
+Instead of the constrained problem \eqref{eq:MKL_K}, we will optimise its Lagrangian
+\begin{equation}\label{eq:MKL_K_Lagrange}
+\min_{\gamma \in \mathbb{R}^m_+} \min_{\vc{c} \in \mathbb{R}^n} J(\vc{c},\vc{\gamma}):= ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \kappa \sum_{j=1}^m \gamma_j
+\end{equation}
+
+\subsubsection{Only need 1 regularization hyper-parameter}
+Next, I'll show that we, in fact, do not need two regularization parameters but should only use one.
+
+\begin{eqnarray*}
+& ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \kappa \sum_{j=1}^m \gamma_j = & \nn
+& ||\vc{y} - \sum_{j=1}^m \kappa \gamma_j \vc{K}_j \vc{c}/\kappa ||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \kappa \gamma_j \vc{K}_j \vc{c}/\kappa + \sum_{j=1}^m \kappa \gamma_j = & \nn
+& ||\vc{y} - \sum_{j=1}^m \nu_j \vc{K}_j \vc{q} ||_2^2 +
+\lambda \kappa \, \vc{q}^T \sum_{j=1}^m \nu_j \vc{K}_j \vc{q} + \sum_{j=1}^m \nu_j & \text{where } \vc{\mu} = \kappa \vc{\gamma}, \, \vc{q} = \vc{c}/\kappa 
+\end{eqnarray*}
+From this we see that the hyperparameter $\kappa$ is absorbed into scaling of the $\vc{\gamma}$ and $\vc{c}$ vectors and the first regularization parameter.
+Since  minimising the problem in the first and the last line is equivalent we can put $\kappa = 1$ and instead of problem \eqref{eq:MKL_K_Lagrange} work with
+
+\begin{equation}\label{eq:MKL_K2}
+\min_{\gamma \in \mathbb{R}^m_+} \min_{\vc{c} \in \mathbb{R}^n} J(\vc{c},\vc{\gamma}):= ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \sum_{j=1}^m \gamma_j
+\end{equation}
+
+\subsubsection{Alternating minimisation}
+We can alternate between vectors $\vc{\gamma}$ and $\vc{c}$.
+
+\paragraph{1) For fixed $\vc{\gamma}$} the solution for $\vc{c}$ is in the closed form 
+\begin{equation}\label{eq:MKLAltC}
+(\vc{K} + \lambda \vc{I}_n) \, \vc{c} = \vc{y}, \quad \text{ where } \vc{K} = \sum_{j=1}^m \gamma_j \vc{K}_j
+\end{equation}
+
+\paragraph{2) For fixed $\vc{c}$} we will rewrite the $J$ function as
+\begin{eqnarray}\label{eq:MKLJ}
+J(\vc{\gamma}) & = & ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \sum_{j=1}^m \gamma_j \nonumber \\
+& = & ||\vc{y} - \vc{Z} \, \vc{\gamma} ||_2^2 + \lambda \vc{c}^T \vc{Z} \, \vc{\gamma} + ||\vc{\gamma}||_1 \qquad \text{ where } \vc{Z}_{:j} = \vc{K}_j \vc{c} \nn
+& = & f(\vc{\gamma}) + ||\vc{\gamma}||_1,
+\end{eqnarray}
+where $f(\vc{\gamma}) = ||\vc{y} - \vc{Z} \, \vc{\gamma} ||_2^2 + \lambda \, \vc{c}^T \vc{Z} \, \vc{\gamma}$ is convex differentiable and the minimisation can be solved by proximal gradient descent with steps
+\begin{equation}
+\vc{\gamma}^{k+1} = prox_{\alpha ||.||_1}( \vc{\gamma}^{k} - \alpha \nabla f(\vc{\gamma}^{k})),
+\end{equation}
+where $\alpha$ is the step size, the gradient of $f$ is
+\begin{equation}
+\nabla f(\vc{\gamma}) = - 2 \vc{Z}^T (\vc{y} - \vc{Z} \, \vc{\gamma}) + \lambda \, \vc{Z}^T \vc{c}
+\end{equation}
+ and the proximal operator is
+\begin{equation}
+prox_{\alpha ||.||_1}( \vc{v} ) := \argmin_{\vc{x}} ||\vc{x}||_1 + \frac{1}{2\alpha}||\vc{x}-\vc{v}||_2^2
+\end{equation}
+with a solution that can be expressed element-wise
+\begin{equation}
+[ prox_{\alpha ||.||_1}( \vc{v} ) ]_i = sgn(v_i) (|v_i| - \alpha)_+
+\end{equation}
+
+\subsubsection{Change of variables}
+First we rewrite equation \eqref{eq:MKL_K2} as
+
+\begin{eqnarray}\label{eq:MKL_Feat}
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{c} \in \mathbb{R}^n} 
+||\vc{y} - \sum_{j}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \sum_{j}^m \gamma_j = & \nn
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \gamma_j \vc{\Phi}_j \vc{\Phi}_j^T \vc{c}||_2^2 +
+\lambda \, \sum_{j=1}^m \gamma_j \vc{c}^T \vc{\Phi}_j \vc{\Phi}_j^T \vc{c} + \sum_{j}^m \gamma_j = & \nn
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{\Phi}_j \vc{z}_j||_2^2 +
+\lambda \, \sum_{j=1}^m \vc{z}_j^T \vc{z}_j / \gamma_j
++ \sum_{j}^m \gamma_j, \quad \text{where } \vc{z}_j = \gamma_j \vc{\Phi}_j^T \vc{c} &
+\end{eqnarray}
+
+We first minimise problem \eqref{eq:MKL_Feat} with respect to $\gamma$.
+\begin{eqnarray}
+\frac{\partial J(\vc{z},\vc{\gamma})}{\partial \gamma_j}
+& = & - \lambda \frac{||\vc{z}_j||_2^2}{\gamma_j^2} + 1
+\end{eqnarray}
+We confirm that $J$ is a convex function of $\gamma_j$
+\begin{eqnarray}
+\frac{\partial^2 J(\vc{z},\vc{\gamma})}{\partial \gamma_j \partial \gamma_j}
+& = & 2 \lambda \frac{||\vc{z}_j||_2^2}{\gamma_j^3} > 0 \ (\text{since } \gamma_j > 0)
+\end{eqnarray}
+and find the minimising solution 
+\begin{eqnarray}
+- \lambda \frac{||\vc{z}_j||^2}{\gamma_j^2} + 1 & = & 0 \nn
+\gamma_j^2 & = & \lambda ||\vc{z}_j||_2^2 \nn
+\gamma_j & = & \sqrt{\lambda} ||\vc{z}_j||_2
+\end{eqnarray}
+
+We plug this back to equation \eqref{eq:MKL_Feat}
+\begin{eqnarray}\label{eq:MKL_GL}
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{\Phi}_j \vc{z}_j||_2^2 +
+\lambda \, \sum_{j=1}^m \vc{z}_j^T \vc{z}_j / \gamma_j
++ \sum_{j}^m \gamma_j = & \nn
+& \min_{\vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{\Phi}_j \vc{z}_j||_2^2 +
+2 \sqrt{\lambda} \, \sum_{j=1}^m ||\vc{z}_j||_2 = & \nn
+& \min_{\vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \vc{\Phi} \vc{z} ||_2^2 +
+2 \sqrt{\lambda} \, \sum_{j=1}^m ||\vc{z}_j||_2 = & \nn
+& \min_{\vc{z} \in \mathbb{R}^nm} 
+f(\vc{z}) + g(\vc{z}), &
+\end{eqnarray}
+where $\vc{\Phi} = [\vc{\Phi}_1 \vc{\Phi}_2 \ldots \vc{\Phi}_m] $, 
+$\vc{z} = [\vc{z}^T_1 \vc{z}^T_2 \dots \vc{z}^T_m]^T$, $f(\vc{z}) = ||\vc{y} - \vc{\Phi} \vc{z} ||_2^2$ is convex differentiable in $\vc{z}$ and $g(\vc{z}) = 2 \sqrt{\lambda} \, \sum_{j=1}^m ||\vc{z}_j||_2$ is convex non-differentiable.
+
+We can solve this by the proximal gradient descent with steps
+\begin{equation}
+\vc{z}^{k+1} = prox_{\alpha g(.)}( \vc{z}^{k} - \alpha \nabla f(\vc{z}^{k})),
+\end{equation}
+where $\alpha$ is the step size, the gradient of $f$ is
+\begin{equation}
+\nabla f(\vc{z}) = - 2 \vc{\Phi}^T (\vc{y} - \vc{\Phi} \, \vc{z})
+\end{equation}
+and the proximal operator is
+\begin{equation}
+prox_{\alpha g}( \vc{v} ) := \argmin_{\vc{x}} 2 \sqrt{\lambda} \, \sum_{j=1}^m ||\vc{x}_j||_2 + \frac{1}{2\alpha}||\vc{x}-\vc{v}||_2^2
+\end{equation}
+with a solution that can be expressed element-wise
+\begin{equation}
+[ prox_{\alpha g}( \vc{v} ) ]_j = \vc{v}_j \Big( 1 - \frac{2 \sqrt{\lambda} \alpha}{||\vc{v}_j||_2} \Big)_+
+\end{equation}
+
+Finally, we recover $\vc{c}$ by solving the set of equations $\vc{z}_j = \sqrt{\lambda}||\vc{z}_j||_2 \vc{\Phi}_j^T \vc{c}$ for all $j$.
+%
+%
+%
+%\begin{eqnarray}
+%\frac{\partial J(\vc{c},\vc{\gamma})}{\partial \gamma}
+%& = & - 2 \vc{Z}^T (\vc{y} - \vc{Z} \, \vc{\gamma}) + \lambda \vc{Z}^T \vc{c} \nonumber \\
+%& = & - 2 \vc{Z}^T \vc{y} + 2 \vc{Z}^T \vc{Z} \, \vc{\gamma} + \lambda \vc{Z}^T \vc{c}
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial^2 J(\vc{c},\vc{\gamma})}{\partial \gamma \partial \gamma}
+%& = & 2 \vc{Z}^T \vc{Z} \succ 0
+%\end{eqnarray}
+%so $J(\vc{c},\vc{\gamma})$ is convex in $\gamma$ and is minimised at $\gamma*$
+%\begin{eqnarray}
+%- 2 \vc{Z}^T \vc{y} + 2 \vc{Z}^T \vc{Z} \, \vc{\gamma*} + \lambda \vc{Z}^T \vc{c} & = & 0 \nonumber \\
+%\vc{Z}^T \vc{Z} \, \vc{\gamma*} & = & \vc{Z}^T \vc{y} - \lambda/2 \vc{Z}^T \vc{c} \nonumber \\
+%\vc{Z}^T \vc{Z} \, \vc{\gamma*} & = & \vc{Z}^T (\vc{y} - \lambda/2 \, \vc{c}) \nonumber \\
+%\vc{Z} \, \vc{\gamma*} & = & \vc{y} - \lambda/2 \, \vc{c}
+%\end{eqnarray}
+%
+%We plug the solution $\gamma*$ back to function \eqref{eq:MKLJ}.
+%\begin{eqnarray}\label{eq:MKLJ2}
+%J(\vc{c}) 
+%& = & ||\vc{y} - \vc{Z} \, \vc{\gamma*} ||_2^2 + \lambda \vc{c}^T \vc{Z} \, \vc{\gamma*} \nonumber \\
+%& = & ||\vc{y} - \vc{y} - \lambda/2 \, \vc{c} ||_2^2 + \lambda \vc{c}^T (\vc{y} - \lambda/2 \, \vc{c}) \nonumber \\
+%& = & ||\lambda/2 \, \vc{c} ||_2^2 + \lambda \vc{c}^T \vc{y} - \lambda^2/2 \, ||\vc{c}||_2^2 \nonumber \\
+%& = & \lambda \vc{c}^T \vc{y} - \lambda^2/4 \, ||\vc{c}||_2^2
+%\end{eqnarray}
+%which is a standard group-lasso problem.
+%
+%In analogy with equation \eqref{eq:RKHSJC}
+%\begin{eqnarray}
+%\frac{\partial J(\vc{c},\vc{\gamma})}{\partial \vc{c}} 
+%& = & -2 \sum_j^m \gamma_j \vc{K}_j^T (\vc{y} - \sum_{j}^m \gamma_j \vc{K}_j \vc{c})
+%+ 2 \lambda \sum_j^m \gamma_j \vc{K}_j^T \vc{c} \nonumber \\
+%& = & -2 \sum_j^m \gamma_j \vc{K}_j^T \vc{y} + 2 \sum_j^m \gamma_j \vc{K}_j^T \sum_j^m \gamma_j \vc{K}_j^T \vc{c} + 2 \lambda \sum_j^m \gamma_j \vc{K}_j^T \vc{c} \nonumber \\
+%& = & -2 \vc{K}^T \vc{y} + 2 \vc{K}^T \vc{K} \vc{c} + 2 \vc{K}^T \vc{c}
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial^2 J(\vc{c},\vc{\gamma})}{\partial \vc{c} \partial \vc{c}}
+%& = & 2 \vc{K}^T \vc{K} + 2 \vc{K}^T \succeq 0 
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial J(\vc{c},\vc{\gamma})}{\partial \gamma_i} 
+%& = & -2 \vc{c}^T \vc{K}_i^T (\vc{y} - \sum_{j}^m \gamma_j \vc{K}_j \vc{c}) 
+%+ \lambda \vc{c}^T \vc{K}_i  \vc{c} \nonumber \\
+%& = & -2 \vc{c}^T \vc{K}_i^T \vc{y} + 2 \vc{c}^T \vc{K}_i^T \sum_{j}^m \gamma_j \vc{K}_j \vc{c} 
+%+ \lambda \vc{c}^T \vc{K}_i  \vc{c} \nonumber \\
+%& = & -2 \vc{c}^T \vc{K}_i^T \vc{y} + 2 \vc{c}^T \vc{K}_i^T \vc{K} \vc{c} + \lambda \vc{c}^T \vc{K}_i  \vc{c} 
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial^2 J(\vc{c},\vc{\gamma})}{\partial \gamma_i \partial \gamma_i} 
+%& = & 2 \vc{c}^T \vc{K}_i^T \vc{K}_i \vc{c} \geq 0
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial^2 J(\vc{c},\vc{\gamma})}{\partial \gamma_i \partial \vc{c}} 
+%& = & -2 \vc{K}_i^T \vc{y} + 4 \vc{K} \vc{K}_i^T \vc{c}
+%\end{eqnarray}
+%\begin{eqnarray}
+%\frac{\partial^2 J(\vc{c},\vc{\gamma})}{\partial \gamma_i \partial \gamma_j} 
+%& = & 2 \vc{c}^T \vc{K}_i^T \vc{K}_j \vc{c}
+%\end{eqnarray}
+%
+%So the hessian is
+%\begin{equation*}
+%\vc{H} = 
+%\begin{bmatrix}
+%2 \vc{K}^T \vc{K} + 2 \vc{K}^T & -2 \vc{K}_1^T \vc{y} + 4 \vc{K} \vc{K}_1^T \vc{c} 
+%& \ldots & -2 \vc{K}_m^T \vc{y} + 4 \vc{K} \vc{K}_m^T \vc{c} \\
+%-2 \vc{y}^T \vc{K}_1  + 4 \vc{c}^T \vc{K}_1 \vc{K}^T & 
+%2 \vc{c}^T \vc{K}_1^T \vc{K}_1 \vc{c} & \ldots & 2 \vc{c}^T \vc{K}_1^T \vc{K}_m \vc{c} \\
+%. & 
+%2 \vc{c}^T \vc{K}_2^T \vc{K}_1 \vc{c} & \ldots & 2 \vc{c}^T \vc{K}_2^T \vc{K}_m \vc{c} \\
+%. & 
+%2 \vc{c}^T \vc{K}_m^T \vc{K}_1 \vc{c} & \ldots & 2 \vc{c}^T \vc{K}_m^T \vc{K}_m \vc{c} 
+%\end{bmatrix}
+%\end{equation*}
+
+
+
+Let's derive the solution using the standard mechanism (note that we do not need to go through the primal-dual mechanism, we only need to use change of variable)
+We want to minimise the Lagrangian is
+\begin{equation}\label{eq:PrimalLagrangianRKHS}
+L(\vc{w},\lambda) := \sum_i^n \big( y_i - \langle \vc{w}, \vc{x}_i \rangle \big)^2 + \lambda \, ||\vc{w}||_2^2
+\end{equation}
+
+The optimality condition for the minimum of the primal Lagrangian \eqref{eq:PrimalLagrangianRKHS} yields
+\begin{equation}
+\frac{\partial L }{\partial \vc{w}} = \sum_i^n ( - 2 y_i \vc{x}_i + 2 \vc{x}_i \vc{x}^T_i \vc{w}) + 2 \lambda \vc{w} = 0
+\end{equation} so that
+\begin{eqnarray}\label{eq:MKLW}
+\vc{w}^* & = & (\sum_i^n \vc{x}_i \vc{x}^T_i + \lambda \vc{I}_d)^{-1} \sum_i^n y_i \vc{x}_i \nonumber \\
+& = & (\vc{X}^T \vc{X} + \lambda \vc{I}_d)^{-1} \vc{X}^T \vc{y} \qquad \text{using eq \eqref{eq:MatrixInversion}} \nonumber \\
+& = & \vc{X}^T (\vc{X} \vc{X}^T + \lambda \vc{I}_n)^{-1} \vc{y} \nonumber \\
+& = & \vc{X}^T (\vc{K} + \lambda \vc{I}_n)^{-1} \vc{y} = \vc{X}^T \vc{c}
+\end{eqnarray}
+So that the solution is
+\begin{eqnarray}
+f^*(\vc{x}_j) & = & \langle \vc{w}^*, \vc{x}_j \rangle
+= \langle \vc{X}^T (\vc{K} + \lambda \vc{I}_N)^{-1} \vc{y}, \, \vc{x}_i \rangle \nonumber \\
+& = & \langle \vc{X}^T \vc{c}, \, \vc{x}_j \rangle
+= \langle \sum_i^n \vc{x}_i c_i, \, \vc{x}_j \rangle 
+= \sum_i^n c_i \langle  \vc{x}_i , \, \vc{x}_j \rangle
+= \sum_i^n c_i \, k(\vc{x}_i , \vc{x}_j ),
+\end{eqnarray}
+where $\vc{c} =  (\vc{K} + \lambda \vc{I}_N)^{-1} \vc{y}$, which indeed is the solution to problem \eqref{eq:SingleCSolution}.
+
+In the simple linear case we have
+\begin{eqnarray}
+J(\vc{w}) & := & ||\vc{y} - \vc{X}\vc{w}||_2^2 + \lambda ||\vc{w}||_2^2 \quad \text{ from eq \eqref{eq:MKLW} } \nonumber \\
+& := & ||\vc{y} - \vc{X} \vc{X}^T (\vc{K} + \lambda \vc{I}_n)^{-1} \vc{y} ||_2^2 + \lambda ||\vc{X}^T (\vc{K} + \lambda \vc{I}_n)^{-1} \vc{y} ||_2^2 \nonumber \\
+& := & ||\vc{y} - \vc{K} \vc{c}||_2^2 + \lambda \vc{c}^T \vc{K} \vc{c}
+\end{eqnarray}
+
+For the MKL case we have
+\begin{eqnarray}\label{eq:MKL=GroupLasso}
+J(\vc{c},\vc{\gamma}) & := & ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} \nonumber \\
+& := & ||\vc{y} - \sum_{j=1}^m \gamma_j \vc{X}_j \vc{X}^T_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{X}_j \vc{X}^T_j \vc{c} \nonumber \\
+& := & ||\vc{y} - \sum_{j=1}^m \vc{X}_j \gamma_j \vc{X}^T_j \vc{c}||_2^2 +
+\lambda \, \sum_{j=1}^m  \gamma_j \vc{c}^T \vc{X}_j \vc{X}^T_j \vc{c} \gamma_j / \gamma_j \nonumber \\
+& := & ||\vc{y} - \sum_{j=1}^m \vc{X}_j \vc{w}_j ||_2^2 +
+\lambda \, \sum_{j=1}^m \frac{|| \vc{w}_j||_2^2}{\gamma_j} \quad \text{ where } \vc{w}_j =  \gamma_j \vc{X}^T_j \vc{c}
+\end{eqnarray}
+In the final line in the above we have to extend the regularizer function $\Omega: \mathbb{R}^m \times \mathbb R_+ \to \mathbb{R}_+ $ in the form $\Omega(x,y) = \frac{||\vc{x}||_2^2}{y}$ to point $(0,0)$ so that $\Omega(0,0) = 0$ (by convention). 
+
+As explained for example in \cite{Bach2012} this is equivalent to a group-lasso penalty since 
+\begin{equation}
+\min_{\gamma \in \Delta_p} \sum_{j=1}^m \frac{|| \vc{w}_j||_2^2}{\gamma_j} = ||\vc{w}||^2_{1,2} = (\sum_j ||\vc{w}_j||_2)^2
+\end{equation}
+
+\begin{small}
+\emph{Proof:} From Cauchy-Schwarz inequality we have $(\langle \vc{u}, \vc{v} \rangle)^2 = (\sum u_i v_i)^2 \leq \langle \vc{u}, \vc{u} \rangle \langle \vc{v}, \vc{v} \rangle = \sum u_i^2 \sum v_i^2$.
+The equality holds only if $\vc{u}$ and $\vc{v}$ are linearly dependent.
+
+We therefore have
+\begin{equation}
+(\sum_j ||\vc{w}_j||_2)^2 = \Big( \sum_j \frac{||\vc{w}_j||_2}{\sqrt{\gamma_j}} \sqrt{\gamma_j} \Big)^2 \leq \sum_j \frac{||\vc{w}_j||_2^2}{\gamma_j} \sum_j \gamma_j = \sum_j \frac{||\vc{w}_j||_2^2}{\gamma_j},
+\end{equation}
+where the last equality comes from the simplex constraint.
+The CS is an equality if $c \, \frac{||\vc{w}_j||_2}{\sqrt{\gamma_j}} = \sqrt{\gamma_j}$ for all groups $j$, that is if $\gamma_j = c \, ||\vc{w}_j||_2$.
+Next from the simplex constraint we have $\sum_g \gamma_j = c \sum_j ||\vc{w}_j||_2 = 1$ and therefore $c = 1/\sum_j ||\vc{w}_j||_2$ and $\gamma_j = ||\vc{w}_j||_2 / \sum_j ||\vc{w}_j||_2$ 
+\end{small}
+
+The question is now how to solve the kernel version and not the feature-space version of the minimisation problem \eqref{eq:MKL=GroupLasso}.
+
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Bach2012}
+Bach, F., Jenatton, R., Mairal, J., \& Obozinski, G. Optimization with sparsity-inducing penalties. Foundations and Trends in Machine Learning, 2012
+
+\bibitem{Lanckriet2004}
+Lanckriet, G., \& Cristianini, N. Learning the kernel matrix with semidefinite programming. Journal of Machine Learning Research, 2004 
+
+\bibitem{Buhlman2013}
+Bühlmann, P., Rütimann, P., van de Geer, S., \& Zhang, C.-H. Correlated variables in regression: Clustering and sparse estimation. Journal of Statistical Planning and Inference, 2013
+
+\bibitem{Simon2012}
+Simon, N., \& Tibshirani, R. Standardization and the Group Lasso Penalty. Statistica Sinica, 2012
+
+\end{thebibliography}
+
+\begin{equation}\label{eq:MKL_FJ}
+ \min_{\gamma \in \Delta} \min_{f \in \mathcal{H}} J(f) := \sum_i^n \big( y_i - \sum_j^m \gamma_j f_j(\vc{x}_i) \big)^2 + \lambda \, \sum_j^m \gamma_j ||f_j||^2_{\mathcal{H}_j}
+\end{equation}
+
+\begin{eqnarray}
+J(f) & = & \sum_i^n \big( y_i - \sum_j^m \gamma_j f_j(\vc{x}_i) \big)^2 + \lambda \, \sum_j^m \gamma_j ||f_j||^2_{\mathcal{H}_j} \\
+& = & \sum_i^n \big( y_i - \sum_j^m \gamma_j \Phi_j \vc{w}_j \big)^2 + \lambda \, \sum_j^m \gamma_j ||\vc{w}_j||_2^2 \nn
+& = & \sum_i^n \big( y_i - \sum_j^m \Phi_j \vc{z}_j \big)^2 + \lambda \, \sum_j^m ||\vc{z}_j||_2^2 / \gamma_j, \quad \text{where } \vc{z}_j = \gamma_j \vc{w}_j
+\end{eqnarray}
+
+\begin{eqnarray}
+& \min_{\gamma \in \Delta} \min_{f \in \mathcal{H}} \, \sum_i^n \big( y_i - \sum_j^m \gamma_j f_j(\vc{x}_i) \big)^2 + \lambda \, \sum_j^m \gamma_j ||f_j||^2_{\mathcal{H}_j} = & \nn
+& \min_{\gamma \in \Delta} \min_{\vc{z} \in \mathcal{R}^{nm}} \sum_i^n \big( y_i - \sum_j^m \Phi_j(\vc{x}_i)^T \vc{z}_j \big)^2 + \lambda \, \sum_j^m ||\vc{z}_j||_2^2 / \gamma_j  = & \nn
+& \min_{\vc{z} \in \mathcal{R}^{nm}} || \vc{y} - \sum_j^m \vc{\Phi}_j \vc{z}_j ||_2^2 + \lambda \, \sum_j^m ||\vc{z}_j||_2^2 / \gamma_j &
+\end{eqnarray}
+
+\begin{eqnarray}
+& \min_{\gamma \in \Delta, \vc{c} \in \mathbb{R}^n} 
+||\vc{y} - \sum_{j}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} = & \nn
+& \min_{\gamma \in \Delta, \vc{c} \in \mathbb{R}^n} 
+||\vc{y} - \sum_{j}^m \gamma_j \vc{\Phi}_j \vc{\Phi}_j^T \vc{c}||_2^2 +
+\lambda \, \sum_{j=1}^m \gamma_j \vc{c}^T \vc{\Phi}_j \vc{\Phi}_j^T \vc{c} = & \nn
+& \min_{\gamma \in \Delta, \vc{z} \in \mathbb{R}^{nm}} 
+||\vc{y} - \sum_{j}^m \vc{\Phi}_j \vc{z}_j||_2^2 +
+\lambda \, \sum_{j=1}^m || \vc{z}_j ||_2^2/ \gamma_j, \quad \text{where } \vc{z}_j = \gamma_j \vc{\Phi}_j^T \vc{c} & \nn
+& \min_{\gamma \in \Delta, \vc{z} \in \mathbb{R}^{nm}} 
+||\vc{y} - \sum_{j}^m \vc{\Phi}_j \vc{z}_j||_2^2 +
+\lambda^2 \, (\sum_{j=1}^m || \vc{z}_j ||_2 )^2 &
+\end{eqnarray}
+From the two equivalences above we see that the problem \eqref{eq:MKL_K} and \eqref{eq:MKL_FJ} are equivalent.
+
+Next we define function $g_j = \gamma_j f_j$ so that from problem \eqref{eq:MKL_FJ} we get
+
+\begin{equation}\label{eq:MKL_GJ}
+ \min_{\gamma \in \Delta} \min_{f \in \mathcal{H}} J(f) := \sum_i^n \big( y_i - \sum_j^m g_j(\vc{x}_i) \big)^2 + \lambda \, \sum_j^m ||g_j||^2_{\mathcal{H}_j} / \gamma_j 
+\end{equation}
+When we minimise this with respect to $\gamma_j$ we find the minimum is achieved at a point 
+\begin{equation}
+\gamma_j = \frac{||g_j||_{\mathcal{H}_j}}{\sum_j^m ||g_j||_{\mathcal{H}_j}}
+\end{equation}
+
+
+\begin{eqnarray}\label{eq:SingleLearningProblemMKL5}
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{c} \in \mathbb{R}^n} 
+||\vc{y} - \sum_{j}^m \gamma_j \vc{K}_j \vc{c}||_2^2 +
+\lambda \, \vc{c}^T \sum_{j=1}^m \gamma_j \vc{K}_j \vc{c} + \sum_{j}^m \gamma_j = & \nn
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{K}_j \vc{z_j}||_2^2 +
+\lambda \, \sum_{j}^m \vc{z}_j^T \vc{K}_j \vc{z}_j/\gamma_j + \sum_{j}^m \gamma_j, & \text{where } \vc{z}_j = \gamma_j \vc{c}
+\end{eqnarray}
+
+We first minimise problem \eqref{eq:SingleLearningProblemMKL5} with respect to $\gamma$.
+\begin{eqnarray}
+\frac{\partial J(\vc{z},\vc{\gamma})}{\partial \gamma_j}
+& = & - \lambda \frac{\vc{z}_j^T \vc{K}_j \vc{z}_j}{\gamma_j^2} + 1
+\end{eqnarray}
+We confirm that $J$ is a convex function in $\gamma_j$ by the 2nd derivative condition
+\begin{eqnarray}
+\frac{\partial^2 J(\vc{z},\vc{\gamma})}{\partial \gamma_j \partial \gamma_j}
+& = & 2 \lambda \frac{\vc{z}_j^T \vc{K}_j \vc{z}_j}{\gamma_j^3} > 0 \quad (\text{since } \gamma_j>0)
+\end{eqnarray}
+So the minimum is attained at point $\gamma_j^*$
+\begin{eqnarray}
+- \lambda \frac{\vc{z}_j^T \vc{K}_j \vc{z}_j}{\gamma_j^{*2}} + 1 & = & 0 \nn
+\gamma_j^{*2} & = & \lambda \vc{z}_j^T \vc{K}_j \vc{z}_j \nn
+\gamma_j{*} & = & \sqrt{\lambda \vc{z}_j^T \vc{K}_j \vc{z}_j}
+\end{eqnarray}
+
+We can plug this back to equation \eqref{eq:SingleLearningProblemMKL5} to get
+\begin{eqnarray}\label{eq:SingleLearningProblemMKL6}
+& \min_{\gamma \in \mathbb{R}^m_+, \vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{K}_j \vc{z_j}||_2^2 +
+\lambda \, \sum_{j}^m \vc{z}_j^T \vc{K}_j \vc{z}_j/\gamma_j + \sum_{j}^m \gamma_j, = & \nn
+& \min_{\vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{K}_j \vc{z_j}||_2^2 +
+2 \sqrt{\lambda} \, \sum_{j}^m \sqrt{\vc{z}_j^T \vc{K}_j \vc{z}_j} = \nn
+& \min_{\vc{z} \in \mathbb{R}^nm} 
+||\vc{y} - \sum_{j}^m \vc{K}_j \vc{z_j}||_2^2 +
+2 \sqrt{\lambda} \, \sum_{j}^m ||\vc{K}_j^{1/2} \vc{z}_j||_2 &
+\end{eqnarray}
+which is a form of groupwise prediction penalty as in \cite{Buhlman2013} or standardised group lasso of \cite{Simon2012}.
+
+I will use proximal gradient descent and for the proximal use the separability property of proximals.
+
+http://math.stackexchange.com/questions/175263/gradient-and-hessian-of-general-2-norm
+
+
+\begin{eqnarray}
+\frac{\partial J(\vc{z})}{\partial \vc{z}_i}
+& = & - \vc{K}_i^T (\vc{y} - \sum_{j}^m \vc{K}_j \vc{z_j})
++ 2 \lambda \frac{\vc{K}^T_i \vc{z}_i}{\sqrt{\vc{z}_i^T \vc{K}_i \vc{z}_i}}
+\end{eqnarray}
+
+\begin{eqnarray}
+\frac{\partial^2 J(\vc{z})}{\partial \vc{z}_i \partial \vc{z}_i}
+& = & \frac{2 \lambda \vc{K}_i}{\sqrt{\vc{z}_i^T \vc{K}_i \vc{z}_i}} 
+- 2 \lambda \vc{K}^T_i \vc{z}_i \, (\vc{z}_i^T \vc{K}_i \vc{z}_i)^{-3/2} \vc{K}^T_i \vc{z}_i 
+\end{eqnarray}
+.... hmmm
+http://math.stackexchange.com/questions/811376/hessian-of-a-square-root-of-a-quadratic-form
+
+Let's do it differently

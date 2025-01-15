@@ -1,0 +1,162 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 30/7/2015 - Duality %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Duality and KKT}\label{sec:Duality}
+
+\subsection{Primal problem}\label{sec:Primal}
+
+The primal\index{Primal problem} optimisation problem (not necessarily convex) for $\vc{x} \in \mathbb{R}^n$ is
+\begin{eqnarray}\label{eq:PrimalProblem}
+  \text{minimize }  & & f_0(\vc{x}) \nonumber \\
+  \text{subject to} & & f_i(\vc{x}) \leq 0, ~ i=1,\ldots,m \\
+		    & & h_i(\vc{x}) =0, ~ i=1,\ldots,p \nonumber
+\end{eqnarray}
+
+We assume its domain $\mathcal{D} = \cap_i^m \, dom  \, f_i \cap \cap_j^p \, dom \, h_j$ is nonempty, and we denote the optimal solution by $p^* = f_0(\vc{x}^*)$.
+
+We define the \emph{Lagrangian}\index{Lagrangian} $L: \mathbb{R}^n \times \mathbb{R}^m \times \mathbb{R}^p \rightarrow \mathbb{R}$ associated with problem \eqref{eq:PrimalProblem}
+\begin{equation}\label{eq:Lagrangian}
+ L(\vc{x},\vc{\lambda},\vc{\mu}) = f_0(\vc{x}) 
++ \sum_i^m \lambda_i f_i(\vc{x})
++ \sum_i^p \mu_i h_i(\vc{x}),
+\end{equation}
+where $\vc{\lambda}$ and $\vc{\mu}$ are the Lagrange multiplier vectors.
+
+
+\subsection{Lagrange dual problem}\label{sec:Dual}
+We define the \emph{Lagrange dual function}\index{Lagrange dual function} $g: \mathbb{R}^m \times \mathbb{R}^p \rightarrow \mathbb{R}$ associated with problem \eqref{eq:PrimalProblem}
+\begin{equation}\label{eq:LagrangeDual}
+ g(\vc{\lambda},\vc{\mu}) 
+= \inf_{x \in \mathcal{D}} L(\vc{x},\vc{\lambda},\vc{\mu})
+= \inf_{x \in \mathcal{D}} \Big(
+f_0(\vc{x}) 
++ \sum_i^m \lambda_i f_i(\vc{x})
++ \sum_i^p \mu_i h_i(\vc{x}) \Big)
+\end{equation}
+which is always a concave function (irrespective of the problem \eqref{eq:PrimalProblem} being convex or not).
+
+The dual function gives a lower bound on the optimal value $p^*$ of problem \eqref{eq:PrimalProblem} (see \cite{Boyd2004} sec.5.1.3 for proof).
+\begin{equation}\label{eq:DualBound}
+ g(\vc{\lambda},\vc{\mu}) \leq p^*, \quad \forall \vc{\lambda} \succeq 0, \, \mu
+\end{equation}
+When $g(\vc{\lambda},\vc{\mu}) = - \infty$ this is not very useful.
+So lagrange multipliers such that $\vc{\lambda} \succeq 0$ and $g(\vc{\lambda},\vc{\mu}) > - \infty$ are called \emph{dual feasable}\index{Dual feasable}.
+
+The \emph{Lagrange dual problem}\index{Lagrange dual problem}\index{Dual problem} answers the question ``What is the best lower bound that we can get from the Lagrange dual function?''
+\begin{eqnarray}\label{eq:DualProblem}
+  \text{maximize }  & & g(\vc{\lambda},\vc{\mu}) \nonumber \\
+  \text{subject to} & & \vc{\lambda} \succeq 0 
+\end{eqnarray}
+This is a convex problem since we maximize a concave function and the constraint is convex. We denote the optimal solution with \emph{optimal Lagrange multipliers}\index{Optimal Lagrange multipliers} by $d^* = g(\vc{\lambda}^*,\vc{\mu}^*)$.
+
+\subsubsection{Weak duality}\label{sec:WeakDuality}
+From eq. \eqref{eq:DualBound} if follows that 
+\begin{equation}\label{eq:WeakDuality}\index{Weak duality}
+d^* \leq p^* 
+\end{equation}
+The difference $p^*-d^*$ is called the \emph{optimal duality gap}\index{Duality gap - optimal} (always non-negative).
+It also follows that for $d^* = \infty$ we must have $p^* = \infty$ and therefore the primal problem is infeasable; for $p^* = -\infty$ we must have $d^* = -\infty$ and therefore the dual problem is infeasable.
+The optimal dual bound can sometimes be used as proxy for the optimal solution of the primal problem if it is difficult to solve since the dual is always convex and may be easier.
+
+\subsubsection{Strong duality}\label{sec:StrongDuality}
+We say that \emph{strong duality} holds if 
+\begin{equation}\label{eq:StrongDuality}\index{Strong duality}
+d^* = p^* 
+\end{equation}
+Generally, the conditions on convex primal problems that have strong duality are called \emph{constraint qualifications}\index{Constraint qualifications}.
+
+For convex problems in the form
+\begin{eqnarray}\label{eq:ConvexProblem}
+  \text{minimize }  & & f_0(\vc{x}) \nonumber \\
+  \text{subject to} & & f_i(\vc{x}) \leq 0, ~ i=1,\ldots,m \\
+		    & & \vc{Ax} =b, ~ i=1,\ldots,p \nonumber
+\end{eqnarray}
+the \emph{Slater's condition} (condition for strict feasibility)
+\begin{equation}\label{eq:SlatersCond}\index{Slater's condition}
+ f_i(\vc{x}) < 0, ~ i=1,\ldots,m, \qquad \vc{Ax} =b
+\end{equation}
+ensures strong duality.
+But affine inequailty constraints do not have to hold with strict inequalities so if all the constraints are affine the Slater's conditions reduce to feasibility conditions.
+
+\subsection{Otimality conditions}\label{sec:OtimalityConditions}
+If we can find dual feasable $(\vc{\lambda},\vc{\mu})$ we establish a proof (or certificate) that the primal optimal solution is $p^* \ge g(\vc{\lambda},\vc{\mu})$.
+In case of strong duality we can find arbitrarily good certificates.
+
+If we find a primal feasable point $\vc{x}$ and $(\vc{\lambda},\vc{\mu})$ are dual feasable then 
+\begin{equation}
+ f_0(\vc{x}) - p^* \leq f_0(\vc{x}) - g(\vc{\lambda},\vc{\mu})
+\end{equation}
+and we refer to the difference between the primal and dual objectives $\epsilon = f_0(\vc{x}) - g(\vc{\lambda},\vc{\mu})$ as the \emph{duality gap}\index{Duality gap} associated with these points (and say that the solutions are $\epsilon$-suboptimal).
+The optimal solutions are always within the intervals specified by the primal and dual feasable points
+\begin{equation}
+ p^* \in [ g(\vc{\lambda},\vc{\mu}), f_0(\vc{x}) ], \qquad
+ d^* \in [ f_0(\vc{x}), g(\vc{\lambda},\vc{\mu}) ] 
+\end{equation}
+If the duality gap $\epsilon$ is zero than the feasable points are optimal.
+The duality gap $\epsilon$ can be used in algorithms as a stopping criterion.
+
+
+
+For the optimal points $\vc{x}^*,\vc{\lambda}^*,\vc{\mu}^*$ with strong duality we get
+\begin{eqnarray}
+ f_0(\vc{x}^*) 
+& = & g(\vc{\lambda}^*,\vc{\mu}^*) \text{\hskip 5.5cm (strong duality)} \nonumber \\
+& = & \inf_x \Big( 
+  f_0(\vc{x}) + \sum_i^m \lambda_i^* f_i(\vc{x}) + \sum_i^p \mu_i^* h_i(\vc{x})
+\Big) \qquad \text{(dual function)} \nonumber \\
+& \leq & \Big( 
+  f_0(\vc{x}^*) + \sum_i^m \lambda_i^* f_i(\vc{x}^*) + \sum_i^p \mu_i^* h_i(\vc{x}^*)
+\Big) \qquad \text{(infemum)} \\
+& \leq & f_0(\vc{x}^*) \text{\hskip 5.5cm } \big( \lambda_i^* \geq 0,  f_i(\vc{x}^*) \leq 0 \big) \nonumber
+\end{eqnarray}
+For this to be valid, the last two lines need to hold as equality and in result we must have
+\begin{equation}
+ \sum_i^m \lambda_i^* f_i(\vc{x}^*) = 0
+\end{equation}
+Since each term in the sum is non-negative we must have
+\begin{equation}\label{eq:ComplementarySlackness}\index{Complementary slackness}
+ \lambda_i^* f_i(\vc{x}^*) = 0, \quad i=1,\ldots,m
+\end{equation}
+These are known as the \emph{complementary slackness}\index{Complementary slackness} conditions which must hold for any primal and dual optimal points in case of strong duality.
+Roughly speaking, they mean that the $i$th Lagrange multiplier is zero unless the $i$th constraint is active at the optimum. More formally,
+\begin{eqnarray}
+ & \lambda_i^* > 0 ~ \Longrightarrow ~ f_i(\vc{x}^*) = 0 & \nonumber \\
+ & f_i(\vc{x}^*) < 0 ~ \Longrightarrow ~ \lambda_i^* = 0 &
+\end{eqnarray}
+
+\subsubsection{KKT conditions}\label{sec:KKTConditions}
+We assume that all functions in the primal problem \eqref{eq:PrimalProblem} are differentiable (though not necessarily convex).
+At optimal points $\vc{x}^*,\vc{\lambda}^*,\vc{\mu}^*$ with zero duality gap the optimal $\vc{x}*$ minimizes the Lagrangian $L(\vc{x},\vc{\lambda}^*,\vc{\mu})^*$ so its gradient at $\vc{x}*$ must vanish
+\begin{equation}
+ \nabla L(\vc{x}^*,\vc{\lambda}^*,\vc{\mu})^* 
+= \nabla f_0(\vc{x}^*) 
++ \sum_i^m \lambda_i \nabla f_i(\vc{x}^*)
++ \sum_i^p \mu_i \nabla h_i(\vc{x}^*)
+= 0
+\end{equation}
+If we put this together with the primal and dual feasibility conditions and the complementary slackness conditions we get the \emph{Karush-Kuhn-Tucker}\index{Karush-Kuhn-Tucker conditions} (KKT)\index{KKT conditions} conditions which must hold for any optimisation problem with strong duality (and differentiable objective and constraints).
+\begin{eqnarray}\label{eq:KKTConditions}
+ f_i(\vc{x}^*) & \leq & 0, \quad i = 1,\ldots,m \qquad \text{(primal feasibility)} \nonumber \\
+ h_i(\vc{x}^*) & = & 0, \quad i = 1,\ldots,p \qquad \text{(primal feasibility)} \nonumber \\
+ \lambda_i^* & \geq & 0, \quad i = 1,\ldots,m \qquad \text{(dual feasibility)} \\
+ \lambda_i f_i(\vc{x}^*) & = & 0, \quad i = 1,\ldots,m \qquad \text{(complementary slackness)} \nonumber \\
+\nabla f_0(\vc{x}^*) 
++ \sum_i^m \lambda_i \nabla f_i(\vc{x}^*)
++ \sum_i^p \mu_i \nabla h_i(\vc{x}^*) 
+& = & 0 \qquad \text{(vanishing gradient of Lagrangian)} \nonumber
+\end{eqnarray}
+For convex primal problmes the KKT conditions are also sufficient for any points that satisfy them to be the primal and dual optima with zero duality gap.
+If a convex optimisation problem satisfies Slater's condition, than the KKT conditions provide necessary and sufficient conditions for optimality.
+
+We can also use this to solve the primal problem by solving first the dual instead and then recovering the optimal primal by minimising the lagrangian at the optimal Lagrange multipliers.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Boyd2004}
+S. Boyd and L. Vendenberghe, Convex Optimization. Cambridge University Press, 2004.
+
+\end{thebibliography}

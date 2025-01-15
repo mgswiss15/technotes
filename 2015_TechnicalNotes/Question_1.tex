@@ -1,0 +1,131 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 02/09/2016 - Subgradients %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% loads amsmath and some extra
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% to allow IEEEeqnarray
+%\usepackage[retainorgcmds]{IEEEtrantools}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% enables commenting out sections of text
+\usepackage{verbatim}
+
+%shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}
+%argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\Tr}{Tr}
+\DeclareMathOperator*{\Vc}{Vec}
+%and some more
+\newcommand{\ts}{time-series}
+%\newcommand{\note}{note}
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\color{blue}\emph{Note: #1}} \else {} \fi}
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}
+\newcommand{\conclude}[1]{\ifShowComments {\color{blue}\emph{{\bf Conclusions:} #1}} \else {} \fi}
+
+% For theorems and definitions
+\usepackage{amsthm}
+\newtheoremstyle{dotless}{}{}{\itshape}{}{\bfseries}{}{ }{}
+\theoremstyle{dotless}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{proof*}{Proof}
+\newtheorem{definition}{Definition}
+
+% for coloring
+\usepackage{xcolor}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+% to inclued only sections in the table of contents
+%\setcounter{tocdepth}{2}
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\paragraph{Question on subgradients}
+When working with non-differentiable functions in optimisation we need to find their sub-gradient.
+
+For example for the absolute value $f(x) = |x|$
+the subgradient is 
+\begin{equation}
+\partial f(x) =   
+\begin{cases} 
+   sign(x) & \text{if } x \neq 0 \\
+   \{s: s \in [-1,1]\} & \text{if } x = 0
+  \end{cases}
+\end{equation}
+
+For an $\ell_2$ norm  $f(\vc{x}) = ||\vc{x}||_2 = \sqrt{\vc{x}^T \vc{x}}$ it is
+\begin{equation}
+\partial f(\vc{x}) =   
+\begin{cases} 
+   \vc{x}/||\vc{x}||_2 & \text{if } \vc{x} \neq 0 \\
+   \{\vc{s}: ||\vc{s}||_2 \leq 1\} & \text{if } \vc{x} = 0
+  \end{cases}
+\end{equation}
+
+For the generalised $\ell_2$ norm  $f(\vc{x}) = ||\vc{A} \vc{x}||_2 = \sqrt{\vc{x}^T \vc{A}^T \vc{A} \vc{x}}$ it is
+\begin{equation}
+\partial f(\vc{x}) =   
+\begin{cases} 
+   \vc{A}^T \vc{A} \vc{x}/||\vc{A} \vc{x}||_2 & \text{if } \vc{x} \neq 0 \\
+   \{\vc{s}: ?????? \} & \text{if } \vc{x} = 0
+  \end{cases}
+\end{equation}
+Any idea and how to get there?
+
+\begin{definition}
+A vector $\vc{v} \in \mathbb{R}^n$ is a subgradient of (not necessarily convex) function $f:\mathbb{R}^n \to \mathbb{R}$ at point $\vc{x} \in dom f$ if for all $\vc{z} \in dom f$
+\begin{equation}\label{eq:DefSubgradient}
+f(\vc{z}) - f(\vc{x}) \geq \vc{v}^T (\vc{z} - \vc{x})
+\end{equation}
+\end{definition}
+Note: If $f$ is convex and differentiable at point $\vc{x}$ than the subgradient is equal to the gradient $\vc{v} = \nabla f(\vc{x})$.
+
+\begin{definition}
+The set of all subgradients of function $f$ at point $\vc{x}$ is called the subdifferential and denoted $\partial f(\vc{x})$
+\begin{equation}\label{eq:DefDifferential}
+\partial f(\vc{z}) = \{\vc{v}| f(\vc{z}) - f(\vc{x}) \geq \vc{v}^T (\vc{z} - \vc{x}) \} \quad \text{for all } \vc{z} \in dom f
+\end{equation}
+\end{definition}
+Note: $\partial f(\vc{z})$ is a closed convex set (though may be empty)
+
+Note: For a convex subdifferentiable function $f$ the standard optimality condition for a minimum $f(\vc{x}^*) = \inf_x f(\vc{x}) \Leftrightarrow 0=\nabla f(\vc{x})$ changes to 
+$f(\vc{x}^*) = \inf_x f(\vc{x}) \Leftrightarrow 0 \in \partial f(\vc{x})$.
+
+Yes, I know the formal definition of subgradients but that does not mean that I really know how to apply it so that it actually yields anything sensible.
+
+
+\paragraph{Solving for $\vc{x}$} Once you're at it ...  :-)
+Actually, in the end I need to figure out how to solve this equation for vector $\vc{x}$. Preferably in closed form (cause it shall simplify an algo. I have a lengthy descent-alternative already.)
+\begin{equation}
+\frac{\alpha \vc{K} \vc{x}}{||\vc{x}||_K} = \vc{v} - \vc{x},
+\end{equation}
+where $\vc{K}$ is positive definite matrix and $||\vc{x}||_K = \sqrt{\vc{x}^T \vc{K} \vc{x}}$
+
+
+\end{document}

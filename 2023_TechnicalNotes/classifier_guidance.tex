@@ -1,0 +1,12 @@
+\clearpage
+
+\section{Basics of classifier guidance}\label{sec:classifier_guidance}
+
+\begin{notebox}
+    \textbf{Using:} 
+    \fullcite{dhariwal_diffusion_2021}
+\end{notebox}
+
+\subsection{Classifier trained on noisy images}
+
+Let's assume a classifier $\pf(y | \rvx_t)$ trained on the noisy images $\rvx_t$ and use the gradients $\gradxt \pf(y | \rvx_t)$ to guide the diffusion sampling. 

@@ -1,0 +1,198 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 17/7/2015 - Technical notes %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% loads amsmath and some extra
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% to allow IEEEeqnarray
+%\usepackage[retainorgcmds]{IEEEtrantools}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% enables commenting out sections of text
+\usepackage{verbatim}
+
+%shorthand formats for vector and matrix
+\newcommand{\vc}[1]{\mathbf{#1}}%%
+%argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}%
+\DeclareMathOperator*{\argmax}{arg\,max}%
+\DeclareMathOperator*{\Tr}{Tr}%
+\DeclareMathOperator*{\Vc}{Vec}%
+\DeclareMathOperator*{\Var}{Var}%
+\DeclareMathOperator*{\pto}{\overset{p}{\to}} %convergence in probability
+\DeclareMathOperator*{\mto}{\overset{ms}{\to}} %convergence in mse
+\DeclareMathOperator*{\ato}{\overset{as}{\to}} %convergence almost surely
+\DeclareMathOperator*{\Lto}{\overset{L}{\to}} %convergence in las (distribution)
+%shorthand formats for vectors and matrices
+\newcommand{\mH}{\mathcal{H}}%%
+\newcommand{\mF}{\mathcal{F}}%%
+\newcommand{\mX}{\mathcal{X}}%%
+\newcommand{\mY}{\mathcal{Y}}%%
+\newcommand{\mR}{\mathbb{R}}%%
+\newcommand{\mcR}{\mathcal{R}}%%
+\newcommand{\mN}{\mathbb{N}}%%
+\newcommand{\bx}{\mathbf{x}}%%
+\newcommand{\by}{\mathbf{y}}%%
+\newcommand{\bw}{\mathbf{w}}%%
+\newcommand{\pa}{\pmb{\alpha}}%%
+\newcommand{\pb}{\pmb{\beta}}%%
+\newcommand{\po}{\pmb{\omega}}%%
+\newcommand{\pv}{\pmb{\varphi}}%%
+\newcommand{\pl}{\pmb{\lambda}}%%
+\newcommand{\pe}{\pmb{\epsilon}}%%
+\newcommand{\ba}{\mathbf{a}}%%
+\newcommand{\bb}{\mathbf{b}}%%
+\newcommand{\bc}{\mathbf{c}}%%
+\newcommand{\be}{\mathbf{e}}%%
+\newcommand{\bs}{\mathbf{s}}%%
+\newcommand{\bu}{\mathbf{u}}%%
+\newcommand{\bv}{\mathbf{v}}%%
+\newcommand{\bA}{\mathbf{A}}%%
+\newcommand{\bB}{\mathbf{B}}%%
+\newcommand{\bI}{\mathbf{I}}%%
+\newcommand{\bK}{\mathbf{K}}%%
+\newcommand{\bD}{\mathbf{D}}%%
+\newcommand{\bbD}{\mathbf{\tilde{D}}}%%
+\newcommand{\bL}{\mathbf{L}}%%
+\newcommand{\bF}{\mathbf{F}}%%
+\newcommand{\bG}{\mathbf{G}}%%
+\newcommand{\bQ}{\mathbf{Q}}%%
+\newcommand{\bW}{\mathbf{W}}%%
+\newcommand{\bX}{\mathbf{X}}%%
+\newcommand{\bZ}{\mathbf{Z}}%%
+\newcommand{\dN}{\text{N}}%%
+\newcommand{\dMN}{\text{MN}}%%
+
+%and some more
+\newcommand{\ts}{time-series}
+%\newcommand{\note}{note}
+\newcommand{\nn}{\nonumber \\}%
+
+% MG: quick tool for comments, set showComments to 0 in final version
+% define new if
+\newif\ifShowComments
+% pick one of these two
+\ShowCommentstrue % or
+%\ShowCommentsfalse
+% You may want to put your initials into the text of the notes. e.g \note{MG: this is a note}
+\newcommand{\note}[1]{\ifShowComments {\color{blue}\emph{Note: #1}} \else {} \fi}
+\newcommand{\todo}[1]{\ifShowComments {\color{red}\emph{Todo: #1}} \else {} \fi}
+\newcommand{\conclude}[1]{\ifShowComments {\color{blue}\emph{{\bf Conclusions:} #1}} \else {} \fi}
+
+% For theorems and definitions
+\usepackage{amsthm}
+\makeatletter
+\newtheoremstyle{noparens}%
+{}{}%
+{\itshape}{}%
+{\bfseries}{}%
+{ }%
+{\thmname{}\thmnumber{}\thmnote{#3 }}
+\newtheoremstyle{noparensdef}%
+{}{}%
+{}{}%
+{\bfseries}{:}%
+{ }%
+{\thmname{#1 }\thmnumber{}\thmnote{#3}}
+\newtheoremstyle{note}%
+{}{}%
+{}{}%
+{\itshape}{:}%
+{ }%
+{\thmname{#1}\thmnumber{}\thmnote{}}
+%\newtheoremstyle{dotless}{}{}{\itshape}{}{\bfseries}{}{ }{}
+%\theoremstyle{dotless}
+\newtheorem{proposition}{Proposition}[section]
+%\newtheorem*{proof}{Proof}
+%\newtheorem{prf}{Proof}[section]
+\theoremstyle{noparens}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{noparensdef}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{note}
+\newtheorem{prf}{Proof}
+\newtheorem{example}{Example}[section]
+\makeatother
+
+% for coloring
+\usepackage{xcolor}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+% to inclued only sections in the table of contents
+%\setcounter{tocdepth}{2}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+
+% for compact item lists
+\usepackage{paralist}
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+%% front matter %%
+\title{Technical notes}
+%\author{MG}
+%\maketitle
+
+These are my technical notes on various topics that I've come across and needed to understand better. Last updated: MG, \today
+
+% Print table of contents
+\tableofcontents
+
+\input{Duality_1}
+
+\input{SVMandSVR_1}
+
+\input{RKHS_1}
+
+\input{MKL_1}
+
+\input{DoubleRegularization_1}
+
+\input{HyperGrids_1}
+
+\input{TraceNorm_1}
+
+\input{Subdifferential_1}
+
+\input{PerturbTikhonov_1}
+
+\input{EarlyStopping_1}
+
+%\input{Asymptotics_1}
+
+\input{Inequalities_1}
+
+\input{Learning_1}
+
+\input{PredTheory_1}
+
+\input{Regression_1}
+
+
+
+% print index
+\phantomsection
+\cleardoublepage
+\addcontentsline{toc}{section}{\indexname}
+\printindex
+
+\end{document}

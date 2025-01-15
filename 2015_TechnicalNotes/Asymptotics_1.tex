@@ -1,0 +1,175 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 27/4/2016 - Asymptotic theory for time series %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\newtheorem{proposition}{Proposition}[section]
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{proof}{Proof}[section]
+%\newtheorem{example}{Example}[section]
+%\newtheorem{definition}{Definition}[section]
+
+\clearpage
+
+\section{Asymptotic theory for time series}\label{sec:Asymptotics}
+
+\subsection{Inequalities}\label{sec:Inequalities}
+
+\begin{proposition}[Generalized Chebyshev's ineuqality]\label{prop:Chebyshev}\index{Chebyshev's inequality}
+Let $X$ be a random variable and $g(x)$ a non-negative function. Than for any $r>0$
+\begin{equation}
+P\Big(g(X) \ge r \Big) \le \frac{Eg(x)}{r}
+\end{equation}
+\end{proposition}
+
+\begin{proof}[of Chebyshev's inequality \ref{prop:Chebyshev}]
+Let $f_X(x)$ bet the density of the random variable $X$
+\begin{eqnarray*}
+Eg(x) & = & \int g(x) f_x(x) dx 
+ =  \int_{x:g(x) < r} g(x) f_X(x) dx + \int_{x:g(x) \ge r} g(x) f_X(x) dx \\
+& \ge &  \int_{x:g(x) \ge r} g(x) f_X(x) dx 
+\ge \int_{x:g(x) \ge r} r \ f_X(x) dx = r \ P\Big(g(x) \ge r \Big) \text{ QED}
+\end{eqnarray*}
+\end{proof}
+
+\begin{example}[of Chebyshev's inequality \ref{prop:Chebyshev}]
+For $X$ with $EX = \mu$ and $\Var X = \sigma^2$ we have
+\begin{equation}
+P\Big(\frac{(X-\mu)^2}{\sigma^2} > t^2 \Big) \ge \frac{1}{t^2} E\frac{(X-\mu)^2}{\sigma^2} = \frac{1}{t^2}
+\end{equation}
+and therefore
+\begin{equation}
+P\Big(|X-\mu| > t\sigma \Big) \ge \frac{1}{t^2}
+\end{equation}
+\end{example}
+
+\begin{theorem}[Markov's ineuqality]\label{prop:Markov}\index{Markov's inequality}
+Let $X$ be a nonegative random variable such that $P(X \ge 0) = 1$ and $P(X = 0) < 1$.
+Then for any $r>0$
+\begin{equation}
+P(X \ge r) \le \frac{E X}{r}
+\end{equation}
+\end{theorem}
+
+\begin{proof}%[of Markov's inequality \ref{prop:Markov}]
+Let the indicator funciton $I_{(X \ge a)} = 1$ if $X \ge a$ and $I_{(X \ge a)} = 0$ if $X < a$.
+Then given $a > 0$ it holds that $a I_{(X \ge a)} \le X$ and by monotonicity of expectation $E(a I_{(X \ge a)}) \le E X$ and therefore $a \big( 1 P(X \ge a) + 0 P(X < a) \big) \le E X$ and $a P(X \ge a) \le EX$ QED
+\end{proof}
+
+\begin{proposition}[Chernoff's bound]\label{prop:Chernoff}\index{Chernoff's bound}
+For random variable $X$ and any $t > 0$ and $a \in \mathbb{R}$. 
+\begin{equation}
+P(X \ge a) = P(e^{tX} \ge e^{ta}) \le \frac{E e^{tX}}{e^{ta}}
+\end{equation}
+\end{proposition}
+
+\begin{proof}[of Chernoff's inequality \ref{prop:Chernoff}]
+Trivial from Chebyshev's or Markov's inequality.
+\end{proof}
+
+\subsection{Convergence}\label{sec:Convergence}
+
+\begin{definition}[Deterministic convergence]\index{Deterministic convergence}
+A sequence of deterministic numbers $\{c_T\}_{T=1}^{\infty}$ converges to constant $c$ if for every $\epsilon > 0$ there exist $N$ such that $|c_T -c|<\epsilon$ for all $T \ge N$. It is indicated as
+\begin{equation*}
+\lim_{T\to\infty} c_T = c \quad \text{ or } \quad c_T \to c
+\end{equation*}
+\end{definition}
+A sequence of $(m \times n)$ deterministic matrices converges if every element converges.
+
+\begin{definition}[Convergence in probability]\index{Convergence in probability}
+A sequence of random variables $\{X_T\}_{T=1}^{\infty}$ converges \emph{in probability} ($\text{plim } X_T = X$ or $X_T \pto X$) to random variable $X$ if for every $\delta > 0$
+\begin{equation*}
+\lim_{T \to \infty} P\big(|X_T - X| < \delta \big) = 1
+\end{equation*}
+That is for every $\epsilon > 0$ and $\delta > 0$ there exist $N$ such that $P\big(|X_T - X| > \delta \big) <\epsilon$ for all $T \ge N$.
+\end{definition}
+
+If deterministic sequence $X_T \to X$ it holds that $X_T \pto X$.
+A sequence of $(m \times n)$ random matrices converges in probability if every element converges.
+For two sequences $\vc{X}_T \pto \vc{Y}_T \ iif \ \vc{X}_T-\vc{Y}_T \pto 0$.
+
+\begin{theorem}[Weak law of large numbers]\label{thm:WeakLawLargeNums}\index{Law of large numbers weak}
+For an i.i.d. sequence of random variables $Y_T$ with mean $E Y_t = \mu$ and variance $\Var Y_t = \sigma^2 < \infty$ the sample average $\bar{Y}_T = 1/T \sum_{t=1}^T Y_t$ converges in probability to $\mu$, that is the sample average $\bar{Y}_T$ is a \emph{consistent estimator}\index{Consistent estimator} of the population mean $\mu$.
+(With $T \to \infty$ the probability distribution of $\bar{Y}_T$ degenerates to a point mass at $\mu$.)
+\end{theorem}
+
+\begin{proof}[of weak law or large numbers theorem \ref{thm:WeakLawLargeNums}]
+We need to proof $\lim_{T \to \infty} P\big(|\bar{X}_T - \mu| < \delta \big) = 1$.
+From Chebyshev's inequality we have
+\begin{equation*}
+P\big(|\bar{X}_T - \mu| \ge \delta \big) = P\big((\bar{X}_T - \mu)^2 \ge \delta^2 \big) \le \frac{E(\bar{X}_T - \mu)^2}{\delta^2} = \frac{\Var \bar{X}_T}{\delta^2} = \frac{\sigma^2}{T \delta^2}
+\end{equation*}
+(Remember $\Var \sum Y_t  = \sum \Var Y_t$ because of independence). Hence
+\begin{equation*}
+P\big(|\bar{X}_T - \mu| < \delta \big) = 1 - P\big(|\bar{X}_T - \mu| \ge \delta \big) \ge 1 - \frac{\sigma^2}{T \delta^2}  \to 1 \text{ as } T \to \infty
+\end{equation*}
+\end{proof}
+
+\begin{proposition}[Functional convergence in probability]\label{prop:funcProbConv}
+Let $\vc{X}_T \pto \vc{X}$ be a sequence of $(n \times 1)$ random vectors and $\vc{g}(.): \mathbb{R}^n \to \mathbb{R}^m$ be a vector-valued function continuous at $\vc{X}$ that does not depend on $T$.
+Then $\vc{g}(\vc{X}_T) \pto \vc{g}(\vc{X})$.
+\end{proposition}
+
+\begin{proof}[of proposition \ref{prop:funcProbConv}] We need to proof $P\big(||\vc{g}(\vc{X}_T) -\vc{g}(\vc{X})||_2 > \delta \big) <\epsilon$ for any $T > N$.
+
+Weiersstrass (epsilon-delta) definition of function continuity\index{Continuous function}: $f(.)$ is continuous at point $c$ if for every $\epsilon > 0$ there exists $\delta > 0$ such that for all $x$ in the domain of $f(.)$ such that $c - \delta < x < c + \delta$ the value $f(x)$ satisfies $f(c) - \epsilon < f(x) < f(c) + \epsilon$.
+This can be alternatively written $|x-c| < \delta \Rightarrow |f(x) - f(c)| < \epsilon$
+
+Because $\vc{g}(.)$ is continuous at $\vc{X}$ we have $||\vc{g}(\vc{X}_t) - \vc{g}(\vc{X})||_2 > \delta$ only if $||\vc{X}_T - \vc{X}||_2 > \kappa$ that is if $(X_{1T} - X_1)^2 + (X_{2T} - X_2)^2 + \ldots (X_{nT} - X_n)^2 > \kappa^2$.
+This can only happen if at least for one $i$ it holds $(X_{iT} - X_i)^2 > \kappa^2/n$.
+But since we know that $X_{iT} \pto X_i$ for any $\kappa$ and $\epsilon$ we can find $N$ such that $P\big(|X_{iT} - X_i| > \kappa/\sqrt{n} \big) <\epsilon/n$ for every $T > N$.
+From basic probability rules $P(A \vee B) = P(A) + P(B) - P(A \wedge B) \le P(A) + P(B)$ we get
+$ P\big(|X_{1T} - X_1| > \kappa/\sqrt{n} \, \vee \, |X_{2T} - X_2| > \kappa/\sqrt{n} \vee \ldots
+\vee |X_{nT} - X_n| > \kappa/\sqrt{n} \big) \Big) \leq \sum_i^n \epsilon/n = \epsilon$ and therefore
+$P\big((X_{1T} - X_1)^2 + (X_{2T} - X_2)^2 + \ldots (X_{nT} - X_n)^2 > \kappa^2 \big) < \epsilon$ and $P\big(||\vc{g}(\vc{X}_T) -\vc{g}(\vc{X})||_2 > \delta \big) <\epsilon$ QED.
+\end{proof}
+
+\begin{definition}[Almost sure convergence]\index{Convergence almost sure}
+A sequence of random variables $\{X_T\}_{T=1}^{\infty}$ converges \emph{almost surely} ($X_T \ato X$) to random variable $X$ if  for every $\delta > 0$
+\begin{equation*}
+P\big(\lim_{T \to \infty} |X_T - X| < \delta \big) = 1
+\end{equation*}
+That is for every $\epsilon > 0$ and $\delta > 0$ there exist $N$ such that $P\big(|X_T -c| > \delta \big) <\epsilon$ for all $T \ge N$.
+\end{definition}
+If $X_t \ato X$ then $X_T \pto X$.
+
+\begin{theorem}[Strong law of large numbers]\label{thm:StrongLawLargeNums}\index{Law of large numbers strong}
+For an i.i.d. sequence of random variables $Y_T$ with mean $E Y_t = \mu$ and variance $\Var Y_t = \sigma^2 < \infty$ the sample average $\bar{Y}_T = 1/T \sum_{t=1}^T Y_t$ converges almost surely to $\mu$.
+\end{theorem}
+
+
+
+\paragraph{Convergence in mean square}\index{Convergence in mean square}
+Let $\{X_T\}_{T=1}^{\infty}$ be a sequence of random variables. The sequence converges \emph{in mean square} to $c$ if for every $\epsilon > 0$ there exist $N$ such that $E(X_T -c)^2 <\epsilon$ for all $T \ge N$. It is indicated as
+\begin{equation*}
+X_T \mto c
+\end{equation*}
+
+Implication of Chebychev's inequality is that if $X_t \mto c$ then $X_t \pto c$ because if $X_t \mto c$ it means $E(X_T -c)^2 <\epsilon \delta^2$ for all $T \ge N$ so that $E(X_T -c)^2/ \delta^2 <\epsilon$ and therefore from Chebyshev's we have $P\big(|X_T -c| > \delta \big) <\epsilon$ for all $T \ge N$.
+
+
+
+\paragraph{Convergence in distribution}\index{Convergence in distribution}
+Let $\{X_T\}_{T=1}^{\infty}$ be a sequence of random variables and $F_{X_T}(x)$ the cumulative distribution function of $X_T$. Suppose that there exists a cumulative distribution function $F_X(x)$ such that 
+\begin{equation}
+\lim_{T \to \infty} F_{X_T}(x) = F_X(x)
+\end{equation}
+at any value $x$ where $F_X(.)$ is continuous. The $X_T$ converges in distribution (in law)\index{Convergence in law} to $X$ denoted by $X_T \Lto X$.
+
+\begin{proposition} \ 
+\begin{enumerate}
+\item Let $(n \times 1) \ \vc{Y}_T \Lto \vc{Y}$ and $(\vc{X}_T - \vc{Y}_T) \pto 0$. Then $\vc{X}_T \Lto \vc{Y}$.
+\item Let $(n \times 1) \ \vc{X}_T \pto \vc{c}$ and $\vc{Y}_T \Lto \vc{Y}$. Then $(\vc{X}_T+\vc{Y}_T) \Lto (\vc{c}+\vc{Y})$ and  $(\vc{X'}_T \vc{Y}_T) \Lto \vc{c'Y}$
+\item Let $(n \times 1) \ \vc{X}_T \Lto \vc{X}$ and $\vc{g}(.): \mathbb{R}^n \to \mathbb{R}^m$ be a continuous function not dependent on $T$. Then $\vc{g}(\vc{X}_T) \Lto \vc{g}(\vc{X})$.
+\end{enumerate}
+\end{proposition}
+
+\begin{theorem}[Central limit theorem]\index{Central limit theorem}
+For i.i.d. $Y_t$ with $E(Y_t) = \mu, \ Var(Y_t)=\sigma^2)$ and the sequence $X_T = \sqrt{T}(\bar{Y}_T - \mu)$, $X_T \Lto N(0,\sigma^2)$.
+\end{theorem}
+\begin{proof}
+For i.i.d. $Y_t \sim Dist(\mu,\sigma^2)$, the random variable $X = \sqrt{T}(\bar{Y}_T - \mu)$ has $E(X) = E\big(\sqrt{T}(\bar{Y}_T - \mu)\big) = \sqrt{T} \big( T/T E(Y_T) - \mu \big) = 0$ and $Var(X) = Var\big(\sqrt{T}(\bar{Y}_T - \mu)\big) = T \Big(T/T^2 Var(Y_T) - Var(\mu) \Big) = \sigma^2$ for all $T$.
+\end{proof}
+
+\paragraph{Consistent estimator}\index{Convergence in probability}
+An estimator $\hat{\mu}_T$ (based on T observations) of population parameter $\mu$ is consistent if $\mu_T \pto \mu$.

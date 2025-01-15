@@ -1,0 +1,43 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 29/2/2016 - Double regularization with single tunning param %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Double regularization with single tunning parameter}\label{sec:DoubleRegularization}
+
+The output-kernel learning problem can be written as
+\begin{equation}\label{eq:OKL}
+ \min_{\vc{C},\vc{L}} J(\vc{C,L}) = || \vc{Y} - \vc{KCL} ||_F^2 + \lambda_1 \, \langle \vc{C'KC}, \vc{L}\rangle_F  + \lambda_2 \Omega(\vc{L}),
+\end{equation}
+where $\vc{Y}$ is the $n \times m$ output data matrix, $\vc{K}$ is the $n \times n$ input-kernel Gram matrix, $\vc{L}$ is the $m \times m$ output-kernel Gram matrix, $\vc{C}$ is the $n \times m$ parameters matrix and $\Omega(.)$ is the regularizer on $\vc{L}$ and $\langle \vc{A}, \vc{B}\rangle_F = tr(\vc{A'B})$.
+
+We see that in \eqref{eq:OKL} we use two regularization terms with $\lambda_1$ and $\lambda_2$ as the regularization parameters. Here I'll show that in fact you only need (and should use) one regularization parameter because the second can be absorbed into the relative scaling of the $\vc{L}$ and $\vc{C}$ that we learn.
+
+To begin with, let's put $\Omega(\vc{L}) = ||\vc{L}||_F^2$ so that the minimization problem is
+\begin{equation}\label{eq:OKL1}
+ \min_{\vc{C},\vc{L}} J(\vc{C,L}) 
+ = || \vc{Y} - \vc{KCL} ||_F^2 + \lambda_1 \, \langle \vc{C'KC}, \vc{L}\rangle_F  
+ + \lambda_2 ||\vc{L}||_F^2
+\end{equation}
+
+First, we observe that $\lambda_2 ||\vc{L}||_F^2 = ||\sqrt{\lambda_2} \, \vc{L}||_F^2$.
+We introduce the following change of variables $\sqrt{\lambda_2} \, \vc{L} = \vc{\widetilde{L}}$ and $\vc{C} = \sqrt{\lambda_2} \vc{\widetilde{C}}$ where the matrices with tildes are simply scaled versions of the original matrices.
+Using these we can rewrite problem \eqref{eq:OKL1} as
+\begin{eqnarray}\label{eq:OKL2}
+ \min_{\vc{\widetilde{C}},\vc{\widetilde{L}}} J(\vc{\widetilde{C}},\vc{\widetilde{L}}) 
+& = & || \vc{Y} - \vc{K} \sqrt{\lambda_2} \vc{\widetilde{C}} \frac{1}{\sqrt{\lambda_2}} \vc{\widetilde{L}} ||_F^2 
++ \lambda_1 \, \langle \sqrt{\lambda_2} \vc{\widetilde{C}} \vc{K} \sqrt{\lambda_2} \vc{\widetilde{C}}, \frac{1}{\sqrt{\lambda_2}} \vc{\widetilde{L}}\rangle_F  
++ ||\vc{\widetilde{L}}||_F^2 \nonumber \\
+& = & || \vc{Y} - \vc{K} \vc{\widetilde{C}} \vc{\widetilde{L}} ||_F^2 
++ \lambda_1 \sqrt{\lambda_2} \, \langle \vc{\widetilde{C}} \vc{K} \vc{\widetilde{C}}, \vc{\widetilde{L}}\rangle_F  
++ ||\vc{\widetilde{L}}||_F^2,
+\end{eqnarray}
+where the 2nd regularization parameter $\lambda_2$ has been absorbed into the first regularization parameter and the scaling of the $\vc{C}$ and $\vc{L}$ matrices.
+
+From this we see that we can fix $\lambda_2$ arbitrarily (and hence for example set it to $\lambda_2 = 1$) and only grid search for $\lambda_1$ to find the optimal combination of the parameter and output-kernel matrices.
+If we changed the value of $\lambda_2$ we could get the same regularization path by adjusting the $\lambda_1$ grid accordingly. The minimizing solutions $\vc{\widetilde{C}}$ and $\vc{\widetilde{L}}$ would be the scaled version of $\vc{C}$ and $\vc{L}$ but would yield the same objective values $J(.)$.
+
+In consequence, not only we \emph{can} drop the second regularization parameter but we \emph{should} drop it (unless we fix the scale of $\vc{C}$).
+Otherwise, for every combination $\lambda_1$ and $\lambda_2$ we can find a combination $\tilde{\lambda}_1$, $\tilde{\lambda}_2$ which will yield the same minimum of the objective value with different scalings of the learned matrices $\vc{C}$ and $\vc{L}$.
+

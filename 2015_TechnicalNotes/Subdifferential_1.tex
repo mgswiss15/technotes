@@ -1,0 +1,109 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 02/09/2016 - Subgradients %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section{Subgradient and subdifferential}
+
+\begin{definition}
+A vector $\vc{v} \in \mathbb{R}^n$ is a \textbf{subgradient}\index{subgradient} of (not necessarily convex) function $f:\mathbb{R}^n \to \mathbb{R}$ at point $\vc{x}_0 \in dom f$ if for all $\vc{x} \in dom f$
+\begin{equation}\label{eq:DefSubgradient}
+f(\vc{x}) - f(\vc{x}_0) \geq \vc{v}^T (\vc{x} - \vc{x}_0)
+\end{equation}
+\end{definition}
+Note: If $f$ is convex and differentiable at point $\vc{x}_0$ than the subgradient is equal to the gradient $\vc{v} = \nabla f(\vc{x}_0)$.
+
+\begin{definition}
+The set of all subgradients of function $f$ at point $\vc{x}_0$ is called the \textbf{subdifferential}\index{subdifferential} and denoted $\partial f(\vc{x}_0)$
+\begin{equation}\label{eq:DefDifferential}
+\partial f(\vc{x}_0) = \{\vc{v}| f(\vc{x}) - f(\vc{x}_0) \geq \vc{v}^T (\vc{x} - \vc{x}_0) \} \quad \text{for all } \vc{x} \in dom f
+\end{equation}
+\end{definition}
+Note: The subdifferential $\partial f(\vc{x})$ is a closed convex set (though may be empty)
+
+Note: For a convex subdifferentiable function $f$ the standard optimality condition for a minimum $f(\vc{x}^*) = \inf_x f(\vc{x}) \Leftrightarrow 0=\nabla f(\vc{x})$ changes to 
+$f(\vc{x}^*) = \inf_x f(\vc{x}) \Leftrightarrow 0 \in \partial f(\vc{x})$.
+
+\subsection{Absolute value $|x|$}
+The absolute value $f(x) = |x|$ is differentiable at all points of its domain $dom f = \mathbb{R}$ with the gradient $\nabla f(x) = sign(x)$ except at the point $x=0$.
+
+At $x=0$ we use the subgradient definition \eqref{eq:DefSubgradient} and get
+\begin{eqnarray}
+f(x) - f(0) & \geq & v \, (x - 0) \nn 
+|x| & \geq & v \, x  \quad \text{for all } x \in dom f , 
+\end{eqnarray}
+which is satisfied if and only if $v \in [-1,1]$.
+
+The subdifferential of $f(x) = |x|$ is therefore
+\begin{equation}
+\partial f(x) =   
+\begin{cases} 
+   sign(x) & \text{if } x \neq 0 \\
+   \{v: v \in [-1,1]\} & \text{if } x = 0
+  \end{cases}
+\end{equation}
+
+\subsection{$\ell_2$ norm $||\vc{x}||_2$}
+The gradient of the $\ell_2$ norm $f(\vc{x}) = ||\vc{x}||_2 = \sqrt{\vc{x}^T \vc{x}}$ at all points of its domain $dom f = \mathbb{R}^n$ except at the point $\vc{x}=0$ is $\nabla f(\vc{x}) = \vc{x}/||\vc{x}||_2$.
+
+At $\vc{x}=0$ we use the subgradient definition \eqref{eq:DefSubgradient} and get
+\begin{eqnarray}\label{eq:SG_L2}
+f(\vc{x}) - f(\vc{0}) & \geq & \vc{v}^T \, (\vc{x} - \vc{0}) \nn 
+||\vc{x}||_2 & \geq & \vc{v}^T \, \vc{x}  \quad \text{for all } \vc{x} \in dom f \nn
+||\vc{x}||_2 & \geq & ||\vc{v}||_2 \, ||\vc{x}||_2  \quad (\text{from Cauchy-Schwarz inequality } \vc{v}^T \, \vc{x} \leq ||\vc{v}||_2 ||\vc{x}||_2) \nn
+1 & \geq & ||\vc{v}||_2
+\end{eqnarray}
+The subdifferential of $f(\vc{x}) = ||\vc{x}||_2$ is therefore
+\begin{equation}
+\partial f(\vc{x}) =   
+\begin{cases} 
+   \vc{x}/||\vc{x}||_2 & \text{if } \vc{x} \neq 0 \\
+   \{\vc{v}: ||\vc{v}||_2 \leq 1\} & \text{if } \vc{x} = 0
+  \end{cases}
+\end{equation}
+
+
+\subsection{Generalised $\ell_2$ norm}
+The gradient of the generalised $\ell_2$ norm $f(\vc{x}) = ||\vc{Ax}||_2 = \sqrt{\vc{x}^T \vc{A}^T \vc{A} \vc{x}}$ at all points of its domain $dom f = \mathbb{R}^n$ except at the point $\vc{x}=0$ is $\nabla f(\vc{x}) = \vc{A}^T \vc{A} \vc{x}/||\vc{A} \vc{x}||_2$ .
+
+At $\vc{x}=0$ we use the subgradient definition \eqref{eq:DefSubgradient} 
+\begin{eqnarray}\label{eq:SG_GL2}
+f(\vc{x}) - f(\vc{0}) & \geq & \vc{v}^T \, (\vc{x} - \vc{0}) \nn 
+||\vc{A}\vc{x}||_2 & \geq & \vc{v}^T \, \vc{x}  \quad \text{for all } \vc{x} \in dom f 
+\end{eqnarray}
+
+For the left side of the inequality we do the eigen-decomposition
+\begin{equation}\label{eq:GL2Left1}
+||\vc{A}\vc{x}||_2 = (\vc{x}^T \vc{A}^T \vc{A} \vc{x})^{1/2} 
+= (\vc{x}^T \sum_i \vc{w}_i \lambda_i \vc{w}^T_i \vc{x})^{1/2}
+\end{equation}
+Because $\vc{A}^T \vc{A}$ is a PSD matrix, the set of eigenvectors $\vc{w}_i$ forms an orthogonal basis in $\vc{R}^n$. We can therefore express any vector $\vc{x}$ in this basis as $\vc{x} = \sum_i c_{(x)i} \vc{w}_i$ and continue from eq. \eqref{eq:GL2Left1}
+\begin{equation}\label{eq:GL2Left2}
+(\sum_j c_{(x)j} \vc{w}^T_j \sum_i \vc{w}_i \lambda_i \vc{w}^T_i \sum_l c_{(x)l} \vc{w}_l)^{1/2} 
+= (\sum_i c_{(x)i} \lambda_i c_{(x)i})^{1/2} = (\sum_i c_{(x)i}^2 \lambda_i)^{1/2}
+\end{equation}
+where the sums and $\vc{w}$'s eliminated due to the orthogonality of the $\vc{w}$'s (that is $\vc{w}^T_i \vc{w}_j = 0$ if $i \neq j$ and $\vc{w}^T_i \vc{w}_i= 1$).
+
+We use the same eigenbasis for the right side of the inequality where we get
+\begin{equation}\label{eq:GL2Right1}
+\vc{v}^T \, \vc{x} = \sum_i c_{(v)i} \vc{w}^T_i \sum_j c_{(x)j} \vc{w}_j = \sum_i c_{(v)i} \vc{w}^T_i c_{(x)i} \vc{w}_i = \sum_i c_{(v)i} c_{(x)i}
+\end{equation}
+
+We introduce a change of variable $z_i = c_{(x)i} \sqrt{\lambda_i}$ and $s_i = c_{(v)i} / \sqrt{\lambda_i}$ and use these after plugging the expressions from eq. \eqref{eq:GL2Left2} and eq. \eqref{eq:GL2Right1} back to the inequality \eqref{eq:SG_GL2}.
+\begin{eqnarray}
+(\sum_i c_{(x)i}^2 \lambda_i)^{1/2} & \geq & \sum_i c_{(v)i} c_{(x)i} \nn
+(\sum_i z_i^2)^{1/2} & \geq & \sum_i s_i z_i \nn
+||\vc{z}||_2 & \geq & \vc{s}^T \vc{z} \nn
+1 & \geq & ||\vc{s}||_2 \quad \text{from C-S inequality as in eq. \eqref{eq:SG_L2}} \nn
+1 & \geq & (\sum_i c_{(v)i}^2 / \lambda_i)^{1/2}
+\end{eqnarray}
+The subdifferential of $f(\vc{x}) = ||\vc{A}\vc{x}||_2$ is therefore
+\begin{equation}
+\partial f(\vc{x}) =   
+\begin{cases} 
+   \vc{A}^T \vc{A} \vc{x}/||\vc{A} \vc{x}||_2 & \text{if } \vc{x} \neq 0 \\
+   \{\vc{v}: \vc{v} = \sum_i c_i \vc{w}_i, \, (\sum_i c_i^2/\lambda_i)^{1/2} \leq 1, \, \vc{A}^T \vc{A} = \sum_i \vc{w}_i \lambda_i \vc{w}_i^T \}
+   & \text{if } \vc{x} = 0
+  \end{cases}
+\end{equation}

@@ -1,0 +1,83 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 23/12/2017 - Early stopping %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+
+\section{Early stopping equivalence to Tikhonov regularization}\label{sec:Early stopping}
+
+Based on \cite{MIT2017} and me.
+
+This is to show the equivalence between early stopping and l2 regularization on a simple example of linear ridge regression.
+
+The ridge regression\index{Ridge regression} problem
+\begin{equation}\label{eq:rr}
+\widehat{\bw} = \argmin_{\bw \in \mR^d} \frac{1}{2}||\bX \bw - \by||_2^2 + \lambda \frac{1}{2}||\bw||_2^2
+\end{equation}
+has a closed form solution
+\begin{equation*}
+\widehat{\bw} = (\bX^T \bX + \lambda \bI)^{-1} \bX^T \by
+\end{equation*}
+
+The gradient descent\index{Gradient descent} approach involves the following steps
+\begin{equation*}
+\bw_k = \bw_{k-1} - \tau [ \bX^T (\bX \bw_{k-1} - \by) - \lambda \bw_{k-1}] \enspace,
+\end{equation*}
+where $\tau$ is the step size and the term in the bracket after is the gradient of the function being optimised \eqref{eq:rr} with respect to $\bw$.
+
+Let's explore the case where $\lambda=0$ (not a ridge regression but an ordinary least squares problem) with the initial value $\bw_0 = 0$.
+\begin{eqnarray}\label{eq:GradDescent}
+\bw_k & = & \bw_{k-1} - \tau \bX^T (\bX \bw_{k-1} - \by) \qquad (\text{from } \lambda=0) \nn 
+& = & (\bI - \tau \bX^T \bX) \bw_{k-1} + \tau \bX^T \by \nn
+& = & (\bI - \tau \bX^T \bX) ((\bI - \tau \bX^T \bX) \bw_{k-2} + \tau \bX^T \by) + \tau \bX^T \by \nn
+& \vdots & \nn
+& = & (\bI - \bX^T \bX)^k \bw_{0} + \tau \sum_{j=0}^{k-1} (\bI - \tau \bX^T \bX)^j \bX^T \by \nn
+\bw_k & = & \tau \sum_{j=0}^{k-1} (\bI - \tau \bX^T \bX)^j \bX^T \by \qquad (\text{from } \bw_0=0)
+\end{eqnarray}
+
+Use the Neumann series results.
+
+If the operator norm $||\bA|| < 1$ we have
+\begin{equation*}
+\sum_{j=0}^{\infty} \bA^j = (\bI-\bA)^{-1} \qquad \sum_{j=0}^{k-1} \bA^j = (\bI-\bA^k)(\bI-\bA)^{-1}
+\end{equation*}
+In particular for $||\bI - \bA|| < 1$
+\begin{equation*}
+\sum_{j=0}^{\infty} (\bI - \bA)^j = \bA^{-1} \qquad \sum_{j=0}^{k-1} (\bI - \bA)^j = (\bI - (\bI- \bA)^k) \bA^{-1}
+\end{equation*}
+
+Hence if we continue the gradient descent \eqref{eq:GradDescent} to infinity we get
+\begin{equation}
+\bw_{\infty} = \tau \sum_{j=0}^{\infty} (\bI - \tau \bX^T \bX)^j \bX^T \by = (\bX^T \bX)^{-1} \bX^T \by  \qquad \Rightarrow \textbf{OLS}
+\end{equation}
+
+For a limited number of steps - \textbf{early stopping}
+\begin{equation}
+\bw_{k}  = \tau \sum_{j=0}^{k-1} (\bI - \tau \bX^T \bX)^j \bX^T \by 
+= \left(\bI - (\bI - \tau \bX^T \bX)^k \right) (\bX^T \bX)^{-1} \bX^T \by
+\end{equation}
+To show the equivalence between early stopping and the regularization we need to show the equivalence between
+\begin{equation}
+\left(\bI - (\bI - \tau \bX^T \bX)^k \right) (\bX^T \bX)^{-1} = (\bX^T \bX + \lambda \bI)^{-1}
+\end{equation}
+
+
+
+
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{MIT2017}
+MIT 9.520/6.860: Statistical Learning Theory and Applications, Fall 2017, Class 08: Iterative Regularization via Early Stopping \url{http://www.mit.edu/~9.520/fall17/Classes/early_stopping.html}
+
+
+\end{thebibliography}
+
+
+
+
+
+

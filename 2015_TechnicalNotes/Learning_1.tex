@@ -1,0 +1,267 @@
+\clearpage
+
+\section{Learning theory}
+
+\subsection{Generalization}
+
+Have a sample $S$ of $n$ iid input-output pairs $S = \{ (X_i,Y_i) \in (\mathcal{X},\mathcal{Y}) \}_{i=1}^n$ from a probability distribution $\mathcal{D}$ so that $S \sim \mathcal{D}^n$  (both unknown to us).
+For simplicity we begin with the classification case $\mathcal{Y} \in \{-1,1\}$.
+
+We want to find a prediction function $h : \mathcal{X} \to \{-1,1\}$ which has a small probability of error
+\begin{equation}
+\text{Risk: } \qquad R(h) = P(h(X) \neq Y) = E \Big( I_{h(X) \neq Y} \Big)
+\end{equation}
+Introduce
+\begin{eqnarray}
+%\text{Regression function: } & \qquad & \mu(X) = E \big( Y | X \big) = 2 P(Y=1|X)-1\\
+\text{Bayes hypotheses: } & \qquad & t = \argmin_g R(h) \\
+\text{Bayes risk: } & \qquad & R^* = R(t) = \min_g R(h) \\
+\text{Bayes classifier: } & \qquad & t(X) = \argmax_Y P(Y|X) \\
+\text{Noise level: } & \qquad & s(X) = min \Big( P(Y=1|X), 1 - P(Y = 1|X) \Big)
+\end{eqnarray}
+
+In the \emph{deterministic (noiseless)} setting we have $P(s(X)=0)=1$, $P(t(X) \neq Y) = 0$ and $R^* = 0$.
+
+In the \emph{noisy} case the Bayes risk is equal to the expected (\emph{average}) noise $E(s(X)) = R^*$.
+
+The goal is to learn $t$ preferably by minimising $R(h)$.
+Because we don't know the distribution $\mathcal{D}$, we cannot calculate the expectation needed to get the risk $R(h)$ associated with a hypothesis $h$. 
+But we can calculate the average over the sample $S$ ($|S| = n$)
+\begin{equation}
+\text{Empirical risk: } \qquad \widehat{R}_S(h) = \frac{1}{n} \sum_{i=1}^n \Big( I_{h(X_i) \neq Y_i} \Big)
+\end{equation}
+and get a candidate hypotheses $h_S = \argmin_g \widehat{R}_S(h)$.
+The problem is that if we search in an infinite space $\mathcal{H}$ of functions with infinite inputs (or at least equal to $n$), one can always (under very mild conditions on $\mathcal{D}$) construct a $h_S$ with $\widehat{R}_S(h_S)=0$ but $R(h_S) = 1$.
+So we need to control somehow (by prior knowledge) the class $\mathcal{H}$ to avoid over-fitting.
+
+\subsection{Bounds}
+When learning hypotheses in function space $h \in \mathcal{H}$ we define
+\begin{eqnarray}
+\text{Candidate hypotheses: } & \qquad & h_S = \argmin_{g \in \mathcal{H}} \, \widehat{R}_S(h)\\
+\text{Best-in-class hypotheses: } & \qquad & h^* = \argmin_{g \in \mathcal{H}} \, R(h)
+\end{eqnarray}
+(We can use $R(h^*) = \inf_{g \in \mathcal{H}} \, R(h)$ in the below if the minimum does not exist.)
+
+What we we would like to know for our learned candidate $h_S$ is the risk $R(h_S)$ but we don't know $\mathcal{D}$ so cannot.
+So we at least try to bound $R(h_S)$.
+
+Useful decomposition is
+\begin{equation}
+R(h_S) - R(t) = \underbrace{\Big( R(h_S) - R(h^*) \Big)}_{\text{estimation error}} + \underbrace{\Big( R(h^*) - R(t) \Big)}_{\text{approximation error}}
+\end{equation}
+
+If $t \in \mathcal{H}$ then the approximation error is zero but we can't estimate it cause we don't know $t$. It approaches zero only if with increasing $n$ we also grow the function class $\mathcal{H}$.
+Typically the focus is on the estimation error.
+
+Another useful decomposition is
+\begin{equation}
+R(h_S) = \widehat{R}_(h_S) + \underbrace{\Big(R(h_S) - \widehat{R}_S(h_S) \Big)}_{\text{bound}}
+\end{equation}
+
+So we may be generally interested in
+\begin{eqnarray}
+%\text{Regression function: } & \qquad & \mu(X) = E \big( Y | X \big) = 2 P(Y=1|X)-1\\
+\text{Error bound: } & \quad & R(h_S) \leq \widehat{R}_S(h_S) + B(n,\mathcal{H})
+\quad (\text{empirical risk instead of risk?})\\
+\text{Error bound relative to best-in-class: } & \quad & R(h_S) \leq R(h^*) + B(n,\mathcal{H})
+\quad (\text{is our algo optimal?}) \\
+\text{Error bound relative to Bayes: } & \quad & R(h_S) \leq R(t) + B(n,\mathcal{H})
+\quad (\text{convergence to Bayes?}) 
+\end{eqnarray}
+
+
+\subsection{Empirical error bound}
+Define a loss class as $\mathcal{F} = \{ f : (x,y) \to I_{h(X) \neq Y} : h \in \mathcal{H} \}$. So the range of all the functionals $f \in \mathcal{F}$ is $\{0,1\}$.
+Using $f$ we can write
+\begin{eqnarray}
+\text{Risk: } & \qquad & R(h) = P(h(X) \neq Y) = E \big( I_{h(X) \neq Y} \big) = E \big( f(X,Y) \big) = R(f) \\
+\text{Empirical risk: } & \qquad & \widehat{R}_S(h) = \frac{1}{n} \sum_{i=1}^n \Big( I_{h(X_i) \neq Y_i} \Big) = \frac{1}{n} \sum_{i=1}^n f(X_i,Y_i) = \widehat{R}_S(f)
+\end{eqnarray}
+
+As stated above, we are interested in bounding $R(f_n) - \widehat{R}_S(f_n)$.
+More specifically, we want to bound $P(R(f_n) - \widehat{R}_S(f_n) > \epsilon )$.
+Remember, that both risks are random variables ($f_n$ depend on the sample $S$ through $h_S$).
+Moreover, $D(f) = \big( R(f) - \widehat{R}_S(f) \big)$ is a random variable such that $D(f) =  \sum_{i=1}^n D_i(f)$ where $D_i(f)$ are iid random vars defined as $D_i(f) = \big( R(f)/n - \widehat{R}_i(f) \big)$. 
+%A collection of $D(f)$'s index by $f \in \mathcal{F}$ is an empirical process.
+
+We use the iid random variables $Z = (X,Y)$ or $Z_i = (X_i,Y_i)$ here below
+\begin{equation}
+R(f) - \widehat{R}_S(f) = E\big( f(Z) \big) -  \frac{1}{n} \sum_{i=1}^n f(Z_i)
+\end{equation}
+By the strong law of large numbers we have
+\begin{equation}
+P \Big( \lim_{n \to \infty} \widehat{R}_S(f) - R(f) = 0 \Big) = 1
+\end{equation}
+
+From the Hoeffding's inequality and by the fact that $f$ is bounded we have
+\begin{eqnarray}
+P \Big( \widehat{R}_S(f) - R(f) \leq - \epsilon \Big) & \leq & \exp \frac{-2 n^2 \epsilon^2}{n(b-a)^2} \\
+P \Big( R(f) - \widehat{R}_S(f) \geq \epsilon \Big) & \leq & \exp \frac{-2 n \epsilon^2}{(b-a)^2} = \delta \\
+& & \qquad \qquad \qquad \epsilon^2 = \frac{(b-a)^2 \log (\delta)}{-2n}  \\
+P \Big( R(f) - \widehat{R}_S(f)  \geq (b-a) \sqrt{\frac{\log (1/ \delta)}{2n}} \Big) & \leq & \delta  \qquad (-\log(\delta) = \log(1/\delta))\\
+P \Big( R(f) - \widehat{R}_S(f)  \leq (b-a) \sqrt{\frac{\log (1/ \delta)}{2n}} \Big) & \geq & 1 - \delta\\
+\end{eqnarray}
+
+Now, because $f(Z) \in \{0,1\} (=\{a,b\})$ for all $Z,f$ we have with probability at least $1-\delta$
+\begin{equation}
+R(f) \leq  \widehat{R}_S(f) + \sqrt{\frac{\log (1/ \delta)}{2n}}
+\end{equation}
+
+Now watch out! What this actually says is that for any fixed function $f \in \mathcal{F}$ we can select with probability at least $1-\delta$ a sample $S$ for which the inequality holds.
+Put it differently, if we have a sample $S$, the inequality will hold only for some functions $f$ but we don't know for which ones and neither any probability of selecting them. For a given $f$ the empirical risk over different samples $S$ will fluctuate around the risk according to the Hoeffding bound. But for a given $S$ we can find $f$ where the distance will be very large.
+
+\subsection{Uniform deviations}
+In the end, we create and algorithm which after seeing the sample $S$ comes up with a candidate hypotheses $h_S$. 
+But before seeing the data, we don't know what $h_S$ will be.
+Nevertheless, for any one function $f_n$ we can bound the difference between the risk and empirical risk by using uniform deviations in the form
+\begin{equation}
+R(f_n) - \widehat{R}_S(f_n)  \leq \sup_{f \in \mathcal{F}} \big( R(f) - \widehat{R}_S(f) \big)
+\end{equation}
+
+Consider a \emph{bad} sample $S_i$ for which the Hoeffding's bound for some function $f_i$ does not hold, that is $R(f_i) - \widehat{R}_S(f_i) > \epsilon $. The probability of finding such a sample is $P(S_i) = P \big( R(f_i) - \widehat{R}_S(f_i) > \epsilon \big)  \leq \delta$ (from Hoeffding's).
+For two functions $f_1$ and $f_2$ we have 
+\begin{equation}
+P(S_1 \cup S_2) \leq P(S_1) + P(S_2) \leq 2\delta
+\end{equation}
+extending to N functions in class $\mathcal{F}$ we have
+\begin{equation}
+P(\cup_i^N S_i) \leq \sum_i^N P(S_i) \leq N\delta
+\end{equation}.
+In result we have
+\begin{equation}
+P(\exists f \in \{f_1, \ldots, f_N \} : R(f) - \widehat{R}_S(f) > \epsilon) 
+\leq \sum_{i=1}^N P \big( R(f_i) - \widehat{R}_S(f_i) > \epsilon \big)
+ \leq N \exp(-2n\epsilon^2)
+\end{equation}
+which comes directly form Hoeffding's.
+
+If I have finite hypotheses set $\mathcal{H}_N = {g_1, \ldots, h_S}$ we have
+\begin{equation}
+P \Big( \exists g \in \mathcal{H}_N: R(h) - \widehat{R}_S(h)  \leq \sqrt{\frac{\log N + \log (1/ \delta)}{2n}} \Big) \geq 1 - \delta
+\end{equation}
+that is with probability at least $1-\delta$ we will select a sample for which
+\begin{equation}
+R(h)  \leq \widehat{R}_S(h) + \sqrt{\frac{\log N + \log (1/ \delta)}{2n}} \quad \text{for all } h \in \mathcal{H}_N \text{ simmultaneously }
+\end{equation}
+Because this holds for all $h$ it must also hold for the candidate and best-in-class hypotheses $h_S, h^* \in \mathcal{H}_N$.
+
+\subsection{Estimation error}
+From the above we have
+\begin{equation}
+R(h^*)  \leq \widehat{R}_S(h^*) + \sqrt{\frac{\log N + \log (1/ \delta)}{2n}}
+\end{equation}
+we further know (by definition) that $\widehat{R}_S(h_S) \leq \widehat{R}_S(h^*)$ and hence $\widehat{R}_S(h^*) - \widehat{R}_S(h_S) \geq 0$
+
+Hence for the estimation error we have
+\begin{eqnarray}
+R(h_S) & = & \underbrace{R(h_S) - R(h^*)}_{\text{estimation error}} + R(h^*) \\
+R(h_S) & \leq & \widehat{R}_S(h^*) - \widehat{R}_S(h_S) + \underbrace{R(h_S) - R(h^*)}_{\text{estimation error}} + R(h^*) \\
+R(h_S) & \leq & 2 \, \sup_{g \in \mathcal{H}} |R(h) - \widehat{R}_S(h)| + R(h^*)
+\end{eqnarray}
+We know the bound for all functions $h \in {G}_N$ is $\sqrt{\frac{\log N + \log (2/ \delta)}{2n}}$ (the $2/\delta$ is there cause this is for the abs value of the difference, trivial to derive following the same steps) and hence with probability at least $1-\delta$ we will select a sample such that the estimation error will be
+\begin{equation}
+R(h_S) \leq R(h^*) + 2 \sqrt{\frac{\log N + \log (2/ \delta)}{2n}}
+\end{equation}
+
+\subsection{Uncountable hypotheses set}
+If the set $\mathcal{H}$ is uncountable, we don't know $N = |\mathcal{H}|$ so the above does not work.
+
+Instead we can look at the functions $f \in \mathcal{F}$ projected on the sample, that is 
+\begin{equation}
+\mathcal{F}_S = \{ \big( f(Z_1), \ldots, f(Z_n) \big) : f \in \mathcal{F} \}
+\end{equation}
+In the classification case, the size of $|\mathcal{F}_S|$ is the number of different ways the data in the sample $S$ can be classified which is always countable (for infinite set $\mathcal{F}$ this would be $2^n$) and we call it
+\begin{equation}
+\text{Growth function: } \qquad S_\mathcal{F}(n) = S_\mathcal{H}(n) = \sup_S |\mathcal{F}_S|
+\end{equation}
+In the finite case with $|\mathcal{H}| = N$ we have $S_\mathcal{H}(n) \leq N$
+
+\subsection{Rademacher complexity}
+In the above we had a random variable $Z = (X,Y) \sim \mathcal{D}$ and the aim was to find a hypotheses $h$ which would have the lowest expected loss $I_{h(X) \neq Y}$.
+Observe that
+\begin{equation}
+I_{h(X) \neq Y} =
+\left\{
+\begin{array}{lll}
+        1, & \text{if } (1,-1), (-1,1), & y h(x) = -1 \\
+        0, & \text{if } (1,1), (-1,-1), & y h(x) = 1 	
+\end{array}
+\right\} = \frac{1}{2} - \frac{Y h(X)}{2}
+\end{equation}
+So instead of finding $h$ by minimising $I_{h(X) \neq Y}$, we can equivalently maximize the correlation $Y h(X)$.
+
+Instead of the random vars $Y$ with an unknown distribution we can use the Rademacher random variables $\sigma \in \{-1,1\}$ with a known distribution $P(\sigma = 1) = P(\sigma = -1) = 0.5$ (essentially a random noise as if $t=0$).
+We then have the correlation of the hypotheses with the Rademacher variable $\sigma h(X)$.
+
+We can calculate similar correlation for any bounded function ($g: \mathcal{Z} \to [a,b]$) and therefore as well for the functions $f \in \mathcal{F}$.
+For an iid data sample $S = \{ Z_i\}_{i=1}^n \sim \mathcal{D}^n$, iid Rademacher sample $\{ \sigma_i\}_{i=1}^n$ and an $f$, the empirical correlation is $\frac{1}{n} \sum_{i=1}^{n} \sigma_i f(Z_i)$.
+%We could also calculate the expected correlation conditioned on the data $S$ and $f$ (that is with respect to $\sigma$) as $E (\frac{1}{n} \sum_{i=1}^{n} \sigma_i f(Z_i) | S,f ) = E_\sigma ( \frac{1}{n} \sum_{i=1}^{n} \sigma_i f(Z_i) )$
+
+For a sample $S$ and a class of functions $\mathcal{F}$ we define
+\begin{equation}
+\text{Empirical rademacher complexity: } \qquad \widehat{\mathfrak{R}}_S(\mathcal{F}) = 
+E_\sigma \Big[ \sup_{f \in \mathcal{F}} \frac{1}{n} \sum_{i=1}^{n} \sigma_i f(Z_i) \Big]
+\end{equation}
+
+In words, this expresses how well the function class $\mathcal{F}$ correlates with  Rademacher random noise (any noise on average) over the given sample $S$.
+This describes the \emph{richness} of the class $\mathcal{F}$. The richer it is, the better it can correlate with any random noise.
+
+Instead for the richness of the class $\mathcal{F}$ with respect to a single sample $S$ we would prefer the expected richness across all samples of the same size $n$
+\begin{equation}
+\text{(Expected) rademacher complexity: } \qquad \mathfrak{R}_n(\mathcal{F}) = E_S \Big[ \widehat{\mathfrak{R}}_S(\mathcal{F}) \Big]
+\end{equation}
+
+Finally, we can use this similarly as the size of the countable function class $|N|$ in deriving the error bounds.
+
+\subsection{Rademacher bounds}
+
+For function class $\mathcal{F} = \{ f : \mathcal{Z} \to [0,1] \}$ for any $\delta>1$ each of the following holds with probability $1-\delta$ for all $f \in \mathcal{F}$
+\begin{eqnarray}
+R(f) & \leq & \widehat{R}_S(f) + 2 \mathfrak{R}_n(\mathcal{F}) + \sqrt{\frac{\log(1/\delta)}{2n}} \\
+R(f) & \leq & \widehat{R}_S(f) + 2 \widehat{\mathfrak{R}}_S(\mathcal{F}) + 3\sqrt{\frac{\log(2/\delta)}{2n}} 
+\end{eqnarray}
+Proof is based on MdDiarmid's ineuqality.
+
+Note that the 2nd bound depends only on the data!
+
+If instead of $\mathcal{F}$ we would like to express these bounds in terms of the hypotheses set $\mathcal{H} = \{h: \mathcal{X} \to \{-1,+1\} \}$ we can show that $\widehat{\mathfrak{R}}_S(\mathcal{F}) = \frac{1}{2}\widehat{\mathfrak{R}}_S(\mathcal{H})$ and can plug this directly above.
+
+However, the complexity may be still difficult to calculate (it's a maximization problem).
+Instead we may want to bound it by the Growth function which is essentially a combinatorial problem \todo{the link for classifications problems.}
+
+\subsection{Regression}
+
+In regression $\mathcal{Y} = \mathbb{R}$ and the loss is typically $\ell(Z,h) = (Y - h(X))^2$ with $Z = (X,Y)$.
+As before we have risk $R(h) = E(\ell(Z,h))$ and empirical risk $\widehat{R}_S(h) = \frac{1}{n} \sum_{i=1}^n  \ell(Z_i,h) $.
+Note that the squared error loss $\ell : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}_+$ is unbounded from above. This makes the analysis difficult!
+
+Let's assume the loss is non-negative and bounded from above by some $M>0$ for starters ($\ell \in [0,M]$).
+
+For a finite hypotheses set $|\mathcal{H}_N| = N$ we get directly from Hoeffding's and the union bound: with probability at least $1-\delta$ (we will select a sample for which)
+\begin{equation}
+R(h)  \leq \widehat{R}_S(h) + M \sqrt{\frac{\log N + \log (1/ \delta)}{2n}} \quad \text{for all } h \in \mathcal{H}_N \text{ simmultaneously }
+\end{equation}
+
+If the loss class $\mathcal{L} \{\ell:(Z,h) \to \mathbb{R} \}$ is a l-lipchitz function of the prediction error $|h(X) - Y|$ and the error is bounded ($|h(X) - Y|_\infty \leq M$) we can calculate $\widehat{\mathfrak{R}}_S(\mathcal{H})$ and than by Talagrand's lemma we have 
+\begin{equation}
+\widehat{\mathfrak{R}}_S(\mathcal{\mathcal{L}}) \leq l \,\widehat{\mathfrak{R}}_S(\mathcal{H})
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Bousquet2004}
+Bousquet, O., Boucheron, S., \& Lugosi, G. : Introduction to Statistical Learning Theory (2004)
+
+\bibitem{Mohri2012}
+Mohri, M., Rostamizadeh, A., \& Talwalkar, A.: Foundations of Machine Learning. MIT Press. (2012)
+
+\end{thebibliography}

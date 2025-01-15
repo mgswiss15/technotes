@@ -1,0 +1,343 @@
+% !TEX root = main.tex
+\clearpage
+
+\section{Denoising diffusion implicit models}\label{sec:ddim}
+
+\begin{notebox}
+    \fullcite{song_denoising_2021}
+\end{notebox}
+
+\section{Background DDPM}\label{sec:ddim_ddpm}
+
+We start the same as in the DDPM of \cite{ho_denoising_2020}.
+
+Goal is to learn model $\pt(\rvx_0) \approx q(\rvx_0)$ approximating the true data distribution.
+We formulate the model as latent variable with latents $\rvx_{1:T}$
+
+\begin{align}
+    \pt(\rvx_0) 
+    = \int \pt(\rvx_{0:T})\, d\rvx_{1:T} 
+    = \int \pt(\rvx_{1:T})\,\pt(\rvx_0 \mid \rvx_{1:T}) \, d\rvx_{1:T} 
+    = \int \pt(\rvx_T) \prod_{t=1}^T \pt(\rvx_{t-1} \mid \rvx_{t})\, d\rvx_{1:T} 
+    \enspace .
+\end{align}
+
+This is the diffusion \textit{reverse or generative process}. 
+
+The posterior of the latents is
+\begin{equation}
+    \pt(\rvx_{1:T} \mid \rvx_0)
+    = \frac{\pt(\rvx_{1:T})\,\pt(\rvx_0 \mid \rvx_{1:T})}{\pt(\rvx_0)}
+    = \frac{\pt(\rvx_{0:T})}{\pt(\rvx_0)} \enspace .
+\end{equation}
+We approximate the posterior by a fixed \textit{encoder, forward process or inference distribution} $q(\rvx_{1:T} \mid \rvx_0) \approx \pt(\rvx_{1:T} \mid \rvx_0)$.
+
+We learn the model parameters $\theta$ by maximizing the ELBO
+\begin{align}
+    \E_{q(\rvx_0)} \left[ \log \pt(\rvx_0) \right] & = \E_{q(\rvx_0)} \left[\log \int \pt(\rvx_{0:T})\, d\rvx_{1:T} \right] \nn
+    & = \E_{q(\rvx_0)} \left[ \log \int q(\rvx_{1:T} \mid \rvx_0) \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} d\rvx_{1:T} \right] \nn
+    & \geq \E_{q(\rvx_0)} \left[ \int q(\rvx_{1:T} \mid \rvx_0) \log  \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} d\rvx_{1:T} \right] \nn
+    & = \E_{q(\rvx_0)} \E_{q(\rvx_{1:T} \mid \rvx_0)} \log  \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} \nn
+    & = \E_{q(\rvx_{0:T})} \log  \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} = \text{ELBO} \enspace ,
+\end{align}
+which is obviously equivalent to minimizing the negative ELBO
+\begin{equation}
+    \argmin_{\theta} - \text{ELBO} = \argmin_{\theta} \E_{q(\rvx_{0:T})} - \log \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} \enspace .
+\end{equation}
+
+In DDPM the forward process was fixed as a Markov chain, such that
+\begin{equation}
+    q(\rvx_{0:T}) = q(\rvx_0) \prod_{t=1}^T q(\rvx_t \mid \rvx_{t-1}), 
+    \quad
+    q(\rvx_t \mid \rvx_{t-1}) \sim \dN\left(\rvx_t;\, 
+    \sqrt{\frac{\alpha_t}{\alpha_{t-1}}}
+    \rvx_{t-1}, \left(1 - \frac{\alpha_t}{\alpha_{t-1}}\right) \mI\right) \enspace ,
+\end{equation}
+with the following link to the initial notation of \cite{ho_denoising_2020}
+\begin{equation}
+    \alpha_t = \prod_{s=1}^t (1 - \beta_t), \quad \left(1 - \frac{\alpha_t}{\alpha_{t-1}}\right) = \beta_t, \quad \sqrt{\frac{\alpha_t}{\alpha_{t-1}}} = \sqrt{1-\beta_t} \enspace .
+\end{equation}
+
+By the same logic as in \cite{ho_denoising_2020} it also holds that
+\begin{equation}
+    q(\rvx_t \mid \rvx_0) = \int q(\rvx_{1:t} \mid \rvx_0) d\rvx_{1:(t-1)} 
+    = \dN \left( \rvx_t;
+    \sqrt{\alpha_t} \rvx_0,
+    (1 - \alpha_t) \mI
+    \right) \enspace , 
+\end{equation}
+with $\lim_{t \to \infty} \alpha_t = 0$ and hence $\lim_{t \to \infty} q(\rvx_t \mid \rvx_0) = \dN(\mathbf{0}, \mI)$.
+
+Observe that by the Markov assumption on the forward process we have
+\begin{equation}
+    q(\rvx_t \mid \rvx_{t-1}) = q(\rvx_t \mid \rvx_{t-1}, \rvx_0)
+    = \frac{q(\rvx_t, \rvx_{t-1}, \rvx_0)}{q(\rvx_{t-1} \mid \rvx_0) q(\rvx_0)}
+    = \frac{q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) q(\rvx_{t} \mid \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} \mid \rvx_0) q(\rvx_0)} \enspace .
+\end{equation}
+We can use it in the ELBO
+\begin{align}
+    \text{ELBO} & = \E_{q(\rvx_{0:T})} \log  \frac{\pt(\rvx_{0:T})}{q(\rvx_{1:T} \mid \rvx_0)} \nn
+    & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_T) + \log \prod_{t=1}^T \frac{\pt(\rvx_{t-1} \mid \rvx_{t})}{q(\rvx_t \mid \rvx_{t-1})} \right] \nn
+    & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_T) + \log \prod_{t=1}^T 
+    \frac{\pt(\rvx_{t-1} \mid \rvx_{t}) q(\rvx_{t-1} \mid \rvx_0)}
+    {q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) q(\rvx_{t} \mid \rvx_0)} \right] \nn
+    & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_T) + \log \prod_{t=2}^T 
+    \frac{\pt(\rvx_{t-1} \mid \rvx_{t})}
+    {q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0)} 
+    + \log \frac{\pt(\rvx_{0} \mid \rvx_{1})}{q(\rvx_{T} \mid \rvx_0)}
+    \right] \nn
+    & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_{0} \mid \rvx_{1}) + \log \prod_{t=2}^T 
+    \frac{\pt(\rvx_{t-1} \mid \rvx_{t})}
+    {q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0)}
+    \right] \nn
+    & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_{0} \mid \rvx_{1}) 
+    - \sum_{t=2}^T \log  \frac{q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0)}
+    {\pt(\rvx_{t-1} \mid \rvx_{t})}
+    \right] \nn
+    & = \E_{q(\rvx_{0:1})} \log \pt(\rvx_{0} \mid \rvx_{1}) 
+    - \E_{q(\rvx_{0})} \sum_{t=2}^T \KL\left( q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid \pt(\rvx_{t-1} \mid \rvx_{t}) \right)
+    \enspace ,
+\end{align}
+where we assume that $\pt(\rvx_T) = q(\rvx_{T} \mid \rvx_0) = \dN(\mathbf{0}, \mI)$ and therefore drop it (also we cannot influence these by training so can be).
+
+We further have from \cite{ho_denoising_2020}
+\begin{equation}
+    q(\rvx_{t-1} | \rvx_t, \rvx_0) = \dN(\rvx_{t-1};\, \vmu(\rvx_t, \rvx_0), \bar{\beta}_t \mI) \enspace ,
+\end{equation}
+where
+\begin{equation}
+    \vmu(\rvx_t, \rvx_0) = \frac{\beta_t\sqrt{\alpha_{t-1}}}{(1 - \alpha_t)} \rvx_0
+    + \frac{\sqrt{1-\beta_t}(1 - \alpha_{t-1})}{1 - \alpha_t}\rvx_t
+\end{equation}
+and 
+\begin{equation}
+    \bar{\beta}_t = \frac{\beta_t(1 - \alpha_{t-1})}{1 - \alpha_t} 
+\end{equation}
+
+When we put $\pt(\rvx_{t-1} \mid \rvx_{t}) = \dN \left(\rvx_{t-1};\, \vmu_{\theta}(\rvx_t,t), \sigma_t^2 \mI \right)$ we get for the KL divergences
+\begin{equation}
+    \KL\left( q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid \pt(\rvx_{t-1} \mid \rvx_{t}) \right) 
+    = \frac{1}{2 \sigma_t^2} \lVert \vmu(\rvx_t, \rvx_0) -  \vmu_{\theta}(\rvx_t,t)\rVert_{2}^{2}
+\end{equation}
+
+Using the fact that $q(\rvx_t \mid \rvx_0)
+= \dN \left( \rvx_t;
+\sqrt{\alpha_t} \rvx_0,
+(1 - \alpha_t) \mI
+\right)
+$, we can sample $\rvx_t$ as
+\begin{equation}
+    \rvx_t = \sqrt{\alpha_t} \rvx_0 + \sqrt{(1 - \alpha_t)} \rvepsilon, \quad \rvepsilon \sim \dN(\vzero, \mI)
+\end{equation}
+and hence after we have sampled $\rvepsilon$ we can recover $\rvx_0$ from $\rvx_t$ as
+\begin{equation}
+    \rvx_0 = \frac{\rvx_t - \sqrt{(1 - \alpha_t)} \rvepsilon}{\sqrt{\alpha_t}} \enspace .
+\end{equation}
+With this we can 
+\begin{align}
+    \vmu(\rvx_t, \rvx_0) & = \frac{\beta_t\sqrt{\alpha_{t-1}}}{(1 - \alpha_t)} \rvx_0
+    + \frac{\sqrt{1-\beta_t}(1 - \alpha_{t-1})}{1 - \alpha_t}\rvx_t \nn
+    & = \frac{\beta_t\sqrt{\alpha_{t-1}}}{(1 - \alpha_t)\sqrt{\alpha_t}} 
+    \left(\rvx_t - \sqrt{(1 - \alpha_t)} \rvepsilon \right)
+    + \frac{\sqrt{1-\beta_t}(1 - \alpha_{t-1})}{1 - \alpha_t}\rvx_t \nn
+    & = \frac{\beta_t}{(1 - \alpha_t)\sqrt{1 - \beta_t}} \left(\rvx_t - \sqrt{(1 - \alpha_t)} \rvepsilon \right)
+    + \frac{\sqrt{1-\beta_t}(1 - \alpha_{t-1})}{1 - \alpha_t}\rvx_t \nn
+    & = \frac{\beta_t + 1-\beta_t - \alpha_{t}}{(1 - \alpha_t)\sqrt{(1 - \beta_t)}} \rvx_t
+    - \frac{\beta_t}{\sqrt{1 - \beta_t}\sqrt{(1 - \alpha_t)}} \rvepsilon \nn
+    & = \frac{1}{\sqrt{1 - \beta_t}} \left(\rvx_t - \frac{\beta_t}{\sqrt{(1 - \alpha_t)}} \rvepsilon \right)
+    = \vmu(\rvx_t, \rvepsilon) \enspace .
+\end{align}
+We can set 
+\begin{equation}
+    \vmu_{\theta}(\rvx_t,t) = \frac{1}{\sqrt{1 - \beta_t}} \left(\rvx_t - \frac{\beta_t}{\sqrt{(1 - \alpha_t)}} \rvepsilon_\theta(\rvx_t, t) \right)
+\end{equation}
+and therefore get
+\begin{align}
+    \frac{1}{2 \sigma_t^2} \lVert \vmu(\rvx_t, \rvx_0) -  \vmu_{\theta}(\rvx_t,t)\rVert_{2}^{2} 
+    & =  \frac{1}{2 \sigma_t^2} \left\lVert 
+        \frac{1}{\sqrt{1 - \beta_t}} \left(\rvx_t - \frac{\beta_t}{\sqrt{(1 - \alpha_t)}} \rvepsilon \right)
+    -  \frac{1}{\sqrt{1 - \beta_t}} \left(\rvx_t - \frac{\beta_t}{\sqrt{(1 - \alpha_t)}} \rvepsilon_\theta(\rvx_t, t) \right) \right\rVert_{2}^{2} \nn
+    & = \frac{\beta_t^2}{2 \sigma_t^2 \, (1-\beta_t) (1-\alpha_t)}
+    \left\lVert 
+        \rvepsilon - \rvepsilon_{\theta}(\sqrt{\alpha_t} \rvx_0 + \sqrt{(1 - \alpha_t)} \rvepsilon, t)
+    \right\rVert_{2}^{2} \enspace .
+\end{align}
+
+More generally, we can write the loss as
+\begin{equation*}
+    \sum_{t=2}^T \E_{q(\rvx_0)} 
+    \KL\left( q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid \pt(\rvx_{t-1} \mid \rvx_{t}) \right) 
+    = \sum_{t=2}^T \E_{q(\rvx_0)} \gamma_t \left\lVert 
+        \rvepsilon - \rvepsilon_{\theta}(\sqrt{\alpha_t} \rvx_0 + \sqrt{(1 - \alpha_t)} \rvepsilon, t)
+    \right\rVert_{2}^{2}
+\end{equation*}
+\begin{equation}
+    \L_{\gamma}(\rvepsilon_{\theta}) = \sum_{t=2}^T \gamma_t \E_{q(\rvx_0), \rvepsilon_t}
+    \left\lVert 
+        \rvepsilon_t - \rvepsilon_{\theta}^{t}(\sqrt{\alpha_t} \rvx_0 + \sqrt{(1 - \alpha_t)} \rvepsilon_t)
+    \right\rVert_{2}^{2}
+\end{equation}
+\begin{notebox}[colback=red!5]
+    In the paper they start the sum from $t=1$. I still do not quite understand the first step.
+\end{notebox}
+
+\section{Moving onto DDIM}\label{sec:ddim_ddim}
+We take a different assumption for $q(\rvx_{1:T} \mid \rvx_0)$ formulated as \textit{reverse process} 
+\begin{equation}
+    q(\rvx_{1:T} \mid \rvx_0) = q_\sigma(\rvx_T | \rvx_0) \prod_{t=2}^T q_\sigma(\rvx_{t-1} \mid \rvx_t, \rvx_0) \enspace ,
+\end{equation}
+where
+\begin{equation}
+    q_\sigma(\rvx_{t-1} \mid \rvx_t, \rvx_0) 
+    = \dN \left( \rvx_{t-1};
+    \sqrt{\alpha_{t-1}}\rvx_0
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\rvx_0}{\sqrt{1-\alpha_t}}, \, \sigma_t^2 \mI
+    \right)
+\end{equation}
+and
+\begin{equation}
+    q_\sigma(\rvx_T | \rvx_0) = \dN \left(  \rvx_T;
+    \sqrt{\alpha_T} \rvx_0, (1-\alpha_T) \mI \enspace .
+    \right)
+\end{equation}
+
+This is chosen so that it still holds (as in the DDPM) that
+\begin{equation}
+    q_{\sigma}(\rvx_t \mid \rvx_0) = \int q(\rvx_{1:t} \mid \rvx_0) d\rvx_{1:(t-1)} 
+    = \dN \left( \rvx_t;
+    \sqrt{\alpha_t} \rvx_0,
+    (1 - \alpha_t) \mI
+    \right) \enspace .
+\end{equation}
+This hold by assumption for $q_{\sigma}(\rvx_T \mid \rvx_0)$. We can start from $t=T$ and then prove by induction that it holds for all $t$.
+We use marginalization formula
+\begin{equation}
+    q_{\sigma}(\rvx_{t-1} \mid \rvx_0) = \int q_\sigma(\rvx_{t-1} \mid \rvx_t, \rvx_0) \, q_{\sigma}(\rvx_{t} \mid \rvx_0) d \rvx_t \enspace .
+\end{equation}
+The $q_{\sigma}$ on the right side are both gaussians and Bisshop 2.115 says that
+\begin{align}
+    q_{\sigma}(\rvx_{t-1} \mid \rvx_0) & = \dN \left( \rvx_{t-1};\, \sqrt{\alpha_{t-1}}\rvx_0
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\sqrt{\alpha_t} \rvx_0 - \sqrt{\alpha_t}\rvx_0}{\sqrt{1-\alpha_t}}, \sigma_t^2 \mI  + \frac{1 - \alpha_{t-1} - \sigma_t^2}{1-\alpha_t}(1 - \alpha_t) \mI
+    \right) \nn
+    & = \dN \left( \rvx_{t-1};\, \sqrt{\alpha_{t-1}}\rvx_0, (1 - \alpha_{t-1}) \mI
+    \right) \enspace .
+\end{align}
+Though $q_\sigma(\rvx_{t-1} \mid \rvx_t, \rvx_0)$ depends on $\sigma$, $q_{\sigma}(\rvx_t \mid \rvx_0)$ actually does not.
+
+The corresponding \textit{forward process} is again Gaussian though I do not need the Markov assumption as in DDPM
+\begin{equation}
+    q(\rvx_t \mid \rvx_{t-1}, \rvx_0)
+    = \frac{q(\rvx_t, \rvx_{t-1}, \rvx_0)}{q(\rvx_{t-1} \mid \rvx_0) q(\rvx_0)}
+    = \frac{q(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) q(\rvx_{t} \mid \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} \mid \rvx_0) q(\rvx_0)} \enspace .
+\end{equation}
+
+When $\sigma \to 0$ the reverse process is deterministic
+\begin{equation}
+    \lim_{\sigma \to 0} q_\sigma(\rvx_{t-1} \mid \rvx_t, \rvx_0) 
+    = \dN \left( \rvx_{t-1};
+    \sqrt{\alpha_{t-1}}\rvx_0
+    + \sqrt{1 - \alpha_{t-1}} \, \frac{\rvx_t - \sqrt{\alpha_t}\rvx_0}{\sqrt{1-\alpha_t}}, \, 0 \mI
+    \right) \enspace ,
+\end{equation}
+so that
+\begin{equation}
+    \rvx_{t-1} = \sqrt{\frac{1 - \alpha_{t-1}}{1-\alpha_t}}\rvx_t 
+    - \sqrt{\frac{1 - \alpha_{t-1}}{1-\alpha_t}} \sqrt{\alpha_t}\rvx_0 
+    + \sqrt{\alpha_{t-1}}\rvx_0 \enspace .
+\end{equation}
+In consequence the forward process is also deterministic
+\begin{equation}
+    q_{\sigma}(\rvx_t \mid \rvx_{t-1}, \rvx_0) = \sqrt{\alpha_t}\rvx_0 - \sqrt{\frac{1-\alpha_t}{1 - \alpha_{t-1}}} \sqrt{\alpha_{t-1}}\rvx_0 + \sqrt{\frac{1-\alpha_t}{1 - \alpha_{t-1}}} \rvx_{t-1} \enspace .
+\end{equation}
+
+As in DDPM we can sample $\rvx_t$ from the same distribution
+\begin{equation}
+    \rvx_t = \sqrt{\alpha_t} \, \rvx_0 + \sqrt{1-\alpha_t}\, \rvepsilon_t
+\end{equation}
+and similarly as before we can reverse this and predict the de-noised observation
+\begin{equation}
+    \widehat{\rvx}_0(\rvx_t) = \frac{\rvx_t - \sqrt{(1 - \alpha_t)} \, \epsilon^{(t)}_\theta(\rvx_t)}{\sqrt{\alpha_t}} \enspace .
+\end{equation}
+We also have 
+\begin{equation}
+    \epsilon^{(t)}_\theta(\rvx_t) = 
+    \frac{\rvx_t - \sqrt{\alpha_t} \, \widehat{\rvx}_0(\rvx_t)}{\sqrt{(1 - \alpha_t)}} \enspace .
+\end{equation}
+
+
+Using this we can define the generative process starting from $\pt(\rvx_T) = N(0, I)$ and then
+\begin{equation}
+    \pt^{(t)}(\rvx_{t-1} | \rvx_t) = q_{\sigma}(\rvx_t \mid \rvx_{t-1}, \widehat{\rvx}_0(\rvx_t)) = 
+    \dN \left( \rvx_{t-1};
+    \sqrt{\alpha_{t-1}}\, \widehat{\rvx}_0(\rvx_t)
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\, \widehat{\rvx}_0(\rvx_t)}{\sqrt{1-\alpha_t}}, \, \sigma_t^2 \mI
+    \right) 
+\end{equation}
+and
+\begin{equation}
+    \pt^{(1)}(\rvx_{0} | \rvx_1) = 
+    \dN \left( \rvx_{0};\, \widehat{\rvx}_0(\rvx_1),\, \sigma_1^2 \mI
+    \right) \enspace .
+\end{equation}
+
+The ELBO is again
+\begin{align}
+    \text{ELBO} & = \E_{q(\rvx_{0:T})} \left[ \log \pt(\rvx_T) + \log \prod_{t=2}^T 
+    \frac{\pt^{(t)}(\rvx_{t-1} \mid \rvx_{t})}
+    {q_{\sigma}(\rvx_{t-1} \mid \rvx_{t}, \rvx_0)} 
+    + \log \frac{\pt^{(1)}(\rvx_{0} \mid \rvx_{1})}{q_{\sigma}(\rvx_{T} \mid \rvx_0)}
+    \right] \nn
+    & = \E_{q(\rvx_{0:1})} \log \pt^{(1)}(\rvx_{0} \mid \rvx_{1}) 
+    - \E_{q(\rvx_{0})} \sum_{t=2}^T \KL\left( q_{\sigma}(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid \pt^{(t)}(\rvx_{t-1} \mid \rvx_{t}) \right) \enspace .
+\end{align}
+
+We look at
+\begin{align}
+    & \KL\left( q_{\sigma}(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid \pt^{(t)}(\rvx_{t-1} \mid \rvx_{t}) \right) \nn
+    = & \KL\left( q_{\sigma}(\rvx_{t-1} \mid \rvx_{t}, \rvx_0) \mid\mid q_{\sigma}(\rvx_{t-1} \mid \rvx_{t}, \widehat{\rvx}_0(\rvx_t)) \right)  \nn
+    = & \frac{1}{\sigma_t^2} \left\lVert 
+    \sqrt{\alpha_{t-1}}\rvx_0
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\rvx_0}{\sqrt{1-\alpha_t}} -  \sqrt{\alpha_{t-1}}\widehat{\rvx}_0(\rvx_t))
+    - \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\widehat{\rvx}_0(\rvx_t))}{\sqrt{1-\alpha_t}}
+    \right\rVert_2^2 \nn
+    = & \frac{1}{\sigma_t^2} \left\lVert 
+    \sqrt{\alpha_{t-1}} (\rvx_0 - \widehat{\rvx}_0(\rvx_t)) - \frac{\sqrt{1 - \alpha_{t-1} - \sigma_t^2}\sqrt{\alpha_t}}{\sqrt{1-\alpha_t}} (\rvx_0 - \widehat{\rvx}_0(\rvx_t))
+    \right\rVert_2^2    \nn
+    = & \frac{1}{\sigma_t^2} \left\lVert 
+    \frac{\sqrt{1-\alpha_t}\sqrt{\alpha_{t-1}} - \sqrt{1 - \alpha_{t-1} - \sigma_t^2}\sqrt{\alpha_t}}{\sqrt{1-\alpha_t}} (\rvx_0 - \widehat{\rvx}_0(\rvx_t))    
+    \right\rVert_2^2 \nn
+    = & \frac{(\sqrt{1-\alpha_t}\sqrt{\alpha_{t-1}} - \sqrt{1 - \alpha_{t-1} - \sigma_t^2}\sqrt{\alpha_t})^2}{\sigma_t^2 (1-\alpha_t)} \left\lVert 
+    \rvx_0 - \widehat{\rvx}_0(\rvx_t)    
+    \right\rVert_2^2 \nn
+    = & \frac{(\sqrt{1-\alpha_t}\sqrt{\alpha_{t-1}} - \sqrt{1 - \alpha_{t-1} - \sigma_t^2}\sqrt{\alpha_t})^2}{\sigma_t^2 (1-\alpha_t)} \left\lVert 
+    \frac{\rvx_t - \sqrt{(1 - \alpha_t)} \, \epsilon_t}{\sqrt{\alpha_t}} - \frac{\rvx_t - \sqrt{(1 - \alpha_t)} \, \epsilon^{(t)}_\theta(\rvx_t)}{\sqrt{\alpha_t}}    
+    \right\rVert_2^2 \nn
+    = & \frac{(\sqrt{1-\alpha_t}\sqrt{\alpha_{t-1}} - \sqrt{1 - \alpha_{t-1} - \sigma_t^2}\sqrt{\alpha_t})^2}{\sigma_t^2 \alpha_t} \left\lVert 
+    \epsilon_t - \epsilon^{(t)}_\theta(\rvx_t)
+    \right\rVert_2^2 
+\end{align}
+
+This is up to the terms before the norm which do not depend on $\theta$ the same as in DDPM.
+Since we wish to maximize ELBO which is a sum of these KLs across $t$, the optimal solution is reached when each of the norms is minimized irrespective of the weighting. 
+
+
+\section{Sampling from DDIM}\label{sec:ddim_sampling}
+
+We had before that 
+\begin{equation}
+    \pt^{(t)}(\rvx_{t-1} | \rvx_t) = q_{\sigma}(\rvx_t \mid \rvx_{t-1}, \widehat{\rvx}_0(\rvx_t)) = 
+    \dN \left( \rvx_{t-1};
+    \sqrt{\alpha_{t-1}}\, \widehat{\rvx}_0(\rvx_t)
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\, \widehat{\rvx}_0(\rvx_t)}{\sqrt{1-\alpha_t}}, \, \sigma_t^2 \mI
+    \right) 
+\end{equation}
+and hence we can sample
+\begin{align}
+    \rvx_{t-1} & = \sqrt{\alpha_{t-1}}\, \widehat{\rvx}_0(\rvx_t)
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \frac{\rvx_t - \sqrt{\alpha_t}\, \widehat{\rvx}_0(\rvx_t)}{\sqrt{1-\alpha_t}} + \sigma_t \epsilon_t \nn
+    & = \sqrt{\alpha_{t-1}}\, \left( \frac{\rvx_t - \sqrt{(1 - \alpha_t)} \, \epsilon^{(t)}_\theta(\rvx_t)}{\sqrt{\alpha_t}} \right)
+    + \sqrt{1 - \alpha_{t-1} - \sigma_t^2} \, \epsilon^{(t)}_\theta(\rvx_t) + \sigma_t \epsilon_t \nn
+\end{align}
+
+
+
