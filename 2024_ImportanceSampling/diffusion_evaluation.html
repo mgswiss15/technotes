@@ -30,86 +30,72 @@
       <div class="crossnote markdown-preview  ">
       
 <p><span class="mathjax-exps">\(\def\rv#1{{\mathbf #1}} \def\pt{p_\theta} \def\rvx{\rv x} \def\E{\mathbb{E}} \def\gN{\mathcal{N}}\)</span></p>
-<h1 id="evaluation-of-diffusion-model">Evaluation of diffusion model </h1>
-<p><em><strong>Created: 2024-01-21</strong></em>
-<em><strong>Updated: 2024-01-26</strong></em></p>
-<p>How can we evaluate the likelihood of a data point <span class="mathjax-exps">$\rvx$</span> using the diffusion model trained according to (Ho et al., 2020)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>?</p>
-<p>We start from the importance sampling formulation of our model</p>
-<p></p><div class="mathjax-exps">$$\pt(\rvx_0) = \int q(\rvx_{1:T} | \rvx_0) \frac{\pt(\rvx_{1:T}) \pt(\rvx_0 | \rvx_{1:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T}  \enspace . \tag{1} \label{eq:importance_sampling}$$</div><p></p>
-<h2 id="monte-carlo-estimate">Monte-carlo estimate </h2>
-<p>This likelihood \eqref{eq:importance_sampling} can be approximated by a Monte Carlo (MC) estimate as
-</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_0, \rvx_1^{(i)}, \ldots, \rvx_T^{(i)})}{q(\rvx_1^{(i)}, \ldots, \rvx_T^{(i)} | \rvx_0)} \enspace , \quad \rvx_1^{(i)}, \ldots, \rvx_T^{(i)} \sim q(\rvx_{1:T} | \rvx_0) \enspace . \tag{2} \label{eq:MCestimate}$$</div><p></p>
-<h3 id="sampling-for-mc-estimate">Sampling for MC estimate </h3>
-<p>Sampling out of forward distribution <span class="mathjax-exps">$q(\rvx_{1:T} | \rvx_0)$</span> is easy.
-Thanks to the Markov and Gaussian assumptions it can be shown that
-</p><div class="mathjax-exps">$$q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1}) = \prod_{t=1}^T q(\rvx_t | \rvx_0) \enspace , \tag{3} \label{eq:forward}$$</div>
-where the markov conditionals are all Gaussians with known fixed parameters
-<span class="mathjax-exps">$q(\rvx_t | \rvx_{t-1}) = \gN(\rvx_t; \sqrt{1-\beta_t}\rvx_{t-1}, \beta_t \rv{I})$</span>
-and the <span class="mathjax-exps">$\rvx_0$</span> are also Gaussians
-<span class="mathjax-exps">$q(\rvx_t | \rvx_0) = \gN(\rvx_t; \sqrt{\bar{a}_t}\rvx_{0}, (1 - \bar{a}_t) \rv{I})$</span>
-with <span class="mathjax-exps">$\bar{a}_t = \prod_{s=1}^t (1-\beta_s)$</span>.<p></p>
-<blockquote>
-<p>For each <span class="mathjax-exps">$i$</span> we can sample the <span class="mathjax-exps">$\rvx_1^{(i)}, \ldots, \rvx_t^{(i)}$</span> independently out of <span class="mathjax-exps">$\rvx_t^{(i)} \sim \gN(\rvx_t; \sqrt{\bar{a}_t}\rvx_0, (1 - \bar{a}_t) \rv{I})$</span> as <span class="mathjax-exps">$\rvx_t^{(i)} = \sqrt{\bar{a}_t}\rvx_0 + \sqrt{(1 - \bar{a}_t)} \epsilon, \epsilon \sim \gN(\rv{0}, \rv{I})$</span>.</p>
-</blockquote>
-<h3 id="evaluation-of-likelihood-terms">Evaluation of likelihood terms </h3>
-<p>For the individual terms in equation \eqref{eq:MCestimate}:</p>
-<ul>
-<li><span class="mathjax-exps">$q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_0)$</span> is simply the product of the Gaussian densities from equation \eqref{eq:forward} which can all be evaluated independently since <span class="mathjax-exps">$\rvx_0$</span> is fixed.</li>
-<li>alternatively we can use <span class="mathjax-exps">$q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1})$</span></li>
-<li><span class="mathjax-exps">$\pt(\rvx_{0:T}) = p(\rvx_{0:T}) = \pt(\rvx_{T}) \prod_{t=1}^T \pt(\rvx_{t-1} | \rvx_{t})$</span> and we have:
-<ul>
-<li><span class="mathjax-exps">$\pt(\rvx_T) = \gN(\rvx_T; \rv{0}, \rv{I})$</span> is a fixed standard Gaussian</li>
-<li><span class="mathjax-exps">$\pt(\rvx_{t-1} | \rvx_{t}) = \gN(\rvx_{t-1}; \frac{1}{\sqrt{\alpha_t}}\left(\rvx_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(\rvx_t, t)\right), \sigma^2_t\rv{I})$</span> with <span class="mathjax-exps">$\sigma_t^2$</span> being a known (non-learnable) function of the forward variance schedule <span class="mathjax-exps">$\beta_t$</span> and <span class="mathjax-exps">$\epsilon_\theta(\rvx_t, t)$</span> is trained to approximate the noise introduced by the forward process. Here we will use <span class="mathjax-exps">$\sigma_t^2 = \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}$</span></li>
-</ul>
-</li>
-</ul>
-<p>So that
-</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_T) \pt(\rvx_{0} | \rvx_{1}) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_{t})}{\prod_{t=1}^T q(\rvx_t | \rvx_{t-1})} \enspace , \quad \rvx_t^{(i)} \sim q(\rvx_{t} | \rvx_0) \ \forall t=1, \ldots, T \enspace . \tag{4} \label{eq:MCestimate_details}$$</div><p></p>
-<p>For a single <span class="mathjax-exps">$i$</span> for the MC estimate in \eqref{eq:MCestimate_details} we sample the <span class="mathjax-exps">$\rvx_t^{(i)}$</span> independently, then evaluate for each the conditionals <span class="mathjax-exps">$q(\rvx_t^{(i)} | \rvx_0)$</span> or <span class="mathjax-exps">$q(\rvx_t | \rvx_{t-1})$</span> and simply take their product to get <span class="mathjax-exps">$q(\rvx_1^{(i)}, \ldots, \rvx_t^{(i)} | \rvx_0)$</span>.
-We use the same <span class="mathjax-exps">$\rvx_t^{(i)}$</span> samples to evaluate each of the reverse conditionals <span class="mathjax-exps">$\pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)})$</span> (making sure these are the same samples as used for the <span class="mathjax-exps">$q$</span> evaluation) and get <span class="mathjax-exps">$\pt(\rvx_0, \rvx_1^{(i)}, \ldots, \rvx_t^{(i)})$</span> again as simple product.</p>
-<p>Yet another option would be to switch to the same ordering as in the reverse process.
-Starting from
+<h1 id="evaluation-of-diffusion-model-via-importance-sampling-of-nll">Evaluation of diffusion model via importance sampling of NLL </h1>
+<p><em><strong>Created: 2024-01-21,
+Updated: 2024-01-26,
+Updated: 2024-01-28</strong></em></p>
+<p>This uses the standard DDPM <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> notation, the importance sampling was inspired by Importance Weighted VAE <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<h2 id="importance-sampling-estimation-of-data-probability">Importance sampling estimation of data probability </h2>
+<p>We evaluate the fidelity of data samples via the marginal negative log-likelihood (NLL) estimated by importance sampling \cite{burda2015importance, tomczak2018vae}.</p>
+<p>We start from the model marginal
+</p><div class="mathjax-exps">$$\begin{aligned} \pt(\rvx_0) =  &amp; \int \pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T}) \, d\rvx_{1:T} \\ =  &amp; \int q(\rvx_{1:T} | \rvx_0) \frac{\pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T})}{q(\rvx_{1:T} | \rvx_0)} \, d\rvx_{1:T} \enspace , \end{aligned}$$</div>
+and its importance weighted monte-carlo (MC) estimate based on <span class="mathjax-exps">$M$</span> samples
+<div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_{1:T}^{(i)}) \pt(\rvx_0 | \rvx_{1:T}^{(i)})}{q(\rvx_{1:T}^{(i)} | \rvx_0)}, \quad \rvx_{t}^{(i)} \sim q(\rvx_{t} | \rvx_0) = \gN \left(\rvx_t; \sqrt{\bar{a}_t}\rvx_{0}, (1 - \bar{a}_t) \rv{I}\right), \ \forall t=1, \ldots, T \enspace ,$$</div>
+where we used the identity <span class="mathjax-exps">$q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_{t} | \rvx_0)$</span>.<p></p>
+<p>From the standard DDPM assumptions and their results for the forward process
 </p><div class="mathjax-exps">$$q(\rvx_t | \rvx_{t-1}) = q(\rvx_t | \rvx_{t-1}, \rvx_0) = \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} | \rvx_0) q(\rvx_0)}$$</div>
-and we get
-<div class="mathjax-exps">$$\prod_{t=1}^T q(\rvx_t | \rvx_{t-1}) = q(\rvx_1 | \rvx_0) \prod_{t=2}^T \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0) q(\rvx_0)}{q(\rvx_{t-1} | \rvx_0) q(\rvx_0)} = q(\rvx_1 | \rvx_0) \frac{q(\rvx_{T} | \rvx_0)}{q(\rvx_1 | \rvx_0)} \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0) = q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0)$$</div><p></p>
-<p>Bringing this back to importance sampling
-</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \frac{\pt(\rvx_T) \pt(\rvx_{0} | \rvx_{1}) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_{t})}{q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0)}   = \frac{1}{M}\sum_{i=1}^M \pt(\rvx_{0} | \rvx_{1}) \frac{\pt(\rvx_T)}{q(\rvx_{T} | \rvx_0)} \prod_{t=2}^T \frac{\pt(\rvx_{t-1} | \rvx_{t})}{q(\rvx_{t-1} | \rvx_{t}, \rvx_0)} \enspace , \tag{5} \label{eq:MCestimate_details2}$$</div>
-where
-<span class="mathjax-exps">$q(\rvx_{t-1} | \rvx_{t}, \rvx_0) = \gN(\rvx_{t-1}; \frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\rvx_t + \frac{(1-\alpha_t)\sqrt{\bar{\alpha}_{t-1}}}{(1 - \bar{\alpha}_t)} \rvx_0, \frac{\beta_t(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} \rv{I})$</span><p></p>
-<h3 id="log-likelihood-stable-evaluation">Log-likelihood stable evaluation </h3>
-<p>Obviously, taking products of distributions is extremely unstable and hence we are better of working in <span class="mathjax-exps">$\log$</span>.
-We therefore rewrite the MC estimate from equation \eqref{eq:MCestimate_details} using logs and use <span class="mathjax-exps">$\prod_{t=1}^T q(\rvx_t | \rvx_0)$</span> in the denominator (this could be readily replace by <span class="mathjax-exps">$\prod_{t=1}^T q(\rvx_t | \rvx_{t-1})$</span>).
-</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \exp \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace .$$</div><p></p>
-<p>Instead of using the above it may be more convenient to start from \eqref{eq:MCestimate_details2} and by introducing logs we get
-</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \exp \left( \underbrace{\log \pt(\rvx_{0} | \rvx_{1}^{(i)})}_{P0} + \underbrace{\log \pt(\rvx_T^{(i)}) - \log q(\rvx_{T}^{(i)} | \rvx_0)}_{PT} + \sum_{t=2}^T \left[ \underbrace{\log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \log q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)}_{Pt} \right] \right) \enspace . \tag{6} \label{eq:loglik}$$</div><p></p>
-<p>For a D-variate gaussian pdf <span class="mathjax-exps">$f(\rvx) = \gN(\rvx; \rv{\mu}, \sigma^2 \rv{I})$</span> we have
-</p><div class="mathjax-exps">$$\log f(\rvx) = \log \left( (2 \pi)^{-D/2} \sigma^{-D}  \exp \left[ -||\rvx - \rv{\mu}||_2^2/(2 \sigma^2) \right] \right) = -\frac{D}{2}\log(2\pi) -D\log(\sigma) - \frac{||\rvx - \rv{\mu}||_2^2}{2\sigma^2}.$$</div><p></p>
-<p>For two D-variate gaussian pdf <span class="mathjax-exps">$f(\rvx) = \gN(\rvx; \rv{\mu}_1, \sigma^2_1 \rv{I})$</span> and <span class="mathjax-exps">$g(\rvx) = \gN(\rvx; \rv{\mu}_2, \sigma^2_2 \rv{I})$</span> we have</p>
-<p></p><div class="mathjax-exps">$$\begin{align} \log f(\rvx) - \log g(\rvx)  =&amp; -\frac{D}{2}\log(2\pi) -D\log(\sigma_1) - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} + \frac{D}{2}\log(2\pi) +D\log(\sigma_2) + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} \\ =&amp; D \log\frac{\sigma_2}{\sigma_1} + \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma_2^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma_1^2} \\ \end{align}$$</div><p></p>
+and hence
+<div class="mathjax-exps">$$q(\rvx_{1:T} | \rvx_0) = \prod_{t=1}^T q(\rvx_t | \rvx_{t-1}) = q(\rvx_1 | \rvx_0) \prod_{t=2}^T \frac{q(\rvx_{t-1} | \rvx_{t}, \rvx_0) q(\rvx_{t} | \rvx_0)}{q(\rvx_{t-1} | \rvx_0)} = q(\rvx_1 | \rvx_0) \frac{q(\rvx_{T} | \rvx_0)}{q(\rvx_1 | \rvx_0)} \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0) = q(\rvx_{T} | \rvx_0) \prod_{t=2}^T q(\rvx_{t-1} | \rvx_{t}, \rvx_0) \enspace .$$</div>
+Similarly for the reverse process we get
+\begin{equation}
+\pt(\rvx_0 | \rvx_{1:T}) \pt(\rvx_{1:T})  =
+\pt(\rvx_T) \pt(\rvx_0 | \rvx_1) \prod_{t=2}^T \pt(\rvx_{t-1} | \rvx_t) \enspace .
+\end{equation}<p></p>
+<p>Bringing these together the importance sampling estimate is
+</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx   \frac{1}{M}\sum_{i=1}^M \pt(\rvx_{0} | \rvx_{1}^{(i)}) \frac{\pt(\rvx_T^{(i)})}{q(\rvx_{T}^{(i)} | \rvx_0)} \prod_{t=2}^T \frac{\pt(\rvx_{t-1}^{(i)} | \rvx_{t})}{q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)} \enspace , \tag{1} \label{eq:mc-estimate}$$</div><p></p>
+<h3 id="stable-evaluation">Stable evaluation </h3>
+<p>Obviously, taking products of distributions is extremely unstable and hence we are better of working in <span class="mathjax-exps">$\log$</span>s.
+</p><div class="mathjax-exps">$$\pt(\rvx_0) \approx \frac{1}{M}\sum_{i=1}^M \exp \left( \underbrace{\log \pt(\rvx_{0} | \rvx_{1}^{(i)})}_\text{data conditional} + \underbrace{\log \pt(\rvx_T^{(i)}) - \log q(\rvx_{T}^{(i)} | \rvx_0)}_\text{prior matching} + \sum_{t=2}^T \left[ \underbrace{\log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \log q(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}, \rvx_0)}_\text{denoising matching} \right] \right) \enspace . \tag{2} \label{eq:mc-stable}$$</div><p></p>
+<h3 id="per-pixel-results">Per-pixel results </h3>
+<p>It is conventional to report results per-pixel rather than per the whole image. This explains how to get those.</p>
+<p>For a D-variate gaussian pdf with diagonal covariance <span class="mathjax-exps">$f(\rvx) = \gN(\rvx; \rv{\mu}, \sigma^2 \rv{I})$</span> we have <span class="mathjax-exps">$f(\rvx) = \prod_{i=1}^D f_i(x_i)$</span>, where <span class="mathjax-exps">$f_i(x_i) = \gN(x_i; \mu_i, \sigma^2)$</span>.
+We can therefore evaluate all log-probabilities in \eqref{eq:mc-stable} as sum of elementwise (pixel) log probabilities so for example
+</p><div class="mathjax-exps">$$\log \pt(\rvx_{0} | \rvx_{1}^{(i)}) = \log \prod_{j=1}^D p_j(x_{0j} | x_{1j}^{(i)}) = \sum_{j=1}^D \log p_j(x_{0j} | x_{1j}^{(i)}) \tag{3} \label{eq:image-logprob}$$</div>
+Equation \eqref{eq:image-logprob} uses the pixel probabilities but is still expressed as log-probability for the whole image.
+To express these in terms of per-pixel values we need to normalize by the number as pixels <span class="mathjax-exps">$D$</span>
+<div class="mathjax-exps">$$\text{pp} \log \pt(\rvx_{0} | \rvx_{1}^{(i)}) = \log (\prod_{j=1}^D p_j(x_{0j}) | x_{1j}^{(i)})^{1/D} = \frac{1}{D} \sum_{j=1}^D \log p_j(x_{0j} | x_{1j}^{(i)})$$</div><p></p>
+<h3 id="evaluate-prior-and-denoising-matching">Evaluate prior and denoising matching </h3>
+<p>We can simplify the evaluation of the <em>prior</em> and <em>denoising matching</em> terms in \eqref{eq:mc-stable} by writing down the logs of Gaussian pdfs.</p>
+<p>The log of univariate Gaussian pdf <span class="mathjax-exps">$f(x) = \gN(x; \mu, \sigma^2)$</span> is
+</p><div class="mathjax-exps">$$\log f(x) = \log \left( \frac{1}{\sigma \sqrt{2 \pi}} \exp \left[ -\frac{(x - \mu)^2}{2 \sigma^2} \right] \right) = -\frac{1}{2}\log(2\pi) - \log(\sigma) - \frac{(x - \mu)^2}{2\sigma^2}.$$</div><p></p>
+<p>For two univariate Gaussian pdf <span class="mathjax-exps">$f(x) = \gN(x; \mu_1, \sigma_1^2)$</span> and <span class="mathjax-exps">$g(x) = \gN(x; \mu_2, \sigma_2^2)$</span> we have
+</p><div class="mathjax-exps">$$\log f(x) - \log g(x)  = -\frac{1}{2}\log(2\pi) - \log(\sigma_1) - \frac{(x - \mu_1)^2}{2\sigma_1^2} + \frac{1}{2}\log(2\pi) + \log(\sigma_2) + \frac{(x - \mu_2)^2}{2\sigma_2^2}  = \log\frac{\sigma_2}{\sigma_1} + \frac{(x - \mu_2)^2}{2\sigma^2} - \frac{(x - \mu_1)^2}{2\sigma_1^2}$$</div>
+We use this decomposition for evaluating the <em>prior matching</em> term with <span class="mathjax-exps">$f = \pt$</span> and <span class="mathjax-exps">$g = q$</span>.<p></p>
 <p>If furthermore <span class="mathjax-exps">$\sigma_1 = \sigma_2 = \sigma$</span> we get
-</p><div class="mathjax-exps">$$\begin{align} \log f(\rvx) - \log g(\rvx)  =&amp; \frac{||\rvx - \rv{\mu}_2||_2^2}{2\sigma^2} - \frac{||\rvx - \rv{\mu}_1||_2^2}{2\sigma^2} \\ =&amp; \frac{\rvx^T \rvx - 2 \rvx^T \mu_2 + \mu_2^T \mu_2 - \rvx^T \rvx + 2 \rvx^T \mu_1 - \mu_1^T \mu_1}{2\sigma^2} \\ =&amp; \rvx^T(\mu_1 - \mu_2) + \frac{||\mu_2||_2^2 - ||\mu_1||_2^2}{2\sigma^2} \\ \end{align}$$</div><p></p>
-<p>For implementation, remember that <span class="mathjax-exps">$\rv{a}^T \rv{b} = \sum_i^d a_i b_i$</span> so these are all trivial element-wise products.</p>
-<h3 id="bits-per-dim">Bits-per-dim </h3>
-<p>We are also not typically interested in the likelihood but rather the <strong>log-likelihood</strong> and hence get
-</p><div class="mathjax-exps">$$\log \pt(\rvx_0) \approx \log \frac{1}{M}\sum_{i=1}^M \exp \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace ,$$</div>
+</p><div class="mathjax-exps">$$\log f(x) - \log g(x)  = \frac{(x - \mu_2)^2}{2\sigma^2} - \frac{(x - \mu_1)^2}{2\sigma_1^2}  = \frac{x^2 - 2 x \mu_2 + \mu_2^2 - x^2 + 2 x \mu_1 - \mu_1^2}{2\sigma^2}  =\frac{x(\mu_1 - \mu_2)}{\sigma^2} + \frac{\mu_2^2 - \mu_1^2}{2\sigma^2} \enspace .$$</div>
+This we can use for the <em>denoising matching</em> terms as these have the same variance of <span class="mathjax-exps">$\pt$</span> and <span class="mathjax-exps">$q$</span> terms.<p></p>
+<h3 id="evaluate-data-conditional">Evaluate data conditional </h3>
+<p>Given that image pixel values are not continues but discrete <span class="mathjax-exps">$[0, \ldots, 255]$</span> values, we cannot evaluate the data conditional as a gaussian, but rather discretized gaussian.
+I'm not going to explain it here but it is in the implementation and the original inspiration comes from PixelCNN++<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
+<h3 id="negative-log-likelihood-nll">Negative log-likelihood (NLL) </h3>
+<p>We are also not typically interested in the likelihood but rather the negative log-likelihood (NLL) and hence get
+</p><div class="mathjax-exps">$$\text{pp NLL} = - \text{pp} \log \pt(\rvx_0) \approx - \log \frac{1}{M}\sum_{i=1}^M \exp \frac{1}{D} \left( \log p(\rvx_T^{(i)}) + \sum_{t=1}^T \log \pt(\rvx_{t-1}^{(i)} | \rvx_{t}^{(i)}) - \sum_{t=1}^T \log q(\rvx_t^{(i)} | \rvx_0) \right) \enspace ,$$</div>
 where we can evaluate the log-sum-exp in a stable manner.<p></p>
-<p><strong>Bits-per-dim</strong> is simply the negative log-likelihood with base 2 normalized by the number of pixels <span class="mathjax-exps">$D$</span>
-</p><div class="mathjax-exps">$$BPP = - \frac{\log_2  \pt(\rvx_0)}{D} = - \frac{\log  \pt(\rvx_0)}{D \log 2}$$</div><p></p>
-<p>The <strong>number of samples</strong> from the latent should be rather big to get a low-variance estimate of the log-likelihood. For the VAE case in both Importance Weighted VAE <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> and VampPrior VAE <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> they used <span class="mathjax-exps">$M = 5000$</span>.</p>
-<p>There is one more trick that may be necessary: the pixel values are not continuous but discrete 0 to 255 values. Hence assuming that <span class="mathjax-exps">$\pt(\rvx_0 | \rvx_1)$</span> is Gaussian is strange.
-They have dealt with this in PixelCNN++<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> they have used a mixture of logistic distributions.
-Perhaps this is what the OpenAI implementation does?</p>
+<h3 id="bits-per-pixel">Bits-per-pixel </h3>
+<p>Finally, we want to move from natural logarithm to log2 to get the restuls in bits</p>
+<p></p><div class="mathjax-exps">$$BPP = \frac{\text{pp NLL}}{\log 2} = \frac{- \text{pp} \log \pt(\rvx_0)}{\log 2}$$</div><p></p>
+<p>The <strong>number of samples</strong> from the latent should be rather big to get a low-variance estimate of the log-likelihood. For the VAE case in both Importance Weighted VAE <sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup> and VampPrior VAE <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> they used <span class="mathjax-exps">$M = 5000$</span>.</p>
 <h2 id="references">References </h2>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>Ho, J., Jain, A., &amp; Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. In H. Larochelle, M. Ranzato, R. Hadsell, M. F. Balcan, &amp; H. Lin (Eds.), Advances in Neural Information Processing Systems (Vol. 33, pp. 6840–6851). Curran Associates, Inc. <a href="https://proceedings.neurips.cc/paper/2020/file/4c5bcfec8584af0d967f1ab10179ca4b-Paper.pdf">https://proceedings.neurips.cc/paper/2020/file/4c5bcfec8584af0d967f1ab10179ca4b-Paper.pdf</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn2" class="footnote-item"><p>Burda, Y., Grosse, R., &amp; Salakhutdinov, R. (2016). Importance Weighted Autoencoders (arXiv:1509.00519). <a href="https://doi.org/10.48550/arXiv.1509.00519">https://doi.org/10.48550/arXiv.1509.00519</a> <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+<li id="fn2" class="footnote-item"><p>Burda, Y., Grosse, R., &amp; Salakhutdinov, R. (2016). Importance Weighted Autoencoders (arXiv:1509.00519). <a href="https://doi.org/10.48550/arXiv.1509.00519">https://doi.org/10.48550/arXiv.1509.00519</a> <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn3" class="footnote-item"><p>Tomczak, J., &amp; Welling, M. (2018). VAE with a VampPrior. Proceedings of the Twenty-First International Conference on Artificial Intelligence and Statistics, 1214–1223. <a href="https://proceedings.mlr.press/v84/tomczak18a.html">https://proceedings.mlr.press/v84/tomczak18a.html</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+<li id="fn3" class="footnote-item"><p>Salimans, T., Karpathy, A., Chen, X., &amp; Kingma, D. P. (2017). PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications (arXiv:1701.05517). arXiv. <a href="https://doi.org/10.48550/arXiv.1701.05517">https://doi.org/10.48550/arXiv.1701.05517</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p>Salimans, T., Karpathy, A., Chen, X., &amp; Kingma, D. P. (2017). PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications (arXiv:1701.05517). arXiv. <a href="https://doi.org/10.48550/arXiv.1701.05517">https://doi.org/10.48550/arXiv.1701.05517</a> <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+<li id="fn4" class="footnote-item"><p>Tomczak, J., &amp; Welling, M. (2018). VAE with a VampPrior. Proceedings of the Twenty-First International Conference on Artificial Intelligence and Statistics, 1214–1223. <a href="https://proceedings.mlr.press/v84/tomczak18a.html">https://proceedings.mlr.press/v84/tomczak18a.html</a> <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
