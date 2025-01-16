@@ -25,6 +25,9 @@
 % for declaring math operators
 \usepackage{amsthm}
 
+% for landscape
+\usepackage{pdflscape}
+
 % wrap text around figures
 \usepackage{wrapfig}
 
@@ -106,8 +109,6 @@ This is another set of my technical notes on various ML topics.
 I started writing the 1st set when beginning my PhD, the 2nd set when starting my PostDoc, the 3d when starting as a professor and I have discovered, that forcing myself to take time and write these is extremely useful.
 All of the technical notes are available in my GitHub repo \url{https://github.com/mgswiss15/technotes}.
 
-The general purpose of the notes is to help me understand better the selected topics by re-explaining (\emph{re-} because these have been explained elsewhere many times), and to have a reference and possibly reusable material for later.
-
 This is a working document not meant to be polished. There may be typos and other editing errors. 
 Technical errors mean that I didn't quite understand something which I unfortunately cannot rule out.
 
@@ -115,11 +116,7 @@ Technical errors mean that I didn't quite understand something which I unfortuna
 % Print table of contents
 \tableofcontents
 
-\input{diffusion_basics}
-
-\input{classifier_guidance}
-
-\input{ddim}
+\input{ddpm_ddim.tex}
 
 
 \clearpage 
