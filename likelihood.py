@@ -3,8 +3,9 @@
 import torch
 import matplotlib.pyplot as plt
 from torch.distributions import Categorical, Normal, MixtureSameFamily, Independent
+import math
 
-# gaussian Mixture 
+# gaussian mixture 
 class GaussianMixture(MixtureSameFamily):
   "2D gaussian mixture"
 
@@ -31,8 +32,20 @@ plt.show()
 # log-likelihood
 data = data*data_std + data_mean
 loglikelihood = gmm.log_prob(data).mean()
-
 print(f'Data log-likelihood: {loglikelihood}')
 
+# swiss role
+# https://jlmelville.github.io/smallvis/swisssne.html
+n_samples = 5000
+std = 1
+phi = torch.rand(n_samples) * 3. * math.pi + 1.5 * math.pi
+x = phi * torch.cos(phi) + torch.randn_like(phi)*std
+y = phi * torch.sin(phi) + torch.randn_like(phi)*std
 
+plt.figure(figsize=[5,5])
+plt.scatter(x,y)
+# plt.axis([-2., 2., -2., 2.])
+plt.show()
+
+#TODO: Not sure how to get the likelihood in this case
 
