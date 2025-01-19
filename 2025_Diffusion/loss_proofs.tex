@@ -1,0 +1,86 @@
+% !TEX root = main.tex
+\clearpage
+
+\section{Loss proofs}\label{sec:loss_proofs}
+
+\begin{flushright}
+Last updated: \today
+\end{flushright}
+
+This follows upon the DDIM discussion from January 15, 2025.
+
+Let's assume a dataset $(x, y_{t=1}, y_{t=2})$ with 3 observations $(1, 2, 20), (2, 4, 40), (3, 6, 60)$ and a prediction model $y_{t} = \epsilon_{\theta}(x)$ for $t \in {1,2}$, which we fit by $\l_2$ regression loss.
+
+\paragraph{Option 1):}
+Consider simple linear model $\epsilon_{\theta}(x) = \theta x$ and loss with a hyperparameter $\lambda$ weighing the two parts
+\begin{align}
+\Ls  & =  \underbrace{\sum_{i=1}^3 (\theta x^{(i)} - y^{(i)}_1)^2}_{\Ls_{t=1}} + \lambda \underbrace{\sum_{i=1}^3 (\theta x^{(i)} - y^{(i)}_2)^2}_{\Ls_{t=2}} \\
+& = (\theta - 2)^2 + (2 \theta - 4)^2 + (3 \theta - 6)^2 
+ + \lambda (\theta - 20)^2 + \lambda (2 \theta - 40)^2 + \lambda (3 \theta - 60)^2
+\end{align}
+
+From the first order derivative rule for the critical point we have
+\begin{equation}
+\nabla_{\theta} \Ls = \nabla_{\theta} \Ls_{t=1} + \lambda \nabla_{\theta} \Ls_{t=1} = 0
+\end{equation}
+We know that $\nabla_{\theta} \Ls_{t} = \sum_{i=1}^3 (\theta x^{(i)} - y^{(i)}_t) x^{(i)}$ and hence:
+\begin{align}
+\nabla_{\theta} \Ls_{t=1} & = (\theta - 2) + (4 \theta - 8) + (9 \theta - 18) = 14 \theta - 28 \nn
+\nabla_{\theta} \Ls_{t=2} & = (\theta - 20) + (4 \theta - 80) + (9 \theta - 180) = 14 \theta - 280 \nn
+\nabla_{\theta} \Ls & = \nabla_{\theta} \Ls_{t=1} + \lambda \nabla_{\theta} \Ls_{t=2} = (14+14\lambda) \theta - (28 + 280 \lambda)
+\end{align}
+From this, we get the minimizing $\theta$ for each of the three losses
+\begin{equation}
+\theta_{1} = 28/14 = 2, \quad \theta_2 = 280/14 = 20, \quad \theta = \frac{28 + 280 \lambda}{14+14\lambda} = \frac{28 (1 + 10 \lambda)}{14 (1+\lambda)} =  \frac{2 (1 + 10 \lambda)}{1+\lambda} \enspace .
+\end{equation}
+As we can see the overall $\theta$ depends on the hyperparameter $\lambda$ and how much weight it gives to the two parts of the loss
+\begin{equation}
+\theta(\lambda = 1) = 22/2 = 11, \quad \theta(\lambda = 2) = 42/3 = 14, \quad \theta(\lambda = 0.5) = 12/1.5 = 8 
+\end{equation}
+but unless we put $\lambda = 0$ we cannot find $\theta$ that would minimize both $\Ls_{t=1}$ and $\Ls_{t=2}$.
+
+\paragraph{Option 2):}
+We can include the time $t$ directly into the model as $\epsilon_{\theta}(x, t) = \theta t x$.
+Most things stay the same and we now get $\nabla_{\theta} \Ls_{t} = \sum_{i=1}^3 (\theta t x^{(i)} - y^{(i)}_t) t x^{(i)}$ so that:
+\begin{align}
+\nabla_{\theta} \Ls_{t=1} & = (\theta - 2) + (4 \theta - 8) + (9 \theta - 18) = 14 \theta - 28 \nn
+\nabla_{\theta} \Ls_{t=2} & = (4 \theta - 40) + (16 \theta - 160) + (36 \theta - 360) = 56 \theta - 560 \nn
+\nabla_{\theta} \Ls & = \nabla_{\theta} \Ls_{t=1} + \lambda \nabla_{\theta} \Ls_{t=2} = (14 + 56 \lambda) \theta - (28 + 560 \lambda)
+\end{align}
+and the minimizings $\theta$'s are 
+\begin{equation}
+\theta_{1} = 28/14 = 2, \quad \theta_2 = 560/56 = 10, \quad \theta = \frac{28 + 560 \lambda}{14 + 56\lambda} = \frac{28 (1 + 20 \lambda)}{14(1 + 4\lambda)} = \frac{2 (1 + 20 \lambda)}{1 + 4\lambda}\enspace .
+\end{equation}
+and the overall $\theta$ again depends on $\lambda$
+\begin{equation}
+\theta(\lambda = 1) = 42/5 = 8.4, \quad \theta(\lambda = 2) = 82/9 = 9.1, \quad \theta(\lambda = 0.5) = 22/43 = 7.3 \enspace .
+\end{equation}
+Again unless we put $\lambda = 0$ we cannot find $\theta$ that would minimize both $\Ls_{t=1}$ and $\Ls_{t=2}$.
+
+\paragraph{Option 3):} 
+Finally we include the time $t$ into the model as a learned embedding $t \to e(t) = e_t, {1,2} \to \R$ as $\epsilon_{\theta}(x, t) = \theta x e(t)$.
+We now have $\nabla_{\theta} \Ls_{t} = \sum_{i=1}^3 (\theta e_t x^{(i)} - y^{(i)}_t) e_t x^{(i)}$ so that:
+\begin{align}
+\nabla_{\theta} \Ls_{t=1} & = e_1(e_1 \theta - 2) + e_1(e_1 4 \theta - 8) + e_1(e_1 9 \theta - 18) = e_1 (e_1 14 \theta - 28) \nn
+\nabla_{\theta} \Ls_{t=2} & = e_2(e_2 \theta - 20) + e_2(e_2 4 \theta - 80) + e_2(e_2 9 \theta - 180) = e_2(e_2 14 \theta - 280) \nn
+\nabla_{\theta} \Ls & = \nabla_{\theta} \Ls_{t=1} + \lambda \nabla_{\theta} \Ls_{t=2} = (e_1^2 + e_2^2 \lambda) 14 \theta - (28 e_1 + 280 e_2 \lambda)
+\end{align}
+and the minimizings $\theta$'s are 
+\begin{equation}
+\theta_{1} = \frac{28}{14 e_1}, \quad \theta_2 = \frac{280}{14 e_2}, \quad \theta = \frac{28 e_1 + 280 e_2 \lambda}{14 (e_1^2 + e_2^2 \lambda)} = \frac{28 (e_1 + 10 e_2 \lambda)}{14 (e_1^2 + e_2^2 \lambda)} = \frac{2 (e_1 + 10 e_2 \lambda)}{e_1^2 + e_2^2 \lambda} \enspace .
+\end{equation}
+Clearly, in this case we can put $e_2 = 10 e_1$ to obtain $\theta_{1} = \theta_{2} = \frac{28}{14 e_1} = 2 / e_1$ and we will also get
+\begin{equation}
+\theta = \frac{2 (e_1 + 10 e_2 \lambda)}{e_1^2 + e_2^2 \lambda} = \frac{2 (e_1 + 100 e_1 \lambda)}{e_1^2 + 100 e_1^2 \lambda} = \frac{2 (e_1 + 100 e_1 \lambda)}{e_1 (e_1 + 100 e_1 \lambda)} = 2 / e_1 \enspace . 
+\end{equation}
+Hence in this case, when we learn both $\theta$ and the embedding $e(t)$, the hyperparameter $\lambda$ is not relevant and we can minimize all three functions at the same time.
+
+\paragraph{Option 4):} 
+More generally for any model $\epsilon(\theta, e_t, x)$ and any loss function $\Ls = \Ls_{t=1} + \lambda \Ls_{t=2}$ we can always find a $e_2 = f(\theta, e_1)$ such that $\argmin_\theta \Ls_{t=1} = \argmin_\theta \Ls_{t=2} = \argmin_\theta \Ls$ for any $\lambda$.
+
+
+
+
+
+
+

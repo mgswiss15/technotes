@@ -22,11 +22,17 @@
 % for hyperrefs
 \usepackage{hyperref}
 
+% for parallel columns
+\usepackage{paracol}
+\usepackage{rotating}
+
 % for declaring math operators
 \usepackage{amsthm}
 
 % for landscape
 \usepackage{pdflscape}
+\usepackage[landscape]{geometry}
+
 
 % wrap text around figures
 \usepackage{wrapfig}
@@ -116,7 +122,9 @@ Technical errors mean that I didn't quite understand something which I unfortuna
 % Print table of contents
 \tableofcontents
 
-\input{ddpm_ddim.tex}
+\input{loss_proofs}
+
+\input{ddpm_ddim}
 
 
 \clearpage 
