@@ -1,0 +1,109 @@
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller]{beamer}
+%\usepackage[dark]{slidespreamble}
+\usepackage{slidespreamble}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, backgrounds, intersections, decorations.pathreplacing}
+
+\tikzstyle{point}=[circle, inner sep=0pt, minimum size=3mm, semithick, anchor=center]
+\tikzstyle{edge}=[->, >=stealth', shorten <=2pt, shorten >=2pt, auto, semithick]
+\tikzstyle{class0color}=[aluminium6]
+\tikzstyle{class0}=[draw=aluminium6, fill=aluminium4, text=aluminium6]
+\tikzstyle{class1color}=[skyblue3]
+\tikzstyle{class1}=[draw=skyblue3, fill=skyblue1, text=skyblue3]
+\tikzstyle{class2color}=[orange3]
+\tikzstyle{class2}=[draw=orange3, fill=orange1, text=orange3]
+
+% title slide info
+\title{Backpropagation}
+% \subtitle{For THWS courses}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage 
+\end{frame}
+
+\begin{frame}{Example slide}
+
+% \begin{tikzpicture}
+
+
+% {
+% \node[circle, draw=black] (x1) at (0,+1.5) {$\point_1$};
+% \node at (0,0) {$\vdots$};
+% \node[circle, draw=black] (xn) at (0,-1.5) {$\point_\dims$};
+% }
+% {
+% \node[circle, draw=black] (h1) at (3,+2) {$h_1$};
+% \node at (3,0) {$\vdots$};
+% \node[circle, draw=black] (hm) at (3,-2) {$h_K$};
+
+% \path[edge]
+% (x1) edge node[above] {$u_{1, 1}$} (h1) edge node[left, pos=0.2] {$u_{m, 1}$} (hm)
+% (xn) edge node[left, pos=0.2] {$u_{1, \dims}$} (h1) edge node[below] {$u_{m, \dims}$} (hm);
+
+% \node[above] at (-1,+2) {$h_j = \sigma\big(\sum_{i=1}^\dims u_{j, i} \cdot x_i + b_j\big)$};
+% }
+% -
+% % \uncover<5-6>{
+% \node[circle, draw=black] (y1) at (6,+1) {$\outpoint_1$};
+% \node  at (6,0) {$\vdots$};
+% \node[circle, draw=black] (yK) at (6,-1) {$\outpoint_K$};
+% % }
+
+% {
+% \path[edge]
+% (h1) edge node[above] {$v_{1, 1}$} (y1) edge node[left, pos=0.2] {$v_{K, 1}$} (yK)
+% (hm) edge node[left, pos=0.2] {$v_{1, m}$} (y1) edge node[below=0.3cm] {$v_{K, m}$} (yK);
+
+% \node[above] at (6.5,+2) {$y_k = \sum_{j=1}^m v_{k,j} \cdot h_k + c_k$};
+% }
+
+% {
+% \node[right] at (7,1) {$\ell = \sum_{k=1}^K \big(y_k - \hat y_k)^2$};
+% }
+
+% {
+% \node[right] at (7,0) {${\color{skyblue3}\frac{\partial \ell}{\partial y_k}} = 2 \cdot \big(y_k - \hat y_k)$};
+
+% \node[circle, class1] (y1) at (6,+1) {$\outpoint_1$};
+% \node[class1color]  at (6,0) {$\vdots$};
+% \node[circle, class1] (yK) at (6,-1) {$\outpoint_K$};
+
+% }
+
+% % \uncover<+>{
+% % \node[right] at (7,-1) {${\color{skyblue3}\frac{\partial \ell}{\partial v_{k, j}}} = {\color{skyblue3}\frac{\partial \ell}{\partial y_k} \cdot \frac{\partial y_k}{\partial v_{k, j}}}$};
+% % }
+
+% {
+% \node[right] at (7,-1) {${\color{skyblue3}\frac{\partial \ell}{\partial v_{k, j}}} = {\color{skyblue3}\frac{\partial \ell}{\partial y_k}} \cdot h_j$};
+% }
+
+% % \uncover<+>{
+% % \node[below] at (6.5,-2) {${\color{skyblue3}\frac{\partial \ell}{\partial h_j}} = \sum_{k=1}^K {\color{skyblue3}\frac{\partial \ell}{\partial y_k} \cdot \frac{\partial y_k}{\partial h_j}}$};
+% % }
+
+% % \uncover<.->{
+% \path[edge, class1]
+% (y1) edge[bend right] (h1) edge[bend right] (hm)
+% (yK) edge[bend left]  (h1) edge[bend left]  (hm);
+% % }
+
+% {
+% \node[below] at (6.5,-2) {${\color{skyblue3}\frac{\partial \ell}{\partial h_j}} = \sum_{k=1}^K {\color{skyblue3}\frac{\partial \ell}{\partial y_k}} \cdot v_{k, j}$};
+% }
+
+% % \uncover<+>{
+% % \node[below] at (-1,-2) {${\color{skyblue3}\frac{\partial \ell}{\partial u_{j, i}}} = {\color{skyblue3}\frac{\partial \ell}{\partial h_j} \cdot \frac{\partial h_j}{\partial u_{j, i}}}$};
+% % }
+
+% {
+% \node[below] at (-1,-2) {${\color{skyblue3}\frac{\partial \ell}{\partial u_{j, i}}} = {\color{skyblue3}\frac{\partial \ell}{\partial h_j} \cdot \frac{\partial \sigma(\cdots)}{\partial \cdots}} \cdot x_i$};
+% }
+% \end{tikzpicture}
+
+\end{frame}
+
+\end{document} 

@@ -1,0 +1,111 @@
+\ProvidesPackage{slidespreamble}
+
+% Author: MG, 2025-11-22
+%
+% Usage:
+% \usepackage[<options>]{slidespreamble}
+%
+% Options:
+% - dark: dark scheme with black background and gray text
+
+% packages loaded automatically with beamer
+% graphicx, hyperref
+% amsmath, amssymb, amsfonts, amstext, amsthm
+
+% font encoding
+% \RequirePackage[utf8]{inputenc} % input encoding - not needed, set \documentclass[utf8]{beamer}
+% \RequirePackage[T1]{fontenc} % font encoding (T1 works badly without lmodern)
+% \RequirePackage{lmodern} % better fonts
+\usefonttheme{serif}
+\usefonttheme{professionalfonts}
+% \usefonttheme{structuresmallcapsserif}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{kpfonts}
+% \RequirePackage{libertine}
+% \RequirePackage{libertinust1math}
+% \RequirePackage[T1]{fontenc}
+% \RequirePackage{mathrsfs}
+
+% reusable macros
+\graphicspath{{Pics/}} % multiple paths depending on the location of the main tex file
+
+% math
+\RequirePackage{bm} % better bold math symbols
+\RequirePackage{wasysym} % even more symbols
+
+% tables
+\RequirePackage{booktabs} % better tables
+\RequirePackage{multirow} % cells spanning multiple rows
+\RequirePackage{multicol} % cells spanning multiple cols
+
+% absolute positioning
+% \usepackage[absolute,overlay,showboxes]{textpos}
+\usepackage[absolute,overlay]{textpos}
+\TPGrid{10}{5}
+
+% THWS color schema
+\definecolor{thwsorange}{rgb}{1.0,0.416,0.000}
+\definecolor{thwsblue}{rgb}{0.088,0.236,0.412} 
+\definecolor{thwsgrey}{rgb}{0.85,0.85,0.85} 
+\definecolor{thwspetrol}{rgb}{0.0,0.333,0.392} 
+\definecolor{lightblue}{RGB}{166,189,219} 
+\definecolor{carnelian}{RGB}{179,27,27}
+
+% custom structure formats
+\setbeamercolor{titlelike}{fg=thwspetrol}
+\setbeamercolor{frametitle}{fg=thwspetrol}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamercolor{structure}{fg=thwsblue}
+\setbeamerfont{structure}{series=\bfseries}
+\setbeamercolor{alerted text}{fg=carnelian}
+\setbeamercolor{footline}{fg=thwspetrol}
+\setbeamerfont{block title}{size=\normalsize}
+\hypersetup{colorlinks,urlcolor=thwsblue}
+
+% custom formats
+\setbeamertemplate{itemize items}[circle]{}
+
+% beamer notes on second screen
+\usepackage{pgfpages} % for notes on second screen
+\setbeameroption{show notes on second screen=left}
+%%%% use dspdfviewer under Ubuntu !!!! %%%%
+\setbeamertemplate{note page}[compressed]
+% \setbeamertemplate{note page}[plain]
+
+% \setbeameroption{show notes}
+% \setbeameroption{hide notes}
+
+% % color options for black version
+% \DeclareOption{dark}{
+%   \setbeamercolor{normal text}{fg=thwsgrey, bg=black}
+%   \definecolor{thwsblue}{RGB}{166,189,219}
+% }
+% \DeclareOption*{\PackageWarning{presentation_preamble}{Unknown ‘\CurrentOption’}}
+% \ProcessOptions\relax
+
+% frametitle / footline templates
+\makeatletter
+\setbeamertemplate{frametitle}{
+  \begin{textblock}{10}[0,0](0.3, 0.3)
+    \color{thwspetrol} \insertframetitle
+  \end{textblock}
+  \begin{textblock}{1.5}[1,0](10, 0.2)
+    \includegraphics[width=2cm]{id23_cairo-thws_logo_100pt_en_orange_NEU.png}
+  \end{textblock}
+}
+\setbeamertemplate{footline}[frame number]{}
+\setbeamertemplate{navigation symbols}{} % supress navigation symbols
+\define@key{beamerframe}{c}[true]{% centered page
+    \beamer@frametopskip=25pt plus 1fill\relax%
+    \beamer@framebottomskip=5pt plus 1fill\relax%
+    \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+    \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+}
+\define@key{beamerframe}{t}[true]{% top aligned page
+    \beamer@frametopskip=25pt\relax%
+    \beamer@framebottomskip=0pt plus 1fill\relax%
+    \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+    \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+}
+\makeatother
+

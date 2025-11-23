@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"editor.tabSize": 2,
+		"editor.autoIndent": "full",
+		"latex-workshop.formatting.latex": "none",
+		"[latex]": {
+			"editor.autoIndent": "none"
+		}
+	}
+}

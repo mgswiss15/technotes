@@ -1,0 +1,105 @@
+\documentclass[aspectratio=169, smaller]{beamer}
+\setbeameroption{hide notes}
+\mode<presentation>
+\usepackage[]{slidespreamble}
+\usepackage[]{math_commands}
+\usepackage{layout}
+
+% presentation title
+\title{Probability basics}
+
+\begin{document}
+
+\input{intro_v01}
+
+\begin{frame}
+\layout
+\end{frame}
+
+\begin{frame}[t]{Outline}
+\setcounter{framenumber}{1}
+Blabla
+\end{frame}
+
+\begin{frame}{Probability space}
+
+\structure{Probability space $(S, \salg, \mP)$:}
+\begin{itemize}
+  \item measurable space $(S, \salg)$
+  \begin{itemize}
+    \item $S$ - sample space
+    \item $\salg$ - $\sigma$-algebra on $S$ - collection of subsets
+  \end{itemize}
+  \item probability measure $\mP$ - real-valued function on sample space $(S, \salg)$ s.t.:
+  \begin{itemize}
+    \item non-negativity: $\mP(A) \geq 0$ for all $A \in \salg$
+    \item countable additivity: countable disjoint $\{A_i: i \in I\} \in \salg \Rightarrow \mP\left( \bigcup_{i \in I} A_i \right) = \sum_{i \in I} \mP(A_i)$
+    \item \alert{normalization: $\mP(S) = 1$}
+  \end{itemize}
+\end{itemize}
+
+\vskip 1em
+\structure{Note:}
+any finite positive measure $\mu$ on $(S, \mathscr{S})$ $\Rightarrow$ prob. measure $\mP(A) = \mu(A) / \mu(S)$.
+
+
+\end{frame}
+
+\note[enumerate]
+{
+\item $\sigma$-algebra $\salg$ - non-empty collection of subsets closed under complement and countable unions 
+\vskip -0.1em
+\begin{itemize}
+    \item if $A \in \salg$, then $A^c \in \salg$
+    \item if $A_i \in \salg$ for $i \in I$ (countable index set), then $\bigcup_{i \in I} A_i \in \salg$
+    \item if $A \in \salg$ and $A \in \salg$, then $A \cup B \in \salg$
+    \item in consequence $\emptyset \in \salg$ and $S \in \salg$
+  \end{itemize}
+\item $(S, \salg)$ forms a measurable space in this context called the sample space.
+\item Probability measure is the same as probability distribution or probability law
+\item More generally a positive measure on $(S, \salg)$ is a function $\mu: \salg \to [0, \infty]$ satisfying non-negativity and countable additivity. A probability measure is a positive measure with total measure equal to 1. 
+\item The triplet $(S, \salg, \mu)$ is a measure space. Probability space is a special case of a measure space where the total measure is 1.  
+\item Any finite positive measure $\mu$ on the sample space $(S, \mathscr{S})$ can be re-scaled into a probability measure as $\mP(A) = \mu(A) / \mu(S), \ A \in \mathscr{S}$ $\Rightarrow$ link to energy models.
+}
+
+\begin{frame}{Positive measure}
+
+\structure{Positive measure on $(S, \salg)$ - function $\mu: \salg \to [0, \infty]$ s.t.:}
+\begin{itemize}
+  \item $\mu(\emptyset) = 0$
+  \item countable additivity: countable disjoint $\{A_i: i \in I\} \in \salg \Rightarrow \mu\left( \bigcup_{i \in I} A_i \right) = \sum_{i \in I} \mu(A_i) $
+  \item $\Rightarrow$ measure space $(S, \salg, \mu)$
+\end{itemize}
+
+\vskip 1em
+\structure{Note:}
+if $\mu(S) < \infty \Rightarrow ((S, \salg, \mu))$ \alert{finite} measure space.\\
+\hspace*{6ex} if $\mu(S) = 1 \Rightarrow ((S, \salg, \mu))$ \alert{probability} (measure) space.
+
+\begin{block}{Important:}
+adslfkj\\
+ad;lfkj
+\end{block}
+
+ 
+\end{frame}
+
+\begin{frame}{Random variables}
+
+\structure{Random variable $X: S \to T$ - measurable function $S$ to $T$}
+\begin{itemize}
+\item $(S, \salg, \mP)$ - probability space
+\item $(T, \mathscr{T})$ - another measurable space
+\item for outcome $s \in S$, $X$ takes value $x = X(s) \in T$ - realization of r.v. $X$
+\item pre-image of $x \in T$: $X^{-1}(x) = \{s \in S: X(s) = x\} \in \salg$
+\item pre-image of $B \in T$: $X^{-1}(B) = \{s \in S: X(s) \in B\} \in \salg$
+\end{itemize}
+
+
+  
+\end{frame}
+
+% \input{prob}
+
+
+\end{document}
