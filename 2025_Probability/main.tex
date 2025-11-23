@@ -71,18 +71,46 @@ any finite positive measure $\mu$ on $(S, \mathscr{S})$ $\Rightarrow$ prob. meas
   \item $\Rightarrow$ measure space $(S, \salg, \mu)$
 \end{itemize}
 
+\structure{Note:} if $\mu(S) < \infty \Rightarrow ((S, \salg, \mu))$ \alert{finite} measure space.
+
 \vskip 1em
-\structure{Note:}
-if $\mu(S) < \infty \Rightarrow ((S, \salg, \mu))$ \alert{finite} measure space.\\
-\hspace*{6ex} if $\mu(S) = 1 \Rightarrow ((S, \salg, \mu))$ \alert{probability} (measure) space.
+\structure{Examples of measures:}
+\begin{itemize}
+\item counting measure: for discrete $(S, \salg)$, $\#(A) = $ number of elements in $A \in \salg$
+\item Lebesgue measure: for Eucledean $(\mR, \mathscr{R})$, interval $I = [a, b] \in \mathscr{R}$, $\lambda(I) = b - a$ - \alert{length}\\
+\hspace*{2em} Eucledean $(\mR^d, \mathscr{R}^d)$, $\mathbf{A} \in \mathscr{R}^d$, $\lambda(\mathbf{A}) = \lambda(A_1) \times \lambda(A_2) \times \ldots \times \lambda(A_d)$  - \alert{area, volume}
+% \item Dirac measure at point $s_0 \in S$: $\delta_{s_0}(A) = 1$ if $s_0 \in A$, else $0$
+\item probability measure: positive finite measure on $(S, \salg)$ s.t. $\mP(S) = 1$
+\end{itemize}
 
-\begin{block}{Important:}
-adslfkj\\
-ad;lfkj
-\end{block}
-
- 
 \end{frame}
+
+\note[enumerate]{
+\item Definition of discrete and continuous space is a bit tricky and depends on the definition of topology but simply speaking  in discrete space the set $S$ is countable.
+\item For d-dimensional Eucledean space $(\mR^d, \mathscr{R}^d)$, $\mathbf{A} = A_1 \times A_2 \times \ldots \times A_d \in \mathscr{R}^d$, $A_1, A_2, \ldots, A_d \in \mathscr{R}$, $\lambda(\mathbf{A}) = \lambda(A_1) \times \lambda(A_2) \times \ldots \times \lambda(A_d)$
+}
+
+\begin{frame}{Null sets and equivalence}
+
+\structure{Null set $A \in \salg$ if $\mu(A) = 0$}
+\begin{itemize}
+  \item if statement holds for all $s \in S$ except for a null set, it holds \alert{almost everywhere} (a.e.)
+  \item sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$, where $A \Delta B = (A \setminus B) \cup (B \setminus A)$
+  \item measureble funcs $f, \, g: S \to T$ are \alert{equivalent} if $\mu\{s \in S : f(s) \neq g(s)\} = 0$
+\end{itemize}
+
+% \begin{block}{Important:}
+% $A \in \salg$ is \alert{null} if $\mu(A) = 0$ \\
+% if statement holds for all $s \in S$ except for a null set, it holds \alert{almost everywhere} (a.e.) \\
+% two sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$ where $A \Delta B = (A \setminus B) \cup (B \setminus A)$ \\
+% two measureble functions $f, \, g: S \to T$ are \alert{equivalent} if $\mu\{s \in S : f(s) \neq g(s)\} = 0$  
+% \end{block}
+\end{frame}
+
+\note[enumerate]{
+\item sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$, where $A \Delta B = (A \setminus B) \cup (B \setminus A)$
+\item In probability space the almoste everywhere (a.e.) is equivalent to almost surely (a.s.) with respect to the probability measure $\mP$.
+}
 
 \begin{frame}{Random variables}
 
@@ -93,6 +121,16 @@ ad;lfkj
 \item for outcome $s \in S$, $X$ takes value $x = X(s) \in T$ - realization of r.v. $X$
 \item pre-image of $x \in T$: $X^{-1}(x) = \{s \in S: X(s) = x\} \in \salg$
 \item pre-image of $B \in T$: $X^{-1}(B) = \{s \in S: X(s) \in B\} \in \salg$
+\end{itemize}
+
+\vskip 1em
+\structure{Operations with measures:}
+\begin{itemize}
+\item assume $(R, \mathscr{R}) \subset (S, \salg)$ then $\mu$ restricted to $\mathscr{R}$ is measure on $(R, \mathscr{R})$
+\item measure space $(S, \salg, \mu)$
+ func $f: S \to T$ and measure $\nu$ on $(T, \mathscr{T})$ $\Rightarrow$ \alert{pullback measure} $\mu$ on $(S, \salg)$ defined as $\mu(A) = \nu(f(A))$ for $A \in \salg$
+\item if $\mu$ is positive measure on $(S, \salg)$ then $c\mu$ for $c \in (0, \infty)$ is also positive measure on $(S, \salg)$
+\item ha
 \end{itemize}
 
 
