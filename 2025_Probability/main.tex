@@ -109,13 +109,13 @@ $\nu(B) = \mu(f^{-1}(B)), \quad B \in \mathscr{T}$
 % \end{figure}
 
 \centering
-\scalebox{0.5}{
+\scalebox{0.6}{
 \begin{tikzpicture}[>=Stealth]
 % ===========================================================
 % LEFT: domain S with mesh and rectangular f^{-1}(B)
 % ===========================================================
 \begin{scope}[shift={(-5,0)}]
-    \node at (0,2.4) {$S$};
+    \node at (0,2) {$S$};
     % Mesh (vertical)
     \foreach \x in {-1.5,-1,...,1}
         \draw[gray!70] (\x,-2) -- (\x,2);
@@ -140,7 +140,7 @@ $\nu(B) = \mu(f^{-1}(B)), \quad B \in \mathscr{T}$
 % RIGHT: codomain Y with warped mesh + EXACT image B
 % ===========================================================
 \begin{scope}[shift={(1,0)}]
-    \node at (0,2.4) {$T$};
+    \node at (0,2) {$T$};
     % --- Warping function (same everywhere):
     %   x' = 0.9*x + 0.5*sin(y)
     %   y' = y + 0.5*sin(x)
@@ -199,72 +199,229 @@ $\nu(B) = \mu(f^{-1}(B)), \quad B \in \mathscr{T}$
 \end{scope}
 \end{tikzpicture}
 }
-  
 \end{frame}
-
 
 \note[enumerate]{
 \item Careful, though the notation is the same, the inverse image does not have to be a function (the inverse function may not exist).
 \item A \textbf{measurable function}\index{measurable function} is a function $f: S \to T$ where $(S, \mathscr{S})$ and $(T, \mathscr{T})$ are measurable spaces and $f^{-1}(A) \in \mathscr{S}$ for any $A \in \mathscr{T}$.
 \item A continuous function $f: S \to T$ is measurable.
-\item pullback
+\item assume $(R, \mathscr{R}) \subset (S, \salg)$ then $\mu$ restricted to $\mathscr{R}$ is measure on $(R, \mathscr{R})$
+\item measure space $(S, \salg, \mu)$
+ func $f: S \to T$ and measure $\nu$ on $(T, \mathscr{T})$ $\Rightarrow$ \alert{pullback measure} $\mu$ on $(S, \salg)$ defined as $\mu(A) = \nu(f(A))$ for $A \in \salg$
+\item if $\mu$ is positive measure on $(S, \salg)$ then $c\mu$ for $c \in (0, \infty)$ is also positive measure on $(S, \salg)$
+\item Assume a measure space $(S, \salg, \mu)$ a measurable space $(T, \mathscr{T})$ and a measurable function $f : S \to T$.
+Then $\nu$ defined as below is a positive measure on $(T, \mathscr{T})$
 }
-
-
-
 
 \begin{frame}{Null sets and equivalence}
 
-\structure{Null set $A \in \salg$ if $\mu(A) = 0$}
+\structure{Measure space $(S, \salg, \mu)$}
 \begin{itemize}
-  \item if statement holds for all $s \in S$ except for a null set, it holds \alert{almost everywhere} (a.e.)
+  \item set $A \in \salg$ s.t. $\mu(A) = 0$ is called \alert{null set}
+  \item if statement holds for all $s \in S$ except for null set, it holds \alert{almost everywhere} (a.e.)
   \item sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$, where $A \Delta B = (A \setminus B) \cup (B \setminus A)$
   \item measureble funcs $f, \, g: S \to T$ are \alert{equivalent} if $\mu\{s \in S : f(s) \neq g(s)\} = 0$
 \end{itemize}
 
-
-
-% \begin{block}{Important:}
-% $A \in \salg$ is \alert{null} if $\mu(A) = 0$ \\
-% if statement holds for all $s \in S$ except for a null set, it holds \alert{almost everywhere} (a.e.) \\
-% two sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$ where $A \Delta B = (A \setminus B) \cup (B \setminus A)$ \\
-% two measureble functions $f, \, g: S \to T$ are \alert{equivalent} if $\mu\{s \in S : f(s) \neq g(s)\} = 0$  
-% \end{block}
+\vskip 1em
+\structure{Probability space $(S, \salg, \mP)$}
+\begin{itemize}
+\item $\mathcal{N} = \{A \in \mathscr{S} : \mP(A) = 0\}$ collection of \alert{null} events
+\item $\mathcal{M} = \{A \in \mathscr{S} : \mP(A) = 1\}$ collection of \alert{almost sure} events
+\item $\mathcal{D} = \mathcal{N} \bigcup \mathcal{M} = \{A \in \mathscr{S} : \mP(A) = 0$ or $\mP(A) = 1\}$ \alert{essentially deterministic} events
+\end{itemize}
 \end{frame}
 
 \note[enumerate]{
 \item sets $A, B \in \salg$ are \alert{equivalent} if $\mu(A \Delta B) = 0$, where $A \Delta B = (A \setminus B) \cup (B \setminus A)$
 \item In probability space the almoste everywhere (a.e.) is equivalent to almost surely (a.s.) with respect to the probability measure $\mP$.
-\item Assume a measure space $(S, \salg, \mu)$ a measurable space $(T, \mathscr{T})$ and a measurable function $f : S \to T$.
-Then $\nu$ defined as below is a positive measure on $(T, \mathscr{T})$
-$\nu(B) = \mu(f^{-1}(B)), \quad B \in \mathscr{T}$
-
+\item The collection of essentially deterministic events $\mathcal{D}$ is a sub $\sigma$-algebra of $\mathscr{S}$.
 }
 
 \begin{frame}{Random variables}
 
+$(S, \salg, \mP)$ probability space, $(T, \mathscr{T})$ another measurable space
+
+\vskip 0.5em
 \structure{Random variable $X: S \to T$ - measurable function $S$ to $T$}
 \begin{itemize}
-\item $(S, \salg, \mP)$ - probability space
-\item $(T, \mathscr{T})$ - another measurable space
 \item for outcome $s \in S$, $X$ takes value $x = X(s) \in T$ - realization of r.v. $X$
-\item pre-image of $x \in T$: $X^{-1}(x) = \{s \in S: X(s) = x\} \in \salg$
-\item pre-image of $B \in T$: $X^{-1}(B) = \{s \in S: X(s) \in B\} \in \salg$
+\item pre-image of $x \in T$: $\{X = x\} = X^{-1}(x) = \{s \in S: X(s) = x\} \in \salg$
+\item pre-image of $B \in T$: $\{X \in B\} = X^{-1}(B) = \{s \in S: X(s) \in B\} \in \salg$
 \end{itemize}
 
 \vskip 1em
-\structure{Operations with measures:}
+$(U, \mathscr{U})$ yet another measurable space
+
+\vskip 0.5em
+\structure{Random variable $Y = g(X)$ with measureable func $g: T \to U$}
 \begin{itemize}
-\item assume $(R, \mathscr{R}) \subset (S, \salg)$ then $\mu$ restricted to $\mathscr{R}$ is measure on $(R, \mathscr{R})$
-\item measure space $(S, \salg, \mu)$
- func $f: S \to T$ and measure $\nu$ on $(T, \mathscr{T})$ $\Rightarrow$ \alert{pullback measure} $\mu$ on $(S, \salg)$ defined as $\mu(A) = \nu(f(A))$ for $A \in \salg$
-\item if $\mu$ is positive measure on $(S, \salg)$ then $c\mu$ for $c \in (0, \infty)$ is also positive measure on $(S, \salg)$
-\item ha
+\item for outcome $s \in S$, $Y$ takes value $y = g(x) = g(X(s)) \in U$ - realization of r.v. $Y$ 
+\item pre-image of $C \in U$: $\{Y \in C\} = \{s \in S: X(s) \in g^{-1}(C)\} \in \salg$
 \end{itemize}
 
-
-  
 \end{frame}
+
+\note[enumerate]{
+\item Here S is still the event set in the sense of abstract outcomes of experiments.
+}
+
+\begin{frame}{Probability distribution of random variable}
+
+\begin{center}
+$(S, \salg, \mP)$, $(T, \mathscr{T}, P_X)$, $(U, \mathscr{U}, P_Y)$
+
+\vskip 0.5em
+\scalebox{0.8}{
+\begin{tikzpicture}[>=Stealth]
+% ===========================================================
+% LEFT: domain S with mesh and rectangular f^{-1}(B)
+% ===========================================================
+\begin{scope}[shift={(-5,0)}]
+    \node at (0,2) {$S$};
+    % Mesh (vertical)
+    \foreach \x in {-1.5,-1,...,1}
+        \draw[gray!70] (\x,-2) -- (\x,2);
+    % Mesh (horizontal)
+    \foreach \y in {-1.5,-1,...,1.5}
+        \draw[gray!70] (-2,\y) -- (1.5,\y);
+    % Preimage region f^{-1}(B): ALIGNED WITH GRID
+    % Rectangle from x = -1 to 0, y = -1 to 1
+    \fill[blue!25,opacity=0.5] (-1,-1) rectangle (0,1);
+    \draw[blue!60,thick] (-1,-1) rectangle (0,1);
+    \node[blue!80] at (-0.5,0) {$X^{-1}(B)$};
+\end{scope}
+% ===========================================================
+% Middle arrow: f
+% ===========================================================
+\draw[->,thick] (-3,0) -- (-1,0) node[midway,above] {$X: S \to T$} node[midway,below] {$x = X(s)$};
+
+% \node at (-2,-1.5) {\color{carnelian}$\mP(X \in B) = P_X(B) = P_Y(C)$};
+% ===========================================================
+% RIGHT: codomain Y with warped mesh + EXACT image B
+% ===========================================================
+\begin{scope}[shift={(1,0)}]
+    \node at (0,2) {$T$};
+    % --- Warping function (same everywhere):
+    %   x' = 0.9*x + 0.5*sin(y)
+    %   y' = y + 0.5*sin(x)
+    % The mesh AND the boundary of B use this same warp.
+    % Warped vertical mesh lines
+    \foreach \x in {-1.5,-1,...,1}
+    \draw[gray!70,domain=-2:2,smooth,variable=\t]
+        plot ({0.9*\x + 0.5*sin(\t r)}, {\t + 0.5*sin(\x r)});
+    % Warped horizontal mesh lines
+    \foreach \y in {-1.5,-1,...,1.5}
+    \draw[gray!70,domain=-2:1.5,smooth,variable=\t]
+        plot ({0.9*\t + 0.5*sin(\y r)}, {\y + 0.5*sin(\t r)});
+    % ===========================================================
+    % Image region B: the warped image of the rectangle
+    % 
+    % This region is *exactly* bounded by the four warped grid lines:
+    %   x = -1, x = 0, y = -1, y = 1
+    % ===========================================================
+
+    % Path for B: traverse boundaries in order:
+    %   bottom: y = -1, x ∈ [-1,0]
+    %   right side: x = 0, y ∈ [-1,1]
+    %   top: y = 1, x ∈ [0,-1]
+    %   left side: x = -1, y ∈ [1,-1]
+    \begin{scope}
+        \fill[blue!25,opacity=0.5]
+            % bottom edge: y = -1
+            plot[domain=-1:0,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(-1 r)}, {-1 + 0.5*sin(\x r)})
+            % right edge: x = 0
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0.9*0 + 0.5*sin(\y r)}, {\y + 0.5*sin(0 r)})
+            % top edge: y = 1
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(1 r)}, {1 + 0.5*sin(\x r)})
+            % left edge: x = -1
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({0.9*(-1) + 0.5*sin(\y r)}, {\y + 0.5*sin(-1 r)})
+            -- cycle;
+        \draw[blue!60,thick]
+            % bottom edge
+            plot[domain=-1:0,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(-1 r)}, {-1 + 0.5*sin(\x r)})
+            % right
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0.9*0 + 0.5*sin(\y r)}, {\y + 0.5*sin(0 r)})
+            % top
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(1 r)}, {1 + 0.5*sin(\x r)})
+            % left
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({0.9*(-1) + 0.5*sin(\y r)}, {\y + 0.5*sin(-1 r)})
+            -- cycle;
+        \node[blue!80] at (-0.4,-0.1) {$B$};
+    \end{scope}
+\end{scope}
+
+% Arrow Y -> U
+\draw[->,thick] (2.4,0) -- (3.7,0) node[midway,above] {$g : T \to U$} node[midway,below] {$ y = g(x)$};
+
+% ------------------------
+% RIGHT: U space (second warping)
+% ------------------------
+\begin{scope}[shift={(6,0)}]
+    \node at (-1.2,2) {$U$};
+
+    % Warped U-grid: g(x,y) = (x + 0.3*sin(y), y + 0.2*cos(x))
+    \foreach \x in {-1.5,-1,...,1}
+        \draw[gray!70,domain=-2:2,smooth,variable=\t]
+            plot ({\x - 0.5*sin(\t r)}, {\t + 0.5*cos(\x r)});
+    \foreach \y in {-1.5,-1,...,1.5}
+        \draw[gray!70,domain=-2:1.5,smooth,variable=\t]
+            plot ({\t - 0.5*sin(\y r)}, {\y + 0.5*cos(\t r)});
+    \begin{scope}
+        \fill[blue!25,opacity=0.5]
+            % bottom edge: y = -1
+            plot[domain=-1:0,smooth,variable=\x]
+                ({\x - 0.5*sin(-1 r)}, {-1 + 0.5*cos(\x r)})
+            % right edge: x = 0
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0 - 0.5*sin(\y r)}, {\y + 0.5*cos(0 r)})
+            % top edge: y = 1
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({\x - 0.5*sin(1 r)}, {1 + 0.5*cos(\x r)})
+            % left edge: x = -1
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({-1 - 0.5*sin(\y r)}, {\y + 0.5*cos(-1 r)})
+            -- cycle;
+        \draw[blue!60,thick]
+            % bottom edge
+            plot[domain=-1:0,smooth,variable=\x]
+                ({\x - 0.5*sin(-1 r)}, {-1 + 0.5*cos(\x r)})
+            % right
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0 - 0.5*sin(\y r)}, {\y + 0.5*cos(0 r)})
+            % top
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({\x - 0.5*sin(1 r)}, {1 + 0.5*cos(\x r)})
+            % left
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({-1 - 0.5*sin(\y r)}, {\y + 0.5*cos(-1 r)})
+            -- cycle;
+        \node[blue!80] at (-0.4,0.2) {$C = g(B)$};
+    \end{scope}
+\end{scope}
+\end{tikzpicture}
+}
+\end{center}
+
+\alert{push forward} of $\mP$ by $X$: $P_X(B) = \mP(X \in B) = \mP(\{s \in S: X(s) \in B\})$ \\
+\alert{push forward} of $P_X$ by $g$: $P_Y(C) = \mP(Y \in C) = \mP(\{s \in S: g(X(s)) \in C\}) = \mP(X \in B) = P_X(B)$ \\
+\alert{pull back} of $P_Y$ by $g$: $P_X(B) = P_Y(\{u \in U: g^{1}(u) \in B\})$
+
+
+\vskip 1em
+\structure{Note:} R.v. directly as results of experiment $\Rightarrow$ prob. space $(\Omega, \mathscr{F}, \mP)$ (common notation)
+
+
+\end{frame}
+
 
 % \input{prob}
 
