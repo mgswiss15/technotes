@@ -43,14 +43,13 @@
 
 \begin{frame}{Interlude: integration with respect to a measure}
 
-\structure{What you know - Riemann integration:}
+\structure{Why we need this:} to connect measures with densities (functions)
+
+\vskip 1em
+\structure{Riemann integration (what you know):}
 \[
-\int_a^b f(x) \, dx = \text{area under curve from } a \text{ to } b
+\int_a^b f(x) \, dx = \text{area under curve}
 \]
-\begin{itemize}
-\item integrate over interval $[a,b]$
-\item $dx$ is infinitesimal length element
-\end{itemize}
 
 \vskip 1em
 \structure{Generalization - integration w.r.t. measure $\mu$:}
@@ -58,13 +57,12 @@
 \int_A f \, d\mu
 \]
 \begin{itemize}
-\item $A$ - any measurable set (not just intervals)
-\item $\mu$ - measure that "weighs" different parts of space
-\item $d\mu$ - infinitesimal measure element
+\item $A$ - any measurable set
+\item $\mu$ - measure (weighs different parts of space)
 \end{itemize}
 
 \vskip 1em
-\structure{Intuition:} sum up $f$ weighted by measure $\mu$ over set $A$
+\structure{Intuition:} weighted sum of $f$ over set $A$, weighted by measure $\mu$
 
 \end{frame}
 
@@ -78,30 +76,28 @@
 
 \begin{frame}{Interlude: Lebesgue measure and notation}
 
-\structure{Lebesgue measure $\lambda$ on $\mR^d$ - generalizes length/area/volume}
-
-\vskip 0.5em
-For interval $I = [a,b]$ in $\mR$: $\lambda(I) = b - a$ (length)\\
-For set $A \subseteq \mR^d$: $\lambda(A) = $ volume of $A$
-
-\vskip 1em
-\structure{Integration w.r.t. Lebesgue measure:}
-\[
-\int_A f \, d\lambda = \int_A f(x) \, dx \quad \text{(familiar notation!)}
-\]
+\structure{Lebesgue measure $\lambda$ on $\mR^d$}
 \begin{itemize}
-\item $d\lambda = dx$ is the volume element
-\item recovers familiar integration notation
+\item generalizes length/area/volume
+\item $\lambda([a,b]) = b - a$ (length), $\lambda(A) = $ volume of $A$
+\item integration: $\int_A f \, d\lambda = \int_A f(x) \, dx$ (familiar!)
 \end{itemize}
 
 \vskip 1em
-\structure{Notation variants (all equivalent):}
-\[
-\int_A f \, d\mu = \int_A f(x) \, \mu(dx) = \int_A f(x) \, d\mu(x)
-\]
+\structure{Counting measure $\#$ on discrete/countable sets}
+\begin{itemize}
+\item $\#(A) = $ number of elements in $A$
+\item integration: $\int_A f \, d\# = \sum_{x \in A} f(x)$ (discrete sum!)
+\end{itemize}
 
-\vskip 0.5em
-\alert{This generalizes integration to work with any measure, not just volume}
+\vskip 1em
+\structure{Key insight:} \alert{integral notation unifies discrete and continuous}
+\[
+\int_A f \, d\mu \quad \begin{cases} 
+= \int_A f(x) \, dx & \text{continuous (Lebesgue)} \\
+= \sum_{x \in A} f(x) & \text{discrete (counting)}
+\end{cases}
+\]
 
 \end{frame}
 
@@ -111,9 +107,9 @@ For set $A \subseteq \mR^d$: $\lambda(A) = $ volume of $A$
 \item For nice functions on nice sets: Riemann = Lebesgue integration
 \item But Lebesgue integration works for much wider class of functions and sets
 \item The notation $dx$ is shorthand for $d\lambda(x)$ (Lebesgue measure)
-\item Example with counting measure: $\int_A f \, d\# = \sum_{x \in A} f(x)$ (discrete sum becomes integral!)
-\item Example with probability: $\int_{\mR^d} f \, dP_X = E[f(X)]$ (expectation as integral)
-\item This framework unifies discrete and continuous cases
+\item Counting measure: discrete sums become integrals!
+\item Example with probability: $\int_{\mR^d} f \, dP_X = E[f(X)]$ works for both discrete and continuous X
+\item This framework unifies discrete and continuous cases - no need for separate notation
 }
 
 \begin{frame}{Probability measure - the fundamental object}
