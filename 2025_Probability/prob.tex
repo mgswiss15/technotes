@@ -1,16 +1,15 @@
 \section{Probability space definition}
 \begin{frame}{Probability space}
 
-\structure{Probability space $(S, \salg, \mP)$:}
+\structure{$(S, \salg, \mP)$:}
 \begin{itemize}
-  \item measurable space $(S, \salg)$
+  \item measurable space $(S, \salg)$ 
   \begin{itemize}
-    \item $S$ - sample space
-    \item $\salg$ - $\sigma$-algebra on $S$ - collection of subsets
+    \item $S$ - sample space of possible outcomes of random experiment
+    \item $\salg$ - $\sigma$-algebra on $S$ - collection of subsets of $S$ called events
   \end{itemize}
-  \item probability measure $\mP$ - real-valued function on sample space $(S, \salg)$ s.t.:
+  \item probability measure $\mP$ - function $\mP: \salg \to [0, 1]$ 
   \begin{itemize}
-    \item non-negativity: $\mP(A) \geq 0$ for all $A \in \salg$
     \item countable additivity: countable disjoint $\{A_i: i \in I\} \in \salg \Rightarrow \mP\left( \bigcup_{i \in I} A_i \right) = \sum_{i \in I} \mP(A_i)$
     \item \alert{normalization: $\mP(S) = 1$}
   \end{itemize}
