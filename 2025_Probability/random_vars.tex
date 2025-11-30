@@ -109,34 +109,26 @@ P_X(B) = \mP(X \in B) = \mP(\{s \in S: X(s) \in B\}), \quad B \in \mathscr{T}
 
 \begin{frame}{Working directly with distributions}
 
-\structure{Two perspectives:}
+\structure{Two perspectives on probability:}
 
-\vskip 0.5em
+\vskip 1em
 \structure{Formal perspective:}
 \begin{itemize}
 \item start with abstract probability space $(S, \salg, \mP)$
 \item define random variable $X: S \to T$
-\item derive distribution $P_X$ on $T$
+\item derive distribution $P_X$ on value space $T$
 \end{itemize}
 
 \vskip 1em
-\structure{Practical perspective:}
+\structure{Practical perspective (what we actually do):}
 \begin{itemize}
-\item \alert{directly specify probability measure $P_X$ on value space $T$}
-\item $(S, \salg, \mP)$ is implicit background (often $S = T$, $X = $ identity)
-\item work entirely with $P_X$
+\item \alert{directly specify distribution $P_X$ on value space $T$}
+\item $(S, \salg, \mP)$ is implicit, often $S = T$ and $X = $ identity
+\item notation: "$X \sim \mathcal{N}(0, I)$" directly defines Gaussian on $\mR^d$
 \end{itemize}
 
 \vskip 1em
-\structure{Examples of direct specification:}
-\begin{itemize}
-\item "$X \sim \mathcal{N}(0, I)$" - directly defines Gaussian measure on $\mR^d$
-\item "$z \sim p_{\text{prior}}$" - directly defines prior distribution on latent space
-\item "$x \sim p_{\text{data}}$" - empirical data distribution
-\end{itemize}
-
-\vskip 0.5em
-\alert{From now on: we work with distributions on value spaces}
+\alert{From now on: we work with distributions on value spaces $T = \mR^d$}
 
 \end{frame}
 
@@ -146,7 +138,7 @@ P_X(B) = \mP(X \in B) = \mP(\{s \in S: X(s) \in B\}), \quad B \in \mathscr{T}
 \item Abstract probability space is formal machinery, but not where we actually work
 \item In generative modeling: we always work directly with distributions on $\mR^d$
 \item The triplet $(\Omega, \mathscr{F}, \mP)$ is rarely mentioned in ML papers
-\item Instead: "sample $z$ from prior", "sample $x$ from data distribution"
-\item This is legitimate - we're working with the push-forward measures directly
-\item Next: we'll see there are multiple ways to represent these distributions
+\item Examples: "$z \sim p_{\text{prior}}$", "$x \sim p_{\text{data}}$" - these directly specify distributions
+\item We're working with push-forward measures, but we specify them directly
+\item Next section: we'll see different ways to represent these distributions (measure, CDF, density)
 }
