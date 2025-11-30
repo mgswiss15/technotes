@@ -65,11 +65,13 @@
 
 \note[enumerate]
 {
-\item Probability measure is just a normalized measure
+\item Probability measure is just a normalized measure - total mass equals 1
 \item The abstract probability space $(S, \salg, \mP)$ is often denoted $(\Omega, \mathscr{F}, \mP)$ in literature
-\item Events are sets $A \in \salg$ to which we can assign probabilities
-\item This level of abstraction allows separation between sample space and value space
-\item But as we'll see, we usually bypass this and work directly with distributions on value spaces
+\item Random experiment: think coin flip, dice roll, or any random process
+\item Outcome $s \in S$: specific result of the experiment (e.g., "heads", or specific image)
+\item Event $A \in \salg$: set of outcomes we're interested in (e.g., "at least 2 heads in 3 flips")
+\item This level of abstraction separates the experiment from what we measure
+\item But as we'll see next, we usually work with random variables that map outcomes to values we care about
 }
 
 \begin{frame}{Relationship: measures and probability}
