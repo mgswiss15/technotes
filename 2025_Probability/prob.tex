@@ -91,7 +91,7 @@ $\nu(B) = \mu(f^{-1}(B)), \quad B \in \mathscr{T}$
 % LEFT: domain S with mesh and rectangular f^{-1}(B)
 % ===========================================================
 \begin{scope}[shift={(-5,0)}]
-    \node at (0,2) {$S$};
+    \node at (-1,2) {$S$};
     % Mesh (vertical)
     \foreach \x in {-1.5,-1,...,1}
         \draw[gray!70] (\x,-2) -- (\x,2);
@@ -404,3 +404,42 @@ $(S, \salg, \mP)$, $(T, \mathscr{T}, P_X)$, $(U, \mathscr{U}, P_Y)$
 \item In probability space the almoste everywhere (a.e.) is equivalent to almost surely (a.s.) with respect to the probability measure $\mP$.
 \item The collection of essentially deterministic events $\mathcal{D}$ is a sub $\sigma$-algebra of $\mathscr{S}$.
 }
+
+
+
+% % Img 1
+% \begin{scope}[shift={(-15,0)}]
+%     \node at (-1,2) {$S$};
+%     % Mesh (vertical)
+%     \foreach \x in {-1.5,-1,...,1}
+%         \draw[gray!70] (\x,-2) -- (\x,2);
+%     % Mesh (horizontal)
+%     \foreach \y in {-1.5,-1,...,1.5}
+%         \draw[gray!70] (-2,\y) -- (1.5,\y);
+%     % Preimage region f^{-1}(B): ALIGNED WITH GRID
+%     % Rectangle from x = -1 to 0, y = -1 to 1
+%     \fill[blue!25,opacity=0.5] (-1,-1) rectangle (0,1);
+%     \draw[blue!60,thick] (-1,-1) rectangle (0,1);
+%     \node[blue!80] at (-0.5,0) {$f^{-1}(B)$};
+% \end{scope}
+% \begin{scope}[shift={(-13.5,0)}]
+% \draw[->,thick] (0,0.5) -- (2,0.5) node[midway,above] {$f: S \to T$};
+% \draw[<-,thick] (0,-0.5) -- (2,-0.5) node[midway,above] {$f^{-1}: T \to S$};
+% \node at (1,-1.5) {\color{carnelian}$\mu(f^{-1}(B)) = \nu(B)$};
+% \end{scope}
+% \begin{scope}[shift={(-10,0)}]
+%     \node at (-1,2) {$S$};
+%     % Mesh (vertical)
+%     \foreach \x in {-1.5,-0.5,...,1.5}
+%         \draw[gray!70] (\x,-2) -- (\x,2);
+%     % Mesh (horizontal)
+%     \foreach \y in {-1.5,-1,...,1.5}
+%         \draw[gray!70] (-2,\y) -- (1.5,\y);
+%     % Preimage region f^{-1}(B): ALIGNED WITH GRID
+%     % Rectangle from x = -1 to 0, y = -1 to 1
+%     \fill[blue!25,opacity=0.5] (-0.5,-1) rectangle (1.5,1);
+%     \draw[blue!60,thick] (-0.5,-1) rectangle (1.5,1);
+%     \node[blue!80] at (-0.5,0) {$f^{-1}(B)$};
+% \end{scope}
+
+% % Img 2
