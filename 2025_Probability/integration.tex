@@ -1,0 +1,280 @@
+\section{Integration with respect to measures}
+
+\begin{frame}{Measurable functions}
+
+\structure{Measure space $(S, \salg, \mu)$, measurable space $(T, \mathscr{T})$}
+
+\vskip 0.5em
+\structure{Measurable function $f: S \to T$}
+\begin{itemize}
+  \item for any $B \in \mathscr{T}$, the pre-image $f^{-1}(B) \in \salg$
+  \item continuous functions are measurable
+\end{itemize}
+
+\vskip 1em
+\structure{Real-valued measurable functions $f: S \to \mathbb{R}$}
+\begin{itemize}
+  \item $\{f \leq a\} = \{s \in S: f(s) \leq a\} \in \salg$ for all $a \in \mathbb{R}$
+  \item equivalently: $\{f < a\}$, $\{f \geq a\}$, $\{f > a\}$, $\{f = a\}$ all in $\salg$
+  \item operations: if $f, g$ measurable, then $f + g$, $fg$, $\max(f,g)$, $\min(f,g)$ measurable
+  \item limits: if $f_n$ measurable for all $n$, then $\sup_n f_n$, $\inf_n f_n$, $\limsup_n f_n$, $\liminf_n f_n$ measurable
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]{
+\item A function $f: S \to \mathbb{R}$ is measurable if the pre-image of any Borel set is in $\salg$.
+\item For real-valued functions, it suffices to check that $\{f \leq a\} \in \salg$ for all $a \in \mathbb{R}$.
+\item The class of measurable functions is closed under pointwise limits, which is crucial for integration theory.
+\item Measurability is preserved under algebraic operations and pointwise limits.
+}
+
+\begin{frame}{Simple functions}
+
+\structure{Simple function - measurable function taking finitely many values}
+
+\vskip 0.5em
+For measure space $(S, \salg, \mu)$, simple function $\phi: S \to \mathbb{R}$:
+$$\phi(s) = \sum_{i=1}^{n} a_i \mathbf{1}_{A_i}(s), \quad a_i \in \mathbb{R}, \, A_i \in \salg$$
+
+where $\mathbf{1}_{A}(s) = \begin{cases} 1 & \text{if } s \in A \\ 0 & \text{if } s \notin A \end{cases}$ is the \alert{indicator function}
+
+\vskip 1em
+\structure{Properties:}
+\begin{itemize}
+  \item $A_i$ are disjoint: $A_i \cap A_j = \emptyset$ for $i \neq j$
+  \item $\bigcup_{i=1}^{n} A_i = S$ (can always be arranged by adding zero terms)
+  \item any non-negative measurable function can be approximated by simple functions
+\end{itemize}
+
+\vskip 1em
+\structure{Standard form:} $\phi = \sum_{i=1}^{n} a_i \mathbf{1}_{A_i}$ with distinct $a_i$ and disjoint $A_i$
+
+\end{frame}
+
+\note[enumerate]{
+\item Simple functions are the building blocks of integration theory.
+\item The indicator function $\mathbf{1}_A$ is also called the characteristic function of $A$.
+\item Any simple function can be written in standard form where all $a_i$ are distinct and the sets $A_i$ partition $S$.
+\item The approximation of measurable functions by simple functions is fundamental - it allows us to define integration for general measurable functions.
+}
+
+\begin{frame}{Integration of simple functions}
+
+\structure{Measure space $(S, \salg, \mu)$, simple function $\phi = \sum_{i=1}^{n} a_i \mathbf{1}_{A_i}$}
+
+\vskip 1em
+\structure{Integral of $\phi$ with respect to $\mu$:}
+$$\int_S \phi \, d\mu = \sum_{i=1}^{n} a_i \mu(A_i)$$
+
+\vskip 1em
+\structure{Properties:}
+\begin{itemize}
+  \item \alert{linearity}: for $\alpha, \beta \in \mathbb{R}$, $\int (\alpha \phi + \beta \psi) d\mu = \alpha \int \phi d\mu + \beta \int \psi d\mu$
+  \item \alert{monotonicity}: if $\phi \leq \psi$, then $\int \phi d\mu \leq \int \psi d\mu$
+  \item \alert{positivity}: if $\phi \geq 0$, then $\int \phi d\mu \geq 0$
+  \item for $A \in \salg$: $\int_A \phi d\mu = \int_S \phi \mathbf{1}_A d\mu = \sum_{i=1}^{n} a_i \mu(A_i \cap A)$
+\end{itemize}
+
+\vskip 0.5em
+\structure{Note:} definition well-defined (independent of representation of $\phi$)
+
+\end{frame}
+
+\note[enumerate]{
+\item The integral of a simple function is defined as a weighted sum of the measures of the sets where the function takes constant values.
+\item The definition is well-defined because if we write the same simple function in different ways, we get the same integral value.
+\item These properties (linearity, monotonicity, positivity) are fundamental and will extend to general measurable functions.
+\item The notation $\int_A \phi d\mu$ means we integrate $\phi$ over the subset $A$.
+}
+
+\begin{frame}{Integration of non-negative measurable functions}
+
+\structure{Measure space $(S, \salg, \mu)$, non-negative measurable $f: S \to [0, \infty]$}
+
+\vskip 1em
+\structure{Lebesgue integral of $f$:}
+$$\int_S f \, d\mu = \sup \left\{ \int_S \phi \, d\mu : \phi \text{ simple}, \, 0 \leq \phi \leq f \right\}$$
+
+\vskip 0.5em
+approximation from below by simple functions
+
+\vskip 1em
+\structure{Properties (inherited from simple functions):}
+\begin{itemize}
+  \item \alert{linearity}: for $\alpha, \beta \geq 0$, $\int (\alpha f + \beta g) d\mu = \alpha \int f d\mu + \beta \int g d\mu$
+  \item \alert{monotonicity}: if $f \leq g$, then $\int f d\mu \leq \int g d\mu$
+  \item \alert{positivity}: $\int f d\mu \geq 0$
+  \item if $f = 0$ a.e., then $\int f d\mu = 0$
+\end{itemize}
+
+\vskip 0.5em
+\structure{Note:} $\int f d\mu$ may be $+\infty$
+
+\end{frame}
+
+\note[enumerate]{
+\item The Lebesgue integral extends the integral from simple functions to all non-negative measurable functions by taking the supremum over all simple function approximations from below.
+\item This definition ensures that if $f$ itself is a simple function, we recover the previous definition.
+\item The integral can be infinite, which is allowed in measure theory.
+\item The almost everywhere property is crucial: functions that differ only on a null set have the same integral.
+\item For non-negative functions, linearity holds for non-negative scalars.
+}
+
+\begin{frame}{Integration of general measurable functions}
+
+\structure{Measure space $(S, \salg, \mu)$, measurable $f: S \to \mathbb{R}$}
+
+\vskip 1em
+\structure{Positive and negative parts:}
+$$f^+(s) = \max(f(s), 0), \quad f^-(s) = \max(-f(s), 0)$$
+
+Properties: $f^+, f^- \geq 0$ measurable, $f = f^+ - f^-$, $|f| = f^+ + f^-$
+
+\vskip 1em
+\structure{Integrable function - $f$ s.t. $\int |f| d\mu < \infty$}
+
+\vskip 0.5em
+\structure{Integral of integrable $f$:}
+$$\int_S f \, d\mu = \int_S f^+ \, d\mu - \int_S f^- \, d\mu$$
+
+both integrals finite $\Rightarrow$ difference well-defined
+
+\vskip 1em
+\structure{Space of integrable functions:} $L^1(S, \salg, \mu) = \{f: S \to \mathbb{R} \text{ measurable}, \, \int |f| d\mu < \infty\}$
+
+\end{frame}
+
+\note[enumerate]{
+\item Any real-valued function can be decomposed into positive and negative parts.
+\item This decomposition is unique and both parts are non-negative measurable functions.
+\item A function is integrable if the integral of its absolute value is finite.
+\item The space $L^1$ is a vector space with the integral as a linear functional.
+\item Functions that differ on a null set are identified in $L^1$ (equivalence classes).
+}
+
+\begin{frame}{Properties of the Lebesgue integral}
+
+\structure{Measure space $(S, \salg, \mu)$, integrable functions $f, g \in L^1(S, \salg, \mu)$}
+
+\vskip 1em
+\structure{Linearity:}
+$$\int_S (\alpha f + \beta g) \, d\mu = \alpha \int_S f \, d\mu + \beta \int_S g \, d\mu, \quad \alpha, \beta \in \mathbb{R}$$
+
+\vskip 0.5em
+\structure{Monotonicity:} if $f \leq g$ a.e., then $\int f d\mu \leq \int g d\mu$
+
+\vskip 0.5em
+\structure{Triangle inequality:}
+$$\left| \int_S f \, d\mu \right| \leq \int_S |f| \, d\mu$$
+
+\vskip 0.5em
+\structure{Additivity over domains:} for disjoint $A, B \in \salg$,
+$$\int_{A \cup B} f \, d\mu = \int_A f \, d\mu + \int_B f \, d\mu$$
+
+\end{frame}
+
+\note[enumerate]{
+\item Linearity is the most fundamental property - the integral is a linear functional on $L^1$.
+\item Monotonicity allows us to compare integrals by comparing functions pointwise.
+\item The triangle inequality is crucial for many estimates in analysis.
+\item Domain additivity follows from the additivity of measures.
+\item These properties make the Lebesgue integral a powerful tool for analysis.
+}
+
+\begin{frame}{Expectation as integral}
+
+\structure{Probability space $(S, \salg, \mP)$, random variable $X: S \to \mathbb{R}$}
+
+\vskip 1em
+\structure{Expectation of $X$:}
+$$\mathbb{E}[X] = \int_S X \, d\mP = \int_S X(s) \, \mP(ds)$$
+
+if $X \in L^1(S, \salg, \mP)$, i.e., $\mathbb{E}[|X|] < \infty$
+
+\vskip 1em
+\structure{Alternative formulation via distribution $P_X$:}
+$$\mathbb{E}[X] = \int_{\mathbb{R}} x \, P_X(dx)$$
+
+push-forward: integrate over the range space with distribution measure
+
+\vskip 1em
+\structure{Properties:}
+\begin{itemize}
+  \item $\mathbb{E}[\alpha X + \beta Y] = \alpha \mathbb{E}[X] + \beta \mathbb{E}[Y]$ (linearity)
+  \item if $X \leq Y$ a.s., then $\mathbb{E}[X] \leq \mathbb{E}[Y]$ (monotonicity)
+  \item $|\mathbb{E}[X]| \leq \mathbb{E}[|X|]$ (triangle inequality)
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]{
+\item Expectation is simply the integral of a random variable with respect to the probability measure.
+\item The notation $\mP(ds)$ emphasizes that we are integrating with respect to the measure $\mP$.
+\item The alternative formulation using the distribution $P_X$ is often more practical for calculations.
+\item All properties of the Lebesgue integral immediately apply to expectation.
+\item A random variable is integrable if and only if its expectation is finite.
+}
+
+\begin{frame}{Comparison: Riemann vs Lebesgue integral}
+
+\structure{Riemann integral} (partition domain into intervals)
+\begin{itemize}
+  \item approximate function by step functions based on domain partition
+  \item sum: $\sum f(x_i^*) \Delta x_i$ where $x_i^*$ in $i$-th interval of width $\Delta x_i$
+  \item limit as partition gets finer
+  \item works for continuous functions and some discontinuous ones
+\end{itemize}
+
+\vskip 1em
+\structure{Lebesgue integral} (partition range into levels)
+\begin{itemize}
+  \item approximate function by simple functions based on range partition
+  \item sum: $\sum a_i \mu(\{s: f(s) \approx a_i\})$ where $a_i$ are values in range
+  \item supremum over all simple function approximations
+  \item works for all measurable functions
+\end{itemize}
+
+\vskip 1em
+\structure{Relation:} Riemann integrable $\Rightarrow$ Lebesgue integrable with same value\\
+\alert{But:} many Lebesgue integrable functions not Riemann integrable
+
+\end{frame}
+
+\note[enumerate]{
+\item The key difference: Riemann partitions the domain (x-axis), Lebesgue partitions the range (y-axis).
+\item Lebesgue's approach is more flexible and powerful, especially for limit theorems.
+\item Example of Lebesgue but not Riemann integrable: indicator function of rationals in $[0,1]$.
+\item For "nice" functions (continuous, piecewise continuous), both integrals coincide.
+\item Lebesgue integration is essential for modern probability theory and functional analysis.
+\item The Lebesgue integral has much better behavior under limits (see convergence theorems).
+}
+
+\begin{frame}{Example: discrete probability space}
+
+\structure{Countable sample space $S = \{s_1, s_2, \ldots\}$, probability $\mP(\{s_i\}) = p_i$}
+
+\vskip 1em
+\structure{Random variable $X: S \to \mathbb{R}$, $X(s_i) = x_i$}
+
+\vskip 1em
+\structure{Expectation:}
+$$\mathbb{E}[X] = \int_S X \, d\mP = \sum_{i=1}^{\infty} x_i p_i$$
+
+\vskip 0.5em
+if $\sum_{i=1}^{\infty} |x_i| p_i < \infty$ (absolute convergence)
+
+\vskip 1em
+\structure{Note:} 
+\begin{itemize}
+  \item counting measure: $\#(\{s_i\}) = 1$
+  \item $\mP = \sum_{i} p_i \delta_{s_i}$ (sum of Dirac measures)
+  \item integral reduces to weighted sum
+\end{itemize}
+
+\end{frame}
+
+% \note[enumerate]{
+% \item For discrete probability spaces, the Lebesgue integral reduces to the familiar weighted sum.
+% \item The condition $\sum |x_i| p_i < \infty$ is necessary for the expectation to be well-defined.
+% \item This shows that the Lebesgue integral generalizes the discrete}
