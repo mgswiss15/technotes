@@ -5,26 +5,22 @@
 \begin{itemize}
   \item $(S, \salg, \mP)$ - probability space (random experiment)
   \item $(T, \mathscr{T})$ - measurable space (value space, e.g., $\mR^d$)
-  \item $X$ - measurable function from $S$ to $T$
-  \begin{itemize}
-    \item for each outcome $s \in S$, $X(s) \in T$ is the observed value
-    \item measurable: $X^{-1}(B) \in \salg$ for all $B \in \mathscr{T}$
-  \end{itemize}
+  \item $X$ - measurable function: $X^{-1}(B) \in \salg$ for all $B \in \mathscr{T}$
 \end{itemize}
 
 \vskip 1em
 \structure{Interpretation:}
 \begin{itemize}
 \item random experiment produces outcome $s \in S$
-\item we observe value $x = X(s) \in T$
+\item we observe value $x = X(s) \in T$ - called \alert{realization} of $X$
 \item $X$ maps abstract outcomes to concrete values we care about
 \end{itemize}
 
 \vskip 1em
-\structure{Example:} roll two dice
+\structure{Notation convention:}
 \begin{itemize}
-\item $S = \{(1,1), (1,2), \ldots, (6,6)\}$ - all possible outcomes
-\item $X(s_1, s_2) = s_1 + s_2$ - sum of dice (values in $T = \{2, 3, \ldots, 12\}$)
+\item $X$ - random variable (the function itself)
+\item $x$ - realization (a specific value in $T$)
 \end{itemize}
 
 \end{frame}
@@ -35,8 +31,45 @@
 \item For continuous functions between nice spaces (e.g., $\mR^d$ with Borel sets), measurability is automatic
 \item The value space $T$ is what we actually care about - numbers, vectors, images, etc.
 \item Abstract sample space $S$ is often just formal device
-\item Example: we care about sum of dice, not which specific dice show which face
 \item In deep learning: we care about generated image $x$, not the random seed that produced it
+\item Capital letter = random variable (random), lowercase = realization (fixed value)
+}
+
+\begin{frame}{Example: dice sum}
+
+\structure{Roll two dice and sum them}
+
+\vskip 0.5em
+\structure{Setup:}
+\begin{itemize}
+\item sample space: $S = \{(1,1), (1,2), \ldots, (6,6)\}$ (36 outcomes)
+\item probability: $\mP(\{(i,j)\}) = \frac{1}{36}$ for each outcome
+\item random variable: $X(s_1, s_2) = s_1 + s_2$
+\item value space: $T = \{2, 3, 4, \ldots, 12\}$
+\end{itemize}
+
+\vskip 1em
+\structure{Realization:}
+\begin{itemize}
+\item if experiment gives $(3, 5) \in S$, then $x = X(3,5) = 8$
+\item $x = 8$ is a realization of random variable $X$
+\end{itemize}
+
+\vskip 1em
+\structure{Key point:}
+\begin{itemize}
+\item we care about the sum (value in $T$), not which dice showed what (outcome in $S$)
+\item this motivates working with distribution on $T$ directly
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Concrete example to ground the abstraction
+\item Note: multiple outcomes in $S$ can give same value in $T$ (e.g., (2,6) and (3,5) both give sum 8)
+\item This is why we need the distribution $P_X$ on $T$ - it aggregates probabilities
+\item Example: $P_X(\{7\}) = \frac{6}{36}$ because 6 outcomes map to sum of 7
 }
 
 \begin{frame}{Distribution of random variable}
