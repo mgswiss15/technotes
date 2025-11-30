@@ -193,60 +193,94 @@ p_X = \frac{dP_X}{d\lambda}
 where $\lambda$ is Lebesgue measure (volume)
 
 \vskip 1em
-\structure{What this means:}
-\begin{itemize}
-\item notation: $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
-\item Lebesgue measure is "weighted" by $p_X$ to give $P_X$
-\item for any set $A$: $P_X(A) = \int_A p_X \, d\lambda = \int_A p_X(x) \, dx$
-\end{itemize}
+\structure{Defining property:} for any set $A$,
+\[
+P_X(A) = \int_A p_X \, d\lambda = \int_A p_X(x) \, dx
+\]
 
 \vskip 1em
-\structure{Key distinction:}
-\begin{itemize}
-\item density $p_X(x)$ can be evaluated at a point
-\item but probability $P_X(\{x\}) = 0$ (single points have zero probability)
-\end{itemize}
+\structure{Notation:} $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
 
 \vskip 0.5em
-\alert{Density is NOT probability - it can be $> 1$!}
+Lebesgue measure is "weighted" by $p_X$ to give $P_X$
 
 \end{frame}
 
 \note[enumerate]
 {
 \item Radon-Nikodym derivative: formal way to define density as derivative of one measure w.r.t. another
-\item The notation $dP_X = p_X \, d\lambda$ means: infinitesimal probability = density times infinitesimal volume
+\item The defining property says: if we integrate the density, we get the probability measure
 \item This is analogous to: $df = f'(x) dx$ in calculus
-\item Key distinction: $p_X(x)$ exists and can be evaluated, but $P_X(\{x\}) = 0$ for continuous distributions
-\item Think of $p_X(x)$ as local concentration of probability, not probability itself
-\item Density is what we actually compute and optimize in ML
-\item Common mistake: thinking $p(x)$ must be $\leq 1$. Example: uniform on $[0, 0.5]$ has $p(x) = 2$
+\item Next slide: how to understand $p_X(x)$ at a point
+}
+
+\begin{frame}{Density at a point - the key subtlety}
+
+\structure{Question:} We said $P_X(\{x\}) = 0$ for single points. So what is $p_X(x)$?
+
+\vskip 1em
+\structure{Answer:} $p_X(x)$ is defined as a limit:
+\[
+p_X(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))}
+\]
+where $B_\epsilon(x)$ is a small ball of radius $\epsilon$ around $x$
+
+\vskip 1em
+\structure{Interpretation:}
+\begin{itemize}
+\item $P_X(B_\epsilon(x))$ = probability in small region around $x$
+\item $\lambda(B_\epsilon(x))$ = volume of that region
+\item ratio = probability per unit volume
+\item limit as region shrinks to point = density at $x$
+\end{itemize}
+
+\vskip 0.5em
+\alert{Density exists at a point, but probability of a point is zero!}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the Radon-Nikodym derivative made concrete
+\item In 1D: $B_\epsilon(x) = [x-\epsilon, x+\epsilon]$, $\lambda(B_\epsilon(x)) = 2\epsilon$
+\item So $p_X(x) = \lim_{\epsilon \to 0} \frac{P_X([x-\epsilon, x+\epsilon])}{2\epsilon}$ - looks like derivative!
+\item In higher dimensions: ball has volume proportional to $\epsilon^d$
+\item This is why density can be $> 1$: it's a rate, not a probability
+\item Common mistake: confusing $p_X(x)$ (density, can be $> 1$) with $P_X(\{x\})$ (probability, equals 0)
 }
 
 \begin{frame}{When does density exist?}
 
-\structure{Absolute continuity condition:}
-\begin{itemize}
-\item $P_X$ is absolutely continuous w.r.t. Lebesgue measure $\lambda$
-\item meaning: $\lambda(A) = 0 \Rightarrow P_X(A) = 0$
-\item informally: zero volume implies zero probability
-\end{itemize}
+\structure{Condition: absolute continuity}\\
+$P_X$ is absolutely continuous w.r.t. Lebesgue measure $\lambda$
+
+\vskip 0.5em
+Meaning: $\lambda(A) = 0 \Rightarrow P_X(A) = 0$ (zero volume $\Rightarrow$ zero probability)
 
 \vskip 1em
 \structure{Radon-Nikodym theorem:}\\
-If $P_X$ is absolutely continuous w.r.t. $\lambda$, then density $p_X = \frac{dP_X}{d\lambda}$ exists and is unique (almost everywhere)
+If $P_X$ is absolutely continuous w.r.t. $\lambda$, then density exists
 
 \vskip 1em
 \structure{When density does NOT exist:}
 \begin{itemize}
-\item discrete distributions (point masses)
-\item mixed distributions (part discrete, part continuous)
+\item discrete distributions (point masses have zero Lebesgue measure)
+\item mixed distributions
 \end{itemize}
 
-\vskip 0.5em
-\structure{In ML:} we work with continuous distributions $\Rightarrow$ densities exist
+\vskip 1em
+\structure{In ML:} continuous distributions on $\mR^d$ $\Rightarrow$ densities exist
 
 \end{frame}
+
+\note[enumerate]
+{
+\item Absolute continuity is the key condition
+\item Discrete distributions: probability on points, which have zero Lebesgue measure
+\item For discrete: can define density w.r.t. counting measure instead
+\item In generative modeling: we work with absolutely continuous distributions
+\item This justifies working at the density level in code
+}
 
 \begin{frame}{Relationship between the three}
 
