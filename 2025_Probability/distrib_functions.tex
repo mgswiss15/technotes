@@ -1,7 +1,7 @@
 \section{Three ways to describe a distribution}
-\begin{frame}{Three representations of the same distribution}
+\begin{frame}{Three primary representations of a distribution}
 
-\structure{Given random variable $X$ with values in $\mR^d$, three ways to describe its distribution:}
+\structure{Given random variable $X$ with values in $\mR^d$, we focus on three primary ways to describe its distribution:}
 
 \vskip 1em
 \structure{1. Probability measure $P_X$}
@@ -33,6 +33,8 @@
 {
 \item This is a key conceptual point that students often miss
 \item The measure, CDF, and density (when it exists) all describe the same distribution
+\item Other representations exist: characteristic function $\phi_X(t) = E[e^{itX}]$, moment generating function $M_X(t) = E[e^{tX}]$, quantile function, etc.
+\item We focus on these three because: (1) measure is fundamental, (2) CDF always exists, (3) density is what we compute with in ML
 \item Measure is most general, CDF always exists, density only sometimes exists
 \item In ML we mostly work with densities, but need to understand when they exist
 \item Component-wise for CDF in $\mR^d$: $F_X(x_1, \ldots, x_d) = P_X((-\infty, x_1] \times \cdots \times (-\infty, x_d])$
@@ -114,6 +116,47 @@ F_X(x) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi}} e^{-t^2/2} \, dt = \Phi(x)
 \item In practice: we rarely work with CDF directly in ML, but it's theoretically important
 }
 
+\begin{frame}{Integration with respect to a measure}
+
+\structure{From Riemann to measure integration}
+
+\vskip 0.5em
+\structure{Riemann integration (what you know):}
+\[
+\int_a^b f(x) \, dx = \text{area under curve from } a \text{ to } b
+\]
+
+\vskip 1em
+\structure{Integration w.r.t. measure $\mu$ (generalization):}
+\[
+\int_A f \, d\mu = \int_A f(x) \, \mu(dx) = \text{weighted sum/integral over set } A
+\]
+\begin{itemize}
+\item $A$ - any measurable set (not just intervals)
+\item $\mu$ - measure that "weighs" different parts of space
+\item generalizes Riemann integration
+\end{itemize}
+
+\vskip 1em
+\structure{Special case - Lebesgue measure $\lambda$ on $\mR^d$:}
+\[
+\int_A f \, d\lambda = \int_A f(x) \, dx \quad \text{(familiar notation!)}
+\]
+where $d\lambda = dx$ is the "volume element"
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Riemann: integrate over intervals, $dx$ is infinitesimal length
+\item Lebesgue: integrate over any measurable set, still use $dx$ notation
+\item General measure: $d\mu$ replaces $dx$, measure weighs space differently
+\item Example: counting measure $\#$: $\int_A f \, d\# = \sum_{x \in A} f(x)$ (discrete sum)
+\item Example: probability measure $\mP$: $\int_A f \, d\mP = E[f(X) \mathbf{1}_{X \in A}]$ (expectation)
+\item Notation variants: $\int f d\mu = \int f(x) \mu(dx) = \int f(x) d\mu(x)$ all mean the same
+\item This generalizes integration to work with any measure, not just "area" or "volume"
+}
+
 \begin{frame}{Probability density function (PDF)}
 
 \structure{PDF $p_X: \mR^d \to [0, \infty)$}
@@ -121,25 +164,27 @@ F_X(x) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi}} e^{-t^2/2} \, dt = \Phi(x)
 \vskip 0.5em
 \structure{Definition:} when it exists,
 \[
-P_X(A) = \int_A p_X(x) \, dx \quad \text{and} \quad F_X(x) = \int_{-\infty}^x p_X(t) \, dt
+P_X(A) = \int_A p_X \, d\lambda = \int_A p_X(x) \, dx
 \]
+where $\lambda$ is Lebesgue measure (volume)
+
+\vskip 0.5em
+\structure{Interpretation:}
+\begin{itemize}
+\item $p_X$ is \alert{density} - probability per unit volume
+\item $P_X$ is "weighted" by density: $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
+\item $p_X = \frac{dP_X}{d\lambda}$ - Radon-Nikodym derivative
+\end{itemize}
 
 \vskip 1em
 \structure{Example: Gaussian $X \sim \mathcal{N}(0, 1)$}
 \[
-p_X(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}
+p_X(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}, \quad P_X([a,b]) = \int_a^b p_X(x) \, dx
 \]
-\begin{itemize}
-\item $p_X(0) = \frac{1}{\sqrt{2\pi}} \approx 0.40$ (density at zero)
-\item note: density can be $> 1$! (it's not a probability)
-\end{itemize}
+note: $p_X(0) \approx 0.40$ can be $> 1$ (it's density, not probability!)
 
 \vskip 1em
-\structure{When does density exist?}
-\begin{itemize}
-\item when $P_X$ is absolutely continuous w.r.t. Lebesgue measure
-\item informally: distribution "spreads out" (no point masses)
-\end{itemize}
+\structure{When does density exist?} $P_X$ absolutely continuous w.r.t. $\lambda$
 
 \end{frame}
 
