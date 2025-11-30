@@ -27,6 +27,9 @@
 \vskip 1em
 \alert{These are three different ways to represent the same probabilistic object}
 
+\vskip 0.5em
+\structure{Note:} other representations exist (characteristic function, moment generating function, etc.) but we focus on these three
+
 \end{frame}
 
 \note[enumerate]
@@ -38,6 +41,81 @@
 \item Measure is most general, CDF always exists, density only sometimes exists
 \item In ML we mostly work with densities, but need to understand when they exist
 \item Component-wise for CDF in $\mR^d$: $F_X(x_1, \ldots, x_d) = P_X((-\infty, x_1] \times \cdots \times (-\infty, x_d])$
+}
+
+\begin{frame}{Interlude: integration with respect to a measure}
+
+\structure{What you know - Riemann integration:}
+\[
+\int_a^b f(x) \, dx = \text{area under curve from } a \text{ to } b
+\]
+\begin{itemize}
+\item integrate over interval $[a,b]$
+\item $dx$ is infinitesimal length element
+\end{itemize}
+
+\vskip 1em
+\structure{Generalization - integration w.r.t. measure $\mu$:}
+\[
+\int_A f \, d\mu
+\]
+\begin{itemize}
+\item $A$ - any measurable set (not just intervals)
+\item $\mu$ - measure that "weighs" different parts of space
+\item $d\mu$ - infinitesimal measure element
+\end{itemize}
+
+\vskip 1em
+\structure{Intuition:} sum up $f$ weighted by measure $\mu$ over set $A$
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Riemann integration: only over intervals, uses length/area/volume
+\item Measure integration: over any measurable set, uses any measure
+\item The measure $\mu$ determines how we "weigh" different parts of the space
+\item This is a generalization that will let us work with probability measures
+}
+
+\begin{frame}{Interlude: Lebesgue measure and notation}
+
+\structure{Lebesgue measure $\lambda$ on $\mR^d$ - generalizes length/area/volume}
+
+\vskip 0.5em
+For interval $I = [a,b]$ in $\mR$: $\lambda(I) = b - a$ (length)\\
+For set $A \subseteq \mR^d$: $\lambda(A) = $ volume of $A$
+
+\vskip 1em
+\structure{Integration w.r.t. Lebesgue measure:}
+\[
+\int_A f \, d\lambda = \int_A f(x) \, dx \quad \text{(familiar notation!)}
+\]
+\begin{itemize}
+\item $d\lambda = dx$ is the volume element
+\item recovers familiar integration notation
+\end{itemize}
+
+\vskip 1em
+\structure{Notation variants (all equivalent):}
+\[
+\int_A f \, d\mu = \int_A f(x) \, \mu(dx) = \int_A f(x) \, d\mu(x)
+\]
+
+\vskip 0.5em
+\alert{This generalizes integration to work with any measure, not just volume}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Lebesgue measure is the "natural" measure on Euclidean space
+\item For nice functions on nice sets: Riemann = Lebesgue integration
+\item But Lebesgue integration works for much wider class of functions and sets
+\item The notation $dx$ is shorthand for $d\lambda(x)$ (Lebesgue measure)
+\item Example with counting measure: $\int_A f \, d\# = \sum_{x \in A} f(x)$ (discrete sum becomes integral!)
+\item Example with probability: $\int_{\mR^d} f \, dP_X = E[f(X)]$ (expectation as integral)
+\item This framework unifies discrete and continuous cases
 }
 
 \begin{frame}{Probability measure - the fundamental object}
@@ -114,47 +192,6 @@ F_X(x) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi}} e^{-t^2/2} \, dt = \Phi(x)
 \item CDF can have jumps (discrete distributions) or be continuous
 \item Derivative of CDF gives density (when density exists)
 \item In practice: we rarely work with CDF directly in ML, but it's theoretically important
-}
-
-\begin{frame}{Integration with respect to a measure}
-
-\structure{From Riemann to measure integration}
-
-\vskip 0.5em
-\structure{Riemann integration (what you know):}
-\[
-\int_a^b f(x) \, dx = \text{area under curve from } a \text{ to } b
-\]
-
-\vskip 1em
-\structure{Integration w.r.t. measure $\mu$ (generalization):}
-\[
-\int_A f \, d\mu = \int_A f(x) \, \mu(dx) = \text{weighted sum/integral over set } A
-\]
-\begin{itemize}
-\item $A$ - any measurable set (not just intervals)
-\item $\mu$ - measure that "weighs" different parts of space
-\item generalizes Riemann integration
-\end{itemize}
-
-\vskip 1em
-\structure{Special case - Lebesgue measure $\lambda$ on $\mR^d$:}
-\[
-\int_A f \, d\lambda = \int_A f(x) \, dx \quad \text{(familiar notation!)}
-\]
-where $d\lambda = dx$ is the "volume element"
-
-\end{frame}
-
-\note[enumerate]
-{
-\item Riemann: integrate over intervals, $dx$ is infinitesimal length
-\item Lebesgue: integrate over any measurable set, still use $dx$ notation
-\item General measure: $d\mu$ replaces $dx$, measure weighs space differently
-\item Example: counting measure $\#$: $\int_A f \, d\# = \sum_{x \in A} f(x)$ (discrete sum)
-\item Example: probability measure $\mP$: $\int_A f \, d\mP = E[f(X) \mathbf{1}_{X \in A}]$ (expectation)
-\item Notation variants: $\int f d\mu = \int f(x) \mu(dx) = \int f(x) d\mu(x)$ all mean the same
-\item This generalizes integration to work with any measure, not just "area" or "volume"
 }
 
 \begin{frame}{Probability density function (PDF)}
