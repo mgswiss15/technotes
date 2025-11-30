@@ -192,34 +192,33 @@ P_X(A) = \int_A p_X \, d\lambda = \int_A p_X(x) \, dx
 \]
 where $\lambda$ is Lebesgue measure (volume)
 
-\vskip 0.5em
-\structure{Interpretation:}
+\vskip 1em
+\structure{Radon-Nikodym derivative:}
 \begin{itemize}
-\item $p_X$ is \alert{density} - probability per unit volume
-\item $P_X$ is "weighted" by density: $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
-\item $p_X = \frac{dP_X}{d\lambda}$ - Radon-Nikodym derivative
+\item $p_X$ is the derivative of $P_X$ w.r.t. $\lambda$: $p_X = \frac{dP_X}{d\lambda}$
+\item notation: $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
+\item meaning: $P_X$ is "weighted" by density $p_X$
 \end{itemize}
 
 \vskip 1em
-\structure{Example: Gaussian $X \sim \mathcal{N}(0, 1)$}
-\[
-p_X(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}, \quad P_X([a,b]) = \int_a^b p_X(x) \, dx
-\]
-note: $p_X(0) \approx 0.40$ can be $> 1$ (it's density, not probability!)
-
-\vskip 1em
-\structure{When does density exist?} $P_X$ absolutely continuous w.r.t. $\lambda$
+\structure{When does density exist?}
+\begin{itemize}
+\item $P_X$ is absolutely continuous w.r.t. $\lambda$
+\item informally: distribution "spreads out" (no point masses)
+\item \alert{density can be $> 1$} (it's probability per unit volume, not probability!)
+\end{itemize}
 
 \end{frame}
 
 \note[enumerate]
 {
 \item Density is what we actually compute and optimize in ML
-\item Density is NOT probability - it's probability per unit volume
-\item Common mistake: thinking $p(x)$ must be $\leq 1$. Not true!
-\item Radon-Nikodym theorem guarantees density exists when absolutely continuous
-\item Discrete distributions (point masses) do not have densities
-\item Mixed distributions (part discrete, part continuous) do not have densities
+\item Radon-Nikodym theorem: if $P_X$ is absolutely continuous w.r.t. $\lambda$, then density exists and is unique (a.e.)
+\item Absolute continuity: $\lambda(A) = 0 \Rightarrow P_X(A) = 0$ (zero volume implies zero probability)
+\item The notation $dP_X = p_X \, d\lambda$ means: infinitesimal probability = density times infinitesimal volume
+\item Common mistake: thinking $p(x)$ must be $\leq 1$. Not true! Example: uniform on $[0, 0.5]$ has density $p(x) = 2$
+\item Discrete distributions (point masses) do not have densities w.r.t. Lebesgue measure
+\item Mixed distributions (part discrete, part continuous) do not have densities w.r.t. Lebesgue measure
 }
 
 \begin{frame}{Relationship between the three}
