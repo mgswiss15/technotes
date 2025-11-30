@@ -1,0 +1,119 @@
+\section{Random variables and distributions}
+\begin{frame}{Random variable - moving to value space}
+
+\structure{Random variable $X: S \to T$}
+\begin{itemize}
+  \item $(S, \salg, \mP)$ - probability space (random experiment)
+  \item $(T, \mathscr{T})$ - measurable space (value space, e.g., $\mR^d$)
+  \item $X$ - measurable function from $S$ to $T$
+  \begin{itemize}
+    \item for each outcome $s \in S$, $X(s) \in T$ is the observed value
+    \item measurable: $X^{-1}(B) \in \salg$ for all $B \in \mathscr{T}$
+  \end{itemize}
+\end{itemize}
+
+\vskip 1em
+\structure{Interpretation:}
+\begin{itemize}
+\item random experiment produces outcome $s \in S$
+\item we observe value $x = X(s) \in T$
+\item $X$ maps abstract outcomes to concrete values we care about
+\end{itemize}
+
+\vskip 1em
+\structure{Example:} roll two dice
+\begin{itemize}
+\item $S = \{(1,1), (1,2), \ldots, (6,6)\}$ - all possible outcomes
+\item $X(s_1, s_2) = s_1 + s_2$ - sum of dice (values in $T = \{2, 3, \ldots, 12\}$)
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Measurability is technical requirement - ensures we can measure probabilities after transformation
+\item For continuous functions between nice spaces (e.g., $\mR^d$ with Borel sets), measurability is automatic
+\item The value space $T$ is what we actually care about - numbers, vectors, images, etc.
+\item Abstract sample space $S$ is often just formal device
+\item Example: we care about sum of dice, not which specific dice show which face
+\item In deep learning: we care about generated image $x$, not the random seed that produced it
+}
+
+\begin{frame}{Distribution of random variable}
+
+\structure{Given: $(S, \salg, \mP)$ and random variable $X: S \to T$}
+
+\vskip 0.5em
+\structure{Distribution (law) of $X$: probability measure $P_X$ on $(T, \mathscr{T})$}
+\[
+P_X(B) = \mP(X \in B) = \mP(\{s \in S: X(s) \in B\}), \quad B \in \mathscr{T}
+\]
+
+\vskip 1em
+\structure{Interpretation:}
+\begin{itemize}
+\item $P_X(B)$ = probability that $X$ takes value in set $B$
+\item $P_X$ lives on value space $T$, not on sample space $S$
+\item $P_X$ is the push-forward of $\mP$ by $X$
+\end{itemize}
+
+\vskip 1em
+\structure{Notation:} $X \sim P_X$ means "$X$ has distribution $P_X$"
+
+\vskip 0.5em
+\structure{Key point:} \alert{$P_X$ is a probability measure on $T$ - we can work with it directly!}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item The distribution $P_X$ is completely determined by $X$ and $\mP$
+\item Push-forward: probability "flows" from $S$ to $T$ through $X$
+\item Once we have $P_X$, we can often forget about $(S, \salg, \mP)$
+\item In practice: we specify $P_X$ directly without ever mentioning $S$
+\item "X ~ N(0,1)" directly specifies distribution on $\mR$, no mention of underlying experiment
+}
+
+\begin{frame}{Working directly with distributions}
+
+\structure{Two perspectives:}
+
+\vskip 0.5em
+\structure{Formal perspective:}
+\begin{itemize}
+\item start with abstract probability space $(S, \salg, \mP)$
+\item define random variable $X: S \to T$
+\item derive distribution $P_X$ on $T$
+\end{itemize}
+
+\vskip 1em
+\structure{Practical perspective:}
+\begin{itemize}
+\item \alert{directly specify probability measure $P_X$ on value space $T$}
+\item $(S, \salg, \mP)$ is implicit background (often $S = T$, $X = $ identity)
+\item work entirely with $P_X$
+\end{itemize}
+
+\vskip 1em
+\structure{Examples of direct specification:}
+\begin{itemize}
+\item "$X \sim \mathcal{N}(0, I)$" - directly defines Gaussian measure on $\mR^d$
+\item "$z \sim p_{\text{prior}}$" - directly defines prior distribution on latent space
+\item "$x \sim p_{\text{data}}$" - empirical data distribution
+\end{itemize}
+
+\vskip 0.5em
+\alert{From now on: we work with distributions on value spaces}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the key conceptual shift for students
+\item Abstract probability space is formal machinery, but not where we actually work
+\item In generative modeling: we always work directly with distributions on $\mR^d$
+\item The triplet $(\Omega, \mathscr{F}, \mP)$ is rarely mentioned in ML papers
+\item Instead: "sample $z$ from prior", "sample $x$ from data distribution"
+\item This is legitimate - we're working with the push-forward measures directly
+\item Next: we'll see there are multiple ways to represent these distributions
+}
