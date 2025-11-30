@@ -1,0 +1,108 @@
+\section{Measures and probability}
+\begin{frame}{Measures - assigning mass to sets}
+
+\structure{Measurable space $(S, \salg)$}
+\begin{itemize}
+  \item $S$ - set (e.g., $\mR^d$, discrete set, etc.)
+  \item $\salg$ - $\sigma$-algebra on $S$ (collection of measurable subsets of $S$)
+  \begin{itemize}
+    \item closed under complements and countable unions
+    \item contains $\emptyset$ and $S$
+  \end{itemize}
+\end{itemize}
+
+\vskip 1em
+\structure{Measure $\mu$ on $(S, \salg)$ - function $\mu: \salg \to [0, \infty]$}
+\begin{itemize}
+  \item $\mu(\emptyset) = 0$
+  \item countable additivity: for disjoint $\{A_i: i \in I\} \subseteq \salg$, $\mu\left( \bigcup_{i \in I} A_i \right) = \sum_{i \in I} \mu(A_i)$
+\end{itemize}
+
+\vskip 1em
+\structure{Examples:}
+\begin{itemize}
+\item counting measure: $\#(A) = $ number of elements in $A$
+\item Lebesgue measure on $\mR^d$: $\lambda(A) = $ volume of $A$
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item $\sigma$-algebra $\salg$ is collection of measurable sets (closed under complements and countable unions)
+\item For practical purposes: think of $\salg$ as "all reasonable subsets"
+\item Lebesgue measure generalizes notions of length, area, volume
+\item Probability measure is just a finite measure normalized to total mass 1
+\item This abstraction allows us to talk about probability rigorously, but we'll soon move to more practical objects
+}
+
+\begin{frame}{Probability measure}
+
+\structure{Probability space $(S, \salg, \mP)$}
+\begin{itemize}
+  \item $S$ - sample space (set of possible outcomes)
+  \item $\salg$ - $\sigma$-algebra on $S$ (collection of events)
+  \item $\mP: \salg \to [0, 1]$ - probability measure
+  \begin{itemize}
+    \item \alert{normalization: $\mP(S) = 1$}
+    \item countable additivity (same as before)
+  \end{itemize}
+\end{itemize}
+
+\vskip 1em
+\structure{Properties:}
+\begin{itemize}
+\item $\mP(A^c) = 1 - \mP(A)$
+\item $A \subseteq B \Rightarrow \mP(A) \leq \mP(B)$
+\item $\mP(A \cup B) = \mP(A) + \mP(B) - \mP(A \cap B)$
+\end{itemize}
+
+\vskip 1em
+\structure{Abstract formalism:} $(S, \salg, \mP)$ gives rigorous framework\\
+\alert{In practice: we work with random variables and their distributions}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Probability measure is just a normalized measure
+\item The abstract probability space $(S, \salg, \mP)$ is often denoted $(\Omega, \mathscr{F}, \mP)$ in literature
+\item Events are sets $A \in \salg$ to which we can assign probabilities
+\item This level of abstraction allows separation between sample space and value space
+\item But as we'll see, we usually bypass this and work directly with distributions on value spaces
+}
+
+\begin{frame}{Relationship: measures and probability}
+
+\structure{Any finite measure can be normalized:}
+\begin{itemize}
+\item measure space $(S, \salg, \mu)$ with $\mu(S) < \infty$
+\item define $\mP(A) = \frac{\mu(A)}{\mu(S)}$ for $A \in \salg$
+\item then $(S, \salg, \mP)$ is probability space
+\end{itemize}
+
+\vskip 1em
+\structure{Conversely: any probability measure can be scaled}
+\begin{itemize}
+\item probability space $(S, \salg, \mP)$
+\item for any $c > 0$, $\mu = c \cdot \mP$ is finite measure with $\mu(S) = c$
+\end{itemize}
+
+\vskip 1em
+\structure{Why this matters:}
+\begin{itemize}
+\item energy-based models: unnormalized measures $\mu(A) = \int_A e^{-E(s)} ds$
+\item normalizing gives probability: $\mP(A) = \frac{1}{Z} \int_A e^{-E(s)} ds$ where $Z = \int_S e^{-E(s)} ds$
+\item change of variables preserves this relationship
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Normalization is just dividing by total mass
+\item This shows probability measures are special cases of finite measures
+\item Connection to statistical physics and energy-based models
+\item Partition function $Z$ is the normalizing constant
+\item When we transform measures, we transform probabilities - this is key for flows
+}
