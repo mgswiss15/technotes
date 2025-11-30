@@ -1,34 +1,32 @@
 \section{Three ways to describe a distribution}
 \begin{frame}{Three primary representations of a distribution}
 
-\structure{Given random variable $X$ with values in $\mR^d$, we focus on three primary ways to describe its distribution:}
+\structure{Given random variable $X$ with values in $\mR^d$:}
 
 \vskip 1em
 \structure{1. Probability measure $P_X$}
 \begin{itemize}
-\item assigns probabilities to sets: $P_X(A)$ for $A \subseteq \mR^d$
-\item most fundamental representation
+\item $P_X(A)$ - probability that $X \in A$
+\item most fundamental
 \end{itemize}
 
 \vskip 0.5em
 \structure{2. Cumulative distribution function (CDF) $F_X$}
 \begin{itemize}
-\item $F_X(x) = P_X((-\infty, x])$ (for $x \in \mR^d$, component-wise)
+\item $F_X(x) = P_X((-\infty, x])$
 \item always exists
 \end{itemize}
 
 \vskip 0.5em
 \structure{3. Probability density function (PDF) $p_X$}
 \begin{itemize}
-\item when it exists: $P_X(A) = \int_A p_X(x) \, dx$
-\item does not always exist!
+\item $P_X(A) = \int_A p_X(x) \, dx$ when it exists
+\item does not always exist
 \end{itemize}
 
 \vskip 1em
-\alert{These are three different ways to represent the same probabilistic object}
-
-\vskip 0.5em
-\structure{Note:} other representations exist (characteristic function, moment generating function, etc.) but we focus on these three
+\alert{Three views of the same distribution}\\
+{\small (other representations exist: characteristic function, MGF, etc.)}
 
 \end{frame}
 
