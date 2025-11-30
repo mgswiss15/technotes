@@ -149,40 +149,35 @@
 
 \begin{frame}{Cumulative distribution function (CDF)}
 
-\structure{CDF $F_X: \mR^d \to [0, 1]$}
+\structure{CDF $F_X: \mR \to [0, 1]$}
 
 \vskip 0.5em
-\structure{Definition (for $\mR$):}
+\structure{Definition:}
 \[
-F_X(x) = P_X((-\infty, x]) = \mP(X \leq x)
+F_X(x) = P_X((-\infty, x]) = \int_{(-\infty, x]} \, dP_X
 \]
 
 \vskip 1em
-\structure{Example: Gaussian $X \sim \mathcal{N}(0, 1)$}
-\[
-F_X(x) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi}} e^{-t^2/2} \, dt = \Phi(x)
-\]
-\begin{itemize}
-\item $F_X(0) = 0.5$ (half the probability below 0)
-\item $F_X(-\infty) = 0$, $F_X(\infty) = 1$
-\end{itemize}
-
-\vskip 1em
-\structure{Properties:}
+\structure{Key properties:}
 \begin{itemize}
 \item always exists (for any distribution)
+\item $F_X(-\infty) = 0$, $F_X(\infty) = 1$
 \item non-decreasing, right-continuous
-\item $P_X((a, b]) = F_X(b) - F_X(a)$
+\item recovers probabilities: $P_X((a, b]) = F_X(b) - F_X(a)$
 \end{itemize}
+
+\vskip 1em
+\structure{Note:} for $\mR^d$: $F_X(x_1, \ldots, x_d) = P_X((-\infty, x_1] \times \cdots \times (-\infty, x_d])$
 
 \end{frame}
 
 \note[enumerate]
 {
 \item CDF is unique representation - different distributions have different CDFs
-\item For multidimensional case: $F_X(x_1, \ldots, x_d) = P_X((-\infty, x_1] \times \cdots \times (-\infty, x_d])$
-\item CDF can have jumps (discrete distributions) or be continuous
-\item Derivative of CDF gives density (when density exists)
+\item Definition uses measure integration: integral of constant function 1 over the interval
+\item For multidimensional case, CDF is defined component-wise
+\item CDF can have jumps (discrete distributions) or be smooth (continuous distributions)
+\item Derivative of CDF gives density (when density exists): $p_X(x) = \frac{dF_X}{dx}$
 \item In practice: we rarely work with CDF directly in ML, but it's theoretically important
 }
 
