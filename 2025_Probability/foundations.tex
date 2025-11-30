@@ -40,8 +40,8 @@
 
 \structure{Probability space $(S, \salg, \mP)$}
 \begin{itemize}
-  \item $S$ - sample space (set of possible outcomes)
-  \item $\salg$ - $\sigma$-algebra on $S$ (collection of events)
+  \item $S$ - sample space (possible outcomes of random experiment)
+  \item $\salg$ - $\sigma$-algebra on $S$ (collection of events - sets of outcomes)
   \item $\mP: \salg \to [0, 1]$ - probability measure
   \begin{itemize}
     \item \alert{normalization: $\mP(S) = 1$}
@@ -50,11 +50,11 @@
 \end{itemize}
 
 \vskip 1em
-\structure{Properties:}
+\structure{Interpretation:}
 \begin{itemize}
-\item $\mP(A^c) = 1 - \mP(A)$
-\item $A \subseteq B \Rightarrow \mP(A) \leq \mP(B)$
-\item $\mP(A \cup B) = \mP(A) + \mP(B) - \mP(A \cap B)$
+\item random experiment produces outcome $s \in S$
+\item event $A \in \salg$ is set of outcomes
+\item $\mP(A)$ is probability that outcome lies in $A$
 \end{itemize}
 
 \vskip 1em
