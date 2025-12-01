@@ -48,7 +48,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \begin{tikzpicture}[>=Stealth]
 % LEFT: domain T with mesh and rectangular g^{-1}(C)
 \begin{scope}[shift={(-5,0)}]
-    \node at (-1,2) {$T$};
+    \node at (0,2) {$T$};
     % Mesh (vertical)
     \foreach \x in {-1.5,-1,...,1}
         \draw[gray!70] (\x,-2) -- (\x,2);
@@ -61,11 +61,11 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     \node[blue!80] at (-0.5,0) {$g^{-1}(C)$};
 \end{scope}
 % Middle arrow: g
-\draw[->,thick] (-3,0.5) -- (-1,0.5) node[midway,above] {$g: T \to U$};
-\draw[<-,thick] (-3,-0.5) -- (-1,-0.5) node[midway,above] {preimage};
-\node at (-2,-1.5) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C)$};
+\draw[->,thick] (-2.5,0.5) -- (-0.5,0.5) node[midway,above] {$g: T \to U$};
+\draw[<-,thick] (-2.5,-0.5) -- (-0.5,-0.5) node[midway,above] {preimage};
+\node at (-1.5,1.8) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C)$};
 % RIGHT: codomain U with warped mesh + image C
-\begin{scope}[shift={(1,0)}]
+\begin{scope}[shift={(2,0)}]
     \node at (0,2) {$U$};
     % Warped vertical mesh lines
     \foreach \x in {-1.5,-1,...,1}
@@ -116,4 +116,44 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \item This is well-defined because $g$ is measurable
 \item In ML: $g$ is neural network, $P_X$ is simple distribution (e.g., Gaussian), $P_Y$ is complex model distribution
 \item We're working directly with distributions $P_X$ and $P_Y$, not going back to abstract probability space
+}
+
+\begin{frame}{Example: uniform distribution and affine transformation}
+
+\structure{Setup:}
+\begin{itemize}
+\item $X \sim \text{Uniform}[0, 1]$ on $\mR$
+\item transformation: $g(x) = 2x + 3$ (scale by 2, shift by 3)
+\item $Y = g(X) = 2X + 3$
+\end{itemize}
+
+\vskip 1em
+\structure{What is $P_Y$?}
+
+Using push-forward formula: $P_Y(C) = P_X(g^{-1}(C))$
+
+\vskip 0.5em
+For $C = [a, b]$:
+\begin{itemize}
+\item preimage: $g^{-1}([a,b]) = \{x: 2x + 3 \in [a,b]\} = \left[\frac{a-3}{2}, \frac{b-3}{2}\right]$
+\item $P_Y([a,b]) = P_X\left(\left[\frac{a-3}{2}, \frac{b-3}{2}\right]\right) = \frac{(b-3)/2 - (a-3)/2}{1} = \frac{b-a}{2}$
+\end{itemize}
+
+\vskip 1em
+\structure{Conclusion:} $Y \sim \text{Uniform}[3, 5]$
+\begin{itemize}
+\item interval $[0,1]$ shifted to $[3,5]$
+\item length doubled: mass spreads out
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is a simple concrete example showing push-forward
+\item The preimage calculation: solve $a \leq 2x+3 \leq b$ for $x$
+\item Uniform on $[0,1]$: $P_X([a,b]) = b - a$ when $[a,b] \subseteq [0,1]$
+\item After transformation: still uniform, but on $[3,5]$ instead of $[0,1]$
+\item The scaling factor 2 will become important when we look at densities (Jacobian)
+\item This example shows: push-forward preserves the "shape" but changes location and scale
 }
