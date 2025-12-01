@@ -1,0 +1,118 @@
+\section{Transformations and push-forward}
+\begin{frame}{Transformations of random variables}
+
+\structure{Setup:} 
+\begin{itemize}
+\item $X$ - random variable with values in $T$ (e.g., $\mR^d$)
+\item $P_X$ - distribution of $X$ on $T$
+\item $g: T \to U$ - measurable function (transformation)
+\item $Y = g(X)$ - transformed random variable with values in $U$
+\end{itemize}
+
+\vskip 1em
+\structure{Question:} If we know $P_X$, what is the distribution $P_Y$ of $Y = g(X)$?
+
+\vskip 1em
+\structure{Examples in ML:}
+\begin{itemize}
+\item $X \sim \mathcal{N}(0, I)$ (simple), $g$ is neural network, $Y = g(X)$ (complex model distribution)
+\item data transformation: $X$ is data, $g$ encodes to latent space
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the fundamental question in generative modeling
+\item We transform a simple distribution to get a complex one
+\item The transformation $g$ is typically a neural network
+\item We work directly with distributions on value spaces (as established in Section 2)
+\item No need to refer back to abstract probability space $(S, \salg, \mP)$
+}
+
+
+\begin{frame}{Push-forward measure}
+
+\structure{Answer:} push-forward of $P_X$ by $g$ gives distribution of $Y$
+
+\vskip 0.5em
+\structure{Definition:} $P_Y$ on $(U, \mathscr{U})$ defined by
+\[
+P_Y(C) = P_X(g^{-1}(C)) \quad \text{for } C \in \mathscr{U}
+\]
+where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
+
+\vskip 1em
+\centering
+\scalebox{0.55}{
+\begin{tikzpicture}[>=Stealth]
+% LEFT: domain T with mesh and rectangular g^{-1}(C)
+\begin{scope}[shift={(-5,0)}]
+    \node at (-1,2) {$T$};
+    % Mesh (vertical)
+    \foreach \x in {-1.5,-1,...,1}
+        \draw[gray!70] (\x,-2) -- (\x,2);
+    % Mesh (horizontal)
+    \foreach \y in {-1.5,-1,...,1.5}
+        \draw[gray!70] (-2,\y) -- (1.5,\y);
+    % Preimage region g^{-1}(C): ALIGNED WITH GRID
+    \fill[blue!25,opacity=0.5] (-1,-1) rectangle (0,1);
+    \draw[blue!60,thick] (-1,-1) rectangle (0,1);
+    \node[blue!80] at (-0.5,0) {$g^{-1}(C)$};
+\end{scope}
+% Middle arrow: g
+\draw[->,thick] (-3,0.5) -- (-1,0.5) node[midway,above] {$g: T \to U$};
+\draw[<-,thick] (-3,-0.5) -- (-1,-0.5) node[midway,above] {preimage};
+\node at (-2,-1.5) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C)$};
+% RIGHT: codomain U with warped mesh + image C
+\begin{scope}[shift={(1,0)}]
+    \node at (0,2) {$U$};
+    % Warped vertical mesh lines
+    \foreach \x in {-1.5,-1,...,1}
+    \draw[gray!70,domain=-2:2,smooth,variable=\t]
+        plot ({0.9*\x + 0.5*sin(\t r)}, {\t + 0.5*sin(\x r)});
+    % Warped horizontal mesh lines
+    \foreach \y in {-1.5,-1,...,1.5}
+    \draw[gray!70,domain=-2:1.5,smooth,variable=\t]
+        plot ({0.9*\t + 0.5*sin(\y r)}, {\y + 0.5*sin(\t r)});
+    % Image region C
+    \begin{scope}
+        \fill[blue!25,opacity=0.5]
+            plot[domain=-1:0,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(-1 r)}, {-1 + 0.5*sin(\x r)})
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0.9*0 + 0.5*sin(\y r)}, {\y + 0.5*sin(0 r)})
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(1 r)}, {1 + 0.5*sin(\x r)})
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({0.9*(-1) + 0.5*sin(\y r)}, {\y + 0.5*sin(-1 r)})
+            -- cycle;
+        \draw[blue!60,thick]
+            plot[domain=-1:0,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(-1 r)}, {-1 + 0.5*sin(\x r)})
+            -- plot[domain=-1:1,smooth,variable=\y]
+                ({0.9*0 + 0.5*sin(\y r)}, {\y + 0.5*sin(0 r)})
+            -- plot[domain=0:-1,smooth,variable=\x]
+                ({0.9*\x + 0.5*sin(1 r)}, {1 + 0.5*sin(\x r)})
+            -- plot[domain=1:-1,smooth,variable=\y]
+                ({0.9*(-1) + 0.5*sin(\y r)}, {\y + 0.5*sin(-1 r)})
+            -- cycle;
+        \node[blue!80] at (-0.4,-0.1) {$C$};
+    \end{scope}
+\end{scope}
+\end{tikzpicture}
+}
+
+\vskip 0.5em
+\structure{Intuition:} probability flows through $g$ - probability of landing in $C$ equals probability of starting in pre-image
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Push-forward is how probability transforms under functions
+\item The pre-image $g^{-1}(C)$ is the set of points in $T$ that map to $C$
+\item Diagram shows: regular grid in $T$ becomes warped in $U$, but probability is preserved
+\item This is well-defined because $g$ is measurable: $g^{-1}(C) \in \mathscr{T}$ for all $C \in \mathscr{U}$
+\item In ML: $g$ is neural network, $P_X$ is simple distribution, $P_Y$ is complex model distribution
+}
