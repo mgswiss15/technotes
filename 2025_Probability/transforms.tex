@@ -122,52 +122,59 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 
 \structure{Setup:} $X \sim \text{Uniform}[0, 1]$, transformation $g(x) = 2x + 3$, find distribution of $Y = g(X)$
 
-\vskip 1em
+\vskip 0.5em
 \centering
-\begin{tikzpicture}[scale=1.2]
-% Left: X ~ Uniform[0,1]
-\begin{scope}[shift={(-4,0)}]
+\scalebox{0.8}{
+\begin{tikzpicture}[>=Stealth]
+% LEFT: X ~ Uniform[0,1] with grid
+\begin{scope}[shift={(-5,0)}]
+    \node at (0,2.5) {$X \sim \text{Uniform}[0,1]$};
+    
+    % Grid lines (vertical)
+    \foreach \x in {0,0.2,...,1}
+        \draw[gray!50] (\x*3,-1.5) -- (\x*3,1.5);
+    
+    % Highlighted region [0,1]
+    \fill[blue!25,opacity=0.6] (0,-1.5) rectangle (3,1.5);
+    \draw[blue!60,thick] (0,-1.5) rectangle (3,1.5);
+    
     % Axis
-    \draw[->] (-0.5,0) -- (2,0) node[right] {$x$};
-    \draw[->] (0,-0.3) -- (0,2) node[above] {$p_X(x)$};
-    
-    % Uniform distribution on [0,1]
-    \fill[blue!20] (0,0) rectangle (1,1);
-    \draw[blue,thick] (0,0) -- (0,1) -- (1,1) -- (1,0);
-    
-    % Labels
-    \node[below] at (0,-0.1) {$0$};
-    \node[below] at (1,-0.1) {$1$};
-    \node[left] at (0,1) {$1$};
-    \node[above] at (0.5,1.2) {$X \sim \text{Uniform}[0,1]$};
+    \draw[->] (-0.5,-2) -- (4,-2) node[right] {$x$};
+    \node[below] at (0,-2) {$0$};
+    \node[below] at (3,-2) {$1$};
+    \node[blue!80] at (1.5,0) {$p_X = 1$};
 \end{scope}
 
 % Arrow with transformation
-\draw[->,very thick] (-2.2,0.5) -- (-0.8,0.5) node[midway,above] {$g(x) = 2x+3$};
+\draw[->,very thick] (-1.5,0.5) -- (0.5,0.5) node[midway,above] {$g(x) = 2x+3$};
+\draw[<-,very thick] (-1.5,-0.5) -- (0.5,-0.5) node[midway,below] {stretch \& shift};
 
-% Right: Y ~ Uniform[3,5]
-\begin{scope}[shift={(1,0)}]
+% RIGHT: Y ~ Uniform[3,5] with stretched grid
+\begin{scope}[shift={(2,0)}]
+    \node at (3,2.5) {$Y \sim \text{Uniform}[3,5]$};
+    
+    % Grid lines (vertical) - stretched
+    \foreach \x in {0,0.2,...,1}
+        \draw[gray!50] ({3 + \x*6},-1.5) -- ({3 + \x*6},1.5);
+    
+    % Highlighted region [3,5]
+    \fill[red!25,opacity=0.6] (3,-1.5) rectangle (9,1.5);
+    \draw[red!60,thick] (3,-1.5) rectangle (9,1.5);
+    
     % Axis
-    \draw[->] (2.5,0) -- (5.5,0) node[right] {$y$};
-    \draw[->] (3,-0.3) -- (3,2) node[above] {$p_Y(y)$};
-    
-    % Uniform distribution on [3,5]
-    \fill[red!20] (3,0) rectangle (5,0.5);
-    \draw[red,thick] (3,0) -- (3,0.5) -- (5,0.5) -- (5,0);
-    
-    % Labels
-    \node[below] at (3,-0.1) {$3$};
-    \node[below] at (5,-0.1) {$5$};
-    \node[left] at (3,0.5) {$\frac{1}{2}$};
-    \node[above] at (4,0.7) {$Y \sim \text{Uniform}[3,5]$};
+    \draw[->] (2.5,-2) -- (10,-2) node[right] {$y$};
+    \node[below] at (3,-2) {$3$};
+    \node[below] at (9,-2) {$5$};
+    \node[red!80] at (6,0) {$p_Y = \frac{1}{2}$};
 \end{scope}
 \end{tikzpicture}
+}
 
-\vskip 1em
-\structure{What happened:}
+\vskip 0.5em
+\structure{Key observation:}
 \begin{itemize}
-\item interval $[0,1] \to [3,5]$: shifted by 3, scaled by 2
-\item height: $1 \to \frac{1}{2}$: density compressed (probability conserved!)
+\item interval stretched by factor 2: $[0,1] \to [3,5]$ (length $1 \to 2$)
+\item density compressed by factor 2: $p_Y = \frac{1}{2}$ (probability conserved!)
 \end{itemize}
 
 \end{frame}
