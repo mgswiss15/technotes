@@ -179,75 +179,40 @@ F_X(x) = P_X((-\infty, x]) = \int_{(-\infty, x]} \, dP_X
 \item In practice: we rarely work with CDF directly in ML, but it's theoretically important
 }
 
+
 \begin{frame}{Probability density function (PDF)}
 
-\structure{PDF $p_X: \mR^d \to [0, \infty)$}
+\structure{Setup:}
+\begin{itemize}
+\item $P_X(A)$ gives probability over sets
+\item for continuous distributions: $P_X(\{x\}) = 0$ at points
+\end{itemize}
 
 \vskip 0.5em
-\structure{Definition via Radon-Nikodym derivative:}
+\structure{What happens as we shrink a set around $x$?}
+
+The ratio of probability to volume as region shrinks:
 \[
-p_X = \frac{dP_X}{d\lambda}
+p_X(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))} = \frac{dP_X}{d\lambda}(x) \qquad \text{\alert{density = Radon-Nikodym derivative}}
 \]
 where $\lambda$ is Lebesgue measure (volume)
+
+\vskip 1em
+\structure{Key property:} $P_X(A) = \int_A p_X(x) \, dx$
 
 \vskip 0.5em
 \alert{Note:} density does not always exist (requires absolute continuity)
 
-\vskip 1em
-\structure{Defining property:} for any set $A$,
-\[
-P_X(A) = \int_A p_X \, d\lambda = \int_A p_X(x) \, dx
-\]
-
-\vskip 1em
-\structure{Notation:} $dP_X = p_X \, d\lambda$ or $dP_X(x) = p_X(x) \, dx$
-
-\vskip 0.5em
-Lebesgue measure is "weighted" by $p_X$ to give $P_X$
-
 \end{frame}
 
 \note[enumerate]
 {
-\item Radon-Nikodym derivative: formal way to define density as derivative of one measure w.r.t. another
-\item The defining property says: if we integrate the density, we get the probability measure
-\item This is analogous to: $df = f'(x) dx$ in calculus
-\item Next slide: how to understand $p_X(x)$ at a point
+\item Density measures probability per unit volume
+\item Radon-Nikodym derivative: formal name for this limit
+\item This is why density can be $> 1$ (it's a rate, not a probability)
+\item Absolute continuity ensures this limit exists
 }
-\begin{frame}{Density at a point - the key subtlety}
 
-\structure{Question:} We said $P_X(\{x\}) = 0$ for single points. So what is $p_X(x)$?
-
-\vskip 1em
-\structure{Answer:} $p_X(x)$ is defined as a limit:
-\[
-p_X(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))}
-\]
-where $B_\epsilon(x)$ is a small ball of radius $\epsilon$ around $x$
-
-\vskip 1em
-\structure{Connection to Radon-Nikodym derivative:}
-\[
-p_X(x) = \frac{dP_X}{d\lambda}(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))}
-\]
-This is literally the derivative of measure $P_X$ w.r.t. measure $\lambda$ at point $x$
-
-\vskip 0.5em
-\alert{Density exists at a point, but probability of a point is zero!}
-
-\end{frame}
-
-\note[enumerate]
-{
-\item This limit IS the Radon-Nikodym derivative - now concrete!
-\item The notation $\frac{dP_X}{d\lambda}$ means exactly this: derivative of one measure w.r.t. another
-\item In 1D: $B_\epsilon(x) = [x-\epsilon, x+\epsilon]$, $\lambda(B_\epsilon(x)) = 2\epsilon$
-\item So $p_X(x) = \lim_{\epsilon \to 0} \frac{P_X([x-\epsilon, x+\epsilon])}{2\epsilon}$ - this looks like the derivative from calculus!
-\item In higher dimensions: ball has volume proportional to $\epsilon^d$
-\item This is why density can be $> 1$: it's a rate (derivative), not a probability
-\item Common mistake: confusing $p_X(x)$ (density, can be $> 1$) with $P_X(\{x\})$ (probability, equals 0)
-\item Interpretation: $p_X(x)$ measures local concentration of probability
-}
 
 \begin{frame}{Relationship between the three}
 
