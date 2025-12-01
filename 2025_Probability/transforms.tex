@@ -123,12 +123,12 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \structure{Setup:} $X \sim \text{Uniform}[0, 1]$, transformation $g(x) = 2x + 3$, find distribution of $Y = g(X)$
 
 \vskip 0.5em
-\centering
+\begin{center}  
 \scalebox{0.75}{
 \begin{tikzpicture}[>=Stealth]
 % LEFT: X ~ Uniform[0,1]
-\begin{scope}[shift={(-6,0)}]
-    \node at (1.5,3) {$X \sim \text{Uniform}[0,1]$};
+\begin{scope}[shift={(-4,0)}]
+    \node at (1.8,3) {$X \sim \text{Uniform}[0,1]$};
     
     % Axis
     \draw[->] (-0.5,0) -- (4,0) node[right] {$x$};
@@ -147,19 +147,24 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     \node[left] at (0,2) {$1$};
     \node[below] at (0.75,0) {\small $0.25$};
     \node[below] at (2.25,0) {\small $0.75$};
-    \node at (1.5,1) {$p_X = 1$};
+   
+    % Probability in middle
+    \node at (1.5,1) {$P_X(g^{-1}(C)) = 0.5$};
     
     % Probability annotation
     \draw[<->,thick] (0.75,-0.8) -- (2.25,-0.8);
-    \node[below] at (1.5,-0.8) {\small 50\% prob};
+    \node[below] at (1.5,-0.8) {\small length $= 0.5$};
+    \node[above] at (1.5,-0.8) {\small $g^{-1}(C)$};
 \end{scope}
 
 % Arrow with transformation
-\draw[->,very thick] (-2,1) -- (0,1) node[midway,above] {$g(x) = 2x+3$};
+\node at (1.5,-0.8) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C) = 0.5$};
+\draw[->,very thick] (-0,1.5) -- (2.5,1.5) node[midway,above] {$g(x) = 2x+3$};
+\draw[<-,thick] (-0,0.5) -- (2.5,0.5) node[midway,above] {preimage};
 
 % RIGHT: Y ~ Uniform[3,5]
-\begin{scope}[shift={(2,0)}]
-    \node at (3,3) {$Y \sim \text{Uniform}[3,5]$};
+\begin{scope}[shift={(0.5,0)}]
+    \node at (5.5,3) {$Y \sim \text{Uniform}[3,5]$};
     
     % Axis
     \draw[->] (2.5,0) -- (9.5,0) node[right] {$y$};
@@ -178,20 +183,25 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     \node[left] at (3,1) {$\frac{1}{2}$};
     \node[below] at (4.5,0) {\small $3.5$};
     \node[below] at (7.5,0) {\small $4.5$};
-    \node at (6,0.5) {$p_Y = \frac{1}{2}$};
+      
+    % Probability in middle
+    \node at (6,0.5) {$P_Y(C) = 0.5$};
     
     % Probability annotation
     \draw[<->,thick] (4.5,-0.8) -- (7.5,-0.8);
-    \node[below] at (6,-0.8) {\small 50\% prob};
+    \node[below] at (6,-0.8) {\small length $= 1$};
+    \node[above] at (6,-0.8) {\small $C$};
 \end{scope}
 \end{tikzpicture}
 }
+\end{center}
 
 \vskip 0.5em
-\structure{Key observation:}
+\structure{Why these density values?}
 \begin{itemize}
-\item interval $[0.25, 0.75] \to [3.5, 4.5]$: length $0.5 \to 1$ (doubled)
-\item density: $p_X = 1 \to p_Y = \frac{1}{2}$ (halved to conserve probability!)
+\item $P_X([0.25, 0.75]) = \int_{0.25}^{0.75} p_X(x) \, dx = p_X \cdot 0.5 = 1 \cdot 0.5 = 0.5$
+\item $P_Y([3.5, 4.5]) = \int_{3.5}^{4.5} p_Y(y) \, dy = p_Y \cdot 1 = \frac{1}{2} \cdot 1 = 0.5$
+\item probability conserved: interval length doubles $\Rightarrow$ density halves
 \end{itemize}
 
 \end{frame}
