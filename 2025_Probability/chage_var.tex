@@ -33,111 +33,41 @@ Given arbitrary distribution $p_X$ and transformation $g$, how do we compute $p_
 \item This is the change of variables formula - fundamental for normalizing flows, diffusion models, etc.
 }
 
-\begin{frame}{Step 1: Start from push-forward}
+\begin{frame}{Step 1: From push-forward to CDF}
 
 \structure{Recall:} push-forward at measure level
 \[
 P_Y(C) = P_X(g^{-1}(C))
 \]
-
-\vskip 1em
-\structure{Express using densities:} (assuming densities exist)
-\[
-P_Y(C) = \int_C p_Y(y) \, dy = \int_{g^{-1}(C)} p_X(x) \, dx = P_X(g^{-1}(C))
-\]
-
-\vskip 1em
-\structure{Key observation:}
-\begin{itemize}
-\item left side: integrate $p_Y$ over $C$ in $y$-space
-\item right side: integrate $p_X$ over $g^{-1}(C)$ in $x$-space
-\item same probability, different spaces
-\end{itemize}
 
 \vskip 0.5em
-\structure{Idea:} change variables in right side from $x$ to $y = g(x)$
-
-\end{frame}
-
-\note[enumerate]
-{
-\item This is the starting point - push-forward expressed with densities
-\item Left side: probability in target space $U$ (using $p_Y$)
-\item Right side: probability in source space $T$ (using $p_X$)
-\item They're equal by push-forward definition
-\item Next: use change of variables from calculus to transform the right integral
-}
-
-\begin{frame}{Step 2: From push-forward to CDF}
-
-\structure{Recall:} push-forward at measure level
-\[
-P_Y(C) = P_X(g^{-1}(C))
-\]
-
-\vskip 1em
-\structure{Choose special set:} $C = (-\infty, y]$
-\[
-P_Y((-\infty, y]) = P_X(g^{-1}((-\infty, y]))
-\]
-
-But $P_Y((-\infty, y]) = F_Y(y)$ by definition of CDF!
+\structure{Choose special set:} $C = (-\infty, y]$, then $P_Y((-\infty, y]) = F_Y(y)$ \alert{- CDF!}
 
 \vskip 1em
 \structure{What is $g^{-1}((-\infty, y])$?}
 \begin{itemize}
-\item If $g$ is \alert{increasing}: $g^{-1}((-\infty, y]) = (-\infty, g^{-1}(y)]$
-\item If $g$ is \alert{decreasing}: $g^{-1}((-\infty, y]) = [g^{-1}(y), \infty)$
+\item If $g$ \alert{increasing}: $g^{-1}((-\infty, y]) = (-\infty, g^{-1}(y)]$
+  \[
+  \alert{\Rightarrow F_Y(y) = F_X(g^{-1}(y))}
+  \]
+\item If $g$ \alert{decreasing}: $g^{-1}((-\infty, y]) = [g^{-1}(y), \infty)$
+  \[
+  \alert{\Rightarrow F_Y(y) = 1 - F_X(g^{-1}(y))}
+  \]
 \end{itemize}
 
 \end{frame}
 
 \note[enumerate]
 {
-\item This is the key step: specialize push-forward to a specific set
-\item CDF is probability up to a point - perfect for this
-\item Increasing function: smaller inputs map to smaller outputs, so preimage is also $(-\infty, \cdot]$
-\item Decreasing function: smaller inputs map to larger outputs, so preimage flips to $[\cdot, \infty)$
-\item This difference will matter when we differentiate
+\item Key step: specialize push-forward to the set $(-\infty, y]$ which gives CDF
+\item Increasing function: preimage preserves order, so $g^{-1}((-\infty, y]) = (-\infty, g^{-1}(y)]$
+\item Decreasing function: preimage reverses order, so $g^{-1}((-\infty, y]) = [g^{-1}(y), \infty)$
+\item This gives us exact formulas relating CDFs
+\item Next: differentiate to get density formula
 }
 
-\begin{frame}{Step 3: CDF relationship}
-
-\structure{Case 1: $g$ increasing}
-\[
-F_Y(y) = P_X((-\infty, g^{-1}(y)]) = F_X(g^{-1}(y))
-\]
-
-\vskip 1em
-\structure{Case 2: $g$ decreasing}
-\[
-F_Y(y) = P_X([g^{-1}(y), \infty)) = 1 - F_X(g^{-1}(y))
-\]
-
-\vskip 1em
-\structure{Summary:}
-\begin{itemize}
-\item Increasing: CDF of $Y$ is composition of CDF of $X$ with $g^{-1}$
-\item Decreasing: CDF of $Y$ is complement of composition
-\end{itemize}
-
-\vskip 0.5em
-\alert{Next: differentiate to get density formula}
-
-\end{frame}
-
-\note[enumerate]
-{
-\item These are exact formulas relating CDFs
-\item For increasing: straightforward composition
-\item For decreasing: need the complement (1 minus)
-\item Both cases give us a way to compute $F_Y$ from $F_X$
-\item Differentiating will give density formula
-}
-
-\begin{frame}{Step 4: Differentiate to get density}
-
-\structure{Differentiate both sides:}
+\begin{frame}{Step 2: Differentiate to get density}
 
 \vskip 0.5em
 \structure{Case 1: $g$ increasing}
@@ -154,9 +84,9 @@ p_Y(y) = \frac{dF_Y}{dy}(y) = \frac{d}{dy}[1 - F_X(g^{-1}(y))] = -p_X(g^{-1}(y))
 Note: $\frac{dg^{-1}}{dy} < 0$ for decreasing $g$, so $-\frac{dg^{-1}}{dy} > 0$
 
 \vskip 1em
-\structure{Unified formula:}
+\alert{Change of varible formula:}
 \[
-\boxed{p_Y(y) = p_X(g^{-1}(y)) \left| \frac{dg^{-1}}{dy}(y) \right|}
+\alert{p_Y(y) = p_X(g^{-1}(y)) \left| \frac{dg^{-1}}{dy}(y) \right|}
 \]
 
 \end{frame}
@@ -170,6 +100,8 @@ Note: $\frac{dg^{-1}}{dy} < 0$ for decreasing $g$, so $-\frac{dg^{-1}}{dy} > 0$
 \item Absolute value handles both cases: density must be positive!
 \item This explains why we need absolute value in change of variables formula
 }
+
+
 
 \begin{frame}{Step 5: Final formula with Jacobian}
 
