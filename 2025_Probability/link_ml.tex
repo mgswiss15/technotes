@@ -1,0 +1,145 @@
+\section{Applications in generative modeling}
+\begin{frame}{Connection to generative models}
+
+\structure{What we derived:}
+\[
+p_Y(y) = p_X(g^{-1}(y)) \left| \det J_{g^{-1}}(y) \right|
+\]
+
+\vskip 1em
+\structure{The generative modeling setup:}
+\begin{itemize}
+\item Start: simple distribution $p_X$ (e.g., Gaussian $\mathcal{N}(0, I)$)
+\item Transform: via learnable function $g_\theta$ (neural network)
+\item Goal: complex distribution $p_Y$ that matches data distribution $p_{data}$
+\end{itemize}
+
+\vskip 1em
+\structure{Key advantage:} change of variables formula lets us compute $p_Y$ explicitly!
+
+\vskip 0.5em
+\alert{Three approaches: normalizing flows, diffusion models, flow matching}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is where all the theory pays off
+\item Simple distribution: easy to sample from, easy to evaluate
+\item Neural network: flexible enough to model complex data
+\item Change of variables: connects the two via tractable density
+\item Next: see how each method uses this formula
+}
+
+\begin{frame}{Normalizing flows}
+
+\structure{Setup:}
+\begin{itemize}
+\item $X \sim p_{prior}$ (simple, e.g., $\mathcal{N}(0, I)$)
+\item $Y = g_\theta(X)$ where $g_\theta$ is invertible neural network
+\item Want: $p_Y \approx p_{data}$
+\end{itemize}
+
+\vskip 1em
+\structure{Key property:} can compute density explicitly
+\[
+p_Y(y; \theta) = p_{prior}(g_\theta^{-1}(y)) \left| \det J_{g_\theta^{-1}}(y) \right|
+\]
+
+\vskip 1em
+\structure{Training:} maximize log-likelihood on data
+\[
+\max_\theta \sum_{y \in \text{data}} \log p_Y(y; \theta)
+\]
+
+\vskip 0.5em
+\structure{Requires:}
+\begin{itemize}
+\item $g_\theta$ invertible
+\item Jacobian determinant computable
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Normalizing flows: direct application of change of variables
+\item The name "flow": transformation flows probability from prior to data
+\item Examples: RealNVP, Glow, MAF, IAF
+\item Challenge: designing architectures where $g^{-1}$ and $\det J$ are tractable
+\item Popular: coupling layers, autoregressive flows
+}
+
+\begin{frame}{Diffusion models}
+
+\structure{Setup:}
+\begin{itemize}
+\item Forward process: gradually add noise $X_0 \to X_1 \to \cdots \to X_T$
+\item Each step: $X_{t+1} = g_t(X_t) + \text{noise}$
+\item Reverse process: learn to denoise $X_T \to \cdots \to X_1 \to X_0$
+\end{itemize}
+
+\vskip 1em
+\structure{Role of change of variables:}
+\begin{itemize}
+\item Forward: transformations with known densities
+\item Reverse: approximate inverse transformations
+\item Change of variables connects forward and reverse densities
+\end{itemize}
+
+\vskip 1em
+\structure{Key difference from flows:}
+\begin{itemize}
+\item Don't need invertible network
+\item Don't need to compute Jacobian determinant
+\item Trade exact likelihood for flexibility
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Diffusion: more indirect use of change of variables
+\item Forward process defined by known transformations (adding Gaussian noise)
+\item Reverse process learned to approximate inverse
+\item Examples: DDPM, Score-based models
+\item Very successful in practice (Stable Diffusion, DALL-E 2, etc.)
+}
+
+\begin{frame}{Flow matching}
+
+\structure{Setup:}
+\begin{itemize}
+\item Continuous-time flow: $\frac{dx_t}{dt} = v_t(x_t)$ where $v_t$ is velocity field
+\item Connects $p_0$ (simple) to $p_1$ (data) via continuous path
+\end{itemize}
+
+\vskip 1em
+\structure{Change of variables in continuous time:}
+
+Instantaneous change of variables + continuity equation:
+\[
+\frac{\partial p_t}{\partial t} + \nabla \cdot (v_t p_t) = 0
+\]
+
+Related to Jacobian: $\frac{\partial \log p_t}{\partial t} = -\nabla \cdot v_t$
+
+\vskip 1em
+\structure{Key idea:}
+\begin{itemize}
+\item Learn velocity field $v_t$
+\item Flow transports probability from $p_0$ to $p_1$
+\item Change of variables formula in differential form
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Flow matching: continuous-time version of change of variables
+\item Instead of discrete transformations, continuous flow
+\item Continuity equation: how density changes along flow
+\item Examples: Conditional Flow Matching, Rectified Flow
+\item Very recent and active area of research
+\item Unifies many concepts from flows and diffusion
+}
