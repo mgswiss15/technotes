@@ -4,24 +4,21 @@
 \structure{Given random variable $X$ with values in $\mR^d$:}
 
 \vskip 1em
-\structure{1. Probability measure $P_X$}
+\structure{1. Probability measure $P_X$} - operates on \alert{sets}
 \begin{itemize}
 \item $P_X(A)$ - probability that $X \in A$
-\item most fundamental
 \end{itemize}
 
 \vskip 0.5em
-\structure{2. Cumulative distribution function (CDF) $F_X$}
+\structure{2. Cumulative distribution function (CDF) $F_X$} - operates on \alert{points}
 \begin{itemize}
-\item $F_X(x) = P_X((-\infty, x])$
-\item always exists
+\item $F_X(x) = P_X((-\infty, x])$, always exists
 \end{itemize}
 
 \vskip 0.5em
-\structure{3. Probability density function (PDF) $p_X$}
+\structure{3. Probability density function (PDF) $p_X$} - operates on \alert{points}
 \begin{itemize}
 \item $P_X(A) = \int_A p_X(x) \, dx$ when it exists
-\item does not always exist
 \end{itemize}
 
 \vskip 1em
@@ -139,12 +136,13 @@
 \note[enumerate]
 {
 \item We work with measurable sets - for practical purposes, "all reasonable subsets"
-\item Single points have zero probability for continuous distributions because they have zero volume (Lebesgue measure)
-\item Intuition: $P_X(\{x_0\}) = \int_{\{x_0\}} \, dP_X = 0$ because the set has zero measure
-\item This is why we can't talk about "probability at a point" for continuous distributions - only density
 \item Integration w.r.t. probability measure uses the framework from the interlude
 \item The normalization property connects to what we saw in Section 1: any finite measure can be normalized
+\item The notation $\int_A \, dP_X$ means $\int_A 1 \, dP_X$ - we're integrating the constant function 1 over set $A$, which gives the total probability mass in $A$
 \item Measure is the fundamental object, but we often use CDF or density for computation
+\item for continuous distributions: $P_X(\{x_0\}) = 0$ (defining property: no point masses)
+\item Intuition: $P_X(\{x_0\}) = \int_{\{x_0\}} \, dP_X = 0$ because the set has zero measure
+\item This is why we can't talk about "probability at a point" for continuous distributions - only density
 }
 
 \begin{frame}{Cumulative distribution function (CDF)}
