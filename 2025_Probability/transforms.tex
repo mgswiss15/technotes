@@ -33,12 +33,12 @@
 
 \begin{frame}{Push-forward measure}
 
-\structure{Answer:} push-forward of $P_X$ by $g$ gives distribution of $Y$
+\structure{Answer:} distribution of $Y = g(X)$ is the push-forward of $P_X$ by $g$
 
 \vskip 0.5em
-\structure{Definition:} $P_Y$ on $(U, \mathscr{U})$ defined by
+\structure{Definition:} $P_Y$ on $U$ defined by
 \[
-P_Y(C) = P_X(g^{-1}(C)) \quad \text{for } C \in \mathscr{U}
+P_Y(C) = P_X(g^{-1}(C)) \quad \text{for } C \subseteq U
 \]
 where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 
@@ -104,15 +104,16 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 }
 
 \vskip 0.5em
-\structure{Intuition:} probability flows through $g$ - probability of landing in $C$ equals probability of starting in pre-image
+\structure{Intuition:} probability of $Y$ landing in $C$ equals probability of $X$ being in pre-image
 
 \end{frame}
 
 \note[enumerate]
 {
-\item Push-forward is how probability transforms under functions
+\item Push-forward is how distributions transform under functions
 \item The pre-image $g^{-1}(C)$ is the set of points in $T$ that map to $C$
 \item Diagram shows: regular grid in $T$ becomes warped in $U$, but probability is preserved
-\item This is well-defined because $g$ is measurable: $g^{-1}(C) \in \mathscr{T}$ for all $C \in \mathscr{U}$
-\item In ML: $g$ is neural network, $P_X$ is simple distribution, $P_Y$ is complex model distribution
+\item This is well-defined because $g$ is measurable
+\item In ML: $g$ is neural network, $P_X$ is simple distribution (e.g., Gaussian), $P_Y$ is complex model distribution
+\item We're working directly with distributions $P_X$ and $P_Y$, not going back to abstract probability space
 }
