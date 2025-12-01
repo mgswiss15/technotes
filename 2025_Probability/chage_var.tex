@@ -68,6 +68,174 @@ P_Y(C) = \int_C p_Y(y) \, dy = \int_{g^{-1}(C)} p_X(x) \, dx = P_X(g^{-1}(C))
 \item Next: use change of variables from calculus to transform the right integral
 }
 
+\begin{frame}{Step 2: From push-forward to CDF}
+
+\structure{Recall:} push-forward at measure level
+\[
+P_Y(C) = P_X(g^{-1}(C))
+\]
+
+\vskip 1em
+\structure{Choose special set:} $C = (-\infty, y]$
+\[
+P_Y((-\infty, y]) = P_X(g^{-1}((-\infty, y]))
+\]
+
+But $P_Y((-\infty, y]) = F_Y(y)$ by definition of CDF!
+
+\vskip 1em
+\structure{What is $g^{-1}((-\infty, y])$?}
+\begin{itemize}
+\item If $g$ is \alert{increasing}: $g^{-1}((-\infty, y]) = (-\infty, g^{-1}(y)]$
+\item If $g$ is \alert{decreasing}: $g^{-1}((-\infty, y]) = [g^{-1}(y), \infty)$
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the key step: specialize push-forward to a specific set
+\item CDF is probability up to a point - perfect for this
+\item Increasing function: smaller inputs map to smaller outputs, so preimage is also $(-\infty, \cdot]$
+\item Decreasing function: smaller inputs map to larger outputs, so preimage flips to $[\cdot, \infty)$
+\item This difference will matter when we differentiate
+}
+
+\begin{frame}{Step 3: CDF relationship}
+
+\structure{Case 1: $g$ increasing}
+\[
+F_Y(y) = P_X((-\infty, g^{-1}(y)]) = F_X(g^{-1}(y))
+\]
+
+\vskip 1em
+\structure{Case 2: $g$ decreasing}
+\[
+F_Y(y) = P_X([g^{-1}(y), \infty)) = 1 - F_X(g^{-1}(y))
+\]
+
+\vskip 1em
+\structure{Summary:}
+\begin{itemize}
+\item Increasing: CDF of $Y$ is composition of CDF of $X$ with $g^{-1}$
+\item Decreasing: CDF of $Y$ is complement of composition
+\end{itemize}
+
+\vskip 0.5em
+\alert{Next: differentiate to get density formula}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item These are exact formulas relating CDFs
+\item For increasing: straightforward composition
+\item For decreasing: need the complement (1 minus)
+\item Both cases give us a way to compute $F_Y$ from $F_X$
+\item Differentiating will give density formula
+}
+
+\begin{frame}{Step 4: Differentiate to get density}
+
+\structure{Differentiate both sides:}
+
+\vskip 0.5em
+\structure{Case 1: $g$ increasing}
+\[
+p_Y(y) = \frac{dF_Y}{dy}(y) = \frac{d}{dy} F_X(g^{-1}(y)) = p_X(g^{-1}(y)) \cdot \frac{dg^{-1}}{dy}(y)
+\]
+Note: $\frac{dg^{-1}}{dy} > 0$ for increasing $g$
+
+\vskip 1em
+\structure{Case 2: $g$ decreasing}
+\[
+p_Y(y) = \frac{dF_Y}{dy}(y) = \frac{d}{dy}[1 - F_X(g^{-1}(y))] = -p_X(g^{-1}(y)) \cdot \frac{dg^{-1}}{dy}(y)
+\]
+Note: $\frac{dg^{-1}}{dy} < 0$ for decreasing $g$, so $-\frac{dg^{-1}}{dy} > 0$
+
+\vskip 1em
+\structure{Unified formula:}
+\[
+\boxed{p_Y(y) = p_X(g^{-1}(y)) \left| \frac{dg^{-1}}{dy}(y) \right|}
+\]
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Chain rule for differentiation
+\item PDF is derivative of CDF
+\item Increasing case: derivative is positive
+\item Decreasing case: minus sign from derivative of (1-F), but derivative of $g^{-1}$ is negative, so they cancel to positive
+\item Absolute value handles both cases: density must be positive!
+\item This explains why we need absolute value in change of variables formula
+}
+
+\begin{frame}{Step 5: Final formula with Jacobian}
+
+\structure{Using inverse function theorem:} $\frac{dg^{-1}}{dy}(y) = \frac{1}{g'(g^{-1}(y))}$
+
+\vskip 1em
+\structure{1D formula:}
+\[
+\boxed{p_Y(y) = \frac{p_X(g^{-1}(y))}{|g'(g^{-1}(y))|}}
+\]
+
+\vskip 1em
+\structure{Generalization to $\mR^d$:} with $J_g(x) = \frac{\partial g}{\partial x}(x)$ (Jacobian matrix)
+\[
+\boxed{p_Y(y) = \frac{p_X(g^{-1}(y))}{|\det J_g(g^{-1}(y))|}}
+\]
+
+\vskip 1em
+\alert{This is the change of variables formula!}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Inverse function theorem relates derivatives of $g$ and $g^{-1}$
+\item In 1D: just reciprocal of derivative
+\item In $\mR^d$: Jacobian matrices, determinant of inverse = reciprocal of determinant
+\item The Jacobian determinant measures local volume scaling
+\item We derived this from first principles using push-forward and CDF!
+}
+
+\begin{frame}{Step 4: Generalization to $\mR^d$}
+
+\structure{In higher dimensions:}
+
+Same logic, but derivatives become Jacobian matrices
+
+\vskip 1em
+\structure{Result:}
+\[
+p_Y(y) = p_X(g^{-1}(y)) \left| \det \frac{\partial g^{-1}}{\partial y}(y) \right|
+\]
+
+\vskip 1em
+\structure{Using inverse function theorem:}
+\[
+\det \frac{\partial g^{-1}}{\partial y}(y) = \frac{1}{\det \frac{\partial g}{\partial x}(g^{-1}(y))}
+\]
+
+\vskip 1em
+\structure{Final formula:} with $J_g(x) = \frac{\partial g}{\partial x}(x)$
+\[
+\boxed{p_Y(y) = \frac{p_X(g^{-1}(y))}{|\det J_g(g^{-1}(y))|}}
+\]
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Jacobian matrix: $d \times d$ matrix of all partial derivatives
+\item Inverse function theorem in $\mR^d$: $J_{g^{-1}}(y) = [J_g(g^{-1}(y))]^{-1}$
+\item Determinants: $\det(A^{-1}) = 1/\det(A)$
+\item This is the change of variables formula we wanted to derive!
+\item Derived from first principles using CDF and differentiation
+}
+
 \begin{frame}{Step 2: Change of variables in integrals}
 
 \structure{From calculus:} change of variables formula
