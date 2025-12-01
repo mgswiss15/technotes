@@ -32,3 +32,183 @@ Given arbitrary distribution $p_X$ and transformation $g$, how do we compute $p_
 \item Need to understand how densities transform in general
 \item This is the change of variables formula - fundamental for normalizing flows, diffusion models, etc.
 }
+
+\begin{frame}{Step 1: Start from push-forward}
+
+\structure{Recall:} push-forward at measure level
+\[
+P_Y(C) = P_X(g^{-1}(C))
+\]
+
+\vskip 1em
+\structure{Express using densities:} (assuming densities exist)
+\[
+P_Y(C) = \int_C p_Y(y) \, dy = \int_{g^{-1}(C)} p_X(x) \, dx = P_X(g^{-1}(C))
+\]
+
+\vskip 1em
+\structure{Key observation:}
+\begin{itemize}
+\item left side: integrate $p_Y$ over $C$ in $y$-space
+\item right side: integrate $p_X$ over $g^{-1}(C)$ in $x$-space
+\item same probability, different spaces
+\end{itemize}
+
+\vskip 0.5em
+\structure{Idea:} change variables in right side from $x$ to $y = g(x)$
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the starting point - push-forward expressed with densities
+\item Left side: probability in target space $U$ (using $p_Y$)
+\item Right side: probability in source space $T$ (using $p_X$)
+\item They're equal by push-forward definition
+\item Next: use change of variables from calculus to transform the right integral
+}
+
+\begin{frame}{Step 2: Change of variables in integrals}
+
+\structure{From calculus:} change of variables formula
+\[
+\int_{g^{-1}(C)} f(x) \, dx = \int_C f(g^{-1}(y)) \left| \det \frac{\partial g^{-1}}{\partial y}(y) \right| \, dy
+\]
+
+\vskip 0.5em
+Assuming $g: \mR^d \to \mR^d$ is invertible and differentiable
+
+\vskip 1em
+\structure{The Jacobian determinant:}
+\begin{itemize}
+\item $\frac{\partial g^{-1}}{\partial y}$ is the $d \times d$ Jacobian matrix of $g^{-1}$
+\item $\det \frac{\partial g^{-1}}{\partial y}$ measures local volume change
+\item absolute value: $\left| \det \frac{\partial g^{-1}}{\partial y} \right|$
+\end{itemize}
+
+\vskip 1em
+\structure{Intuition:} $dx = \left| \det \frac{\partial g^{-1}}{\partial y} \right| dy$ (infinitesimal volume scaling)
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the standard change of variables from multivariable calculus
+\item The Jacobian matrix contains all partial derivatives
+\item Its determinant tells us how volumes scale under the transformation
+\item We need absolute value because we're integrating (measure must be positive)
+\item For $d=1$: this reduces to $|dx/dy|$ or $|1/g'(x)|$
+\item We can also write in terms of $g$ instead of $g^{-1}$ (next slide)
+}
+
+\begin{frame}{Step 3: Apply to our setting}
+
+\structure{Apply change of variables:}
+\[
+\int_{g^{-1}(C)} p_X(x) \, dx = \int_C p_X(g^{-1}(y)) \left| \det \frac{\partial g^{-1}}{\partial y}(y) \right| \, dy
+\]
+
+\vskip 1em
+\structure{But we also have:}
+\[
+\int_{g^{-1}(C)} p_X(x) \, dx = \int_C p_Y(y) \, dy
+\]
+by push-forward
+
+\vskip 1em
+\structure{Therefore:}
+\[
+\int_C p_Y(y) \, dy = \int_C p_X(g^{-1}(y)) \left| \det \frac{\partial g^{-1}}{\partial y}(y) \right| \, dy
+\]
+
+\vskip 0.5em
+Since this holds for all $C$, the integrands must be equal!
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the key step: combining push-forward with change of variables
+\item We have two expressions for the same integral
+\item Both integrate over $C$ in $y$-space
+\item The integrands must be equal
+\item This gives us the formula for $p_Y$ in terms of $p_X$
+}
+
+\begin{frame}{Step 4: Change of variables formula}
+
+\structure{Result:}
+\[
+p_Y(y) = p_X(g^{-1}(y)) \left| \det \frac{\partial g^{-1}}{\partial y}(y) \right|
+\]
+
+\vskip 1em
+\structure{Alternative form:} using inverse function theorem
+\[
+\det \frac{\partial g^{-1}}{\partial y}(y) = \frac{1}{\det \frac{\partial g}{\partial x}(g^{-1}(y))}
+\]
+
+Therefore:
+\[
+p_Y(y) = p_X(g^{-1}(y)) \left| \det \frac{\partial g}{\partial x}(g^{-1}(y)) \right|^{-1}
+\]
+
+\vskip 1em
+\structure{Common notation:} $J_g(x) = \frac{\partial g}{\partial x}(x)$ (Jacobian of $g$)
+\[
+\boxed{p_Y(y) = \frac{p_X(g^{-1}(y))}{|\det J_g(g^{-1}(y))|}}
+\]
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the change of variables formula!
+\item First form: uses Jacobian of $g^{-1}$ (inverse transformation)
+\item Second form: uses Jacobian of $g$ (forward transformation) - usually more convenient
+\item Inverse function theorem: $J_{g^{-1}}(y) = [J_g(g^{-1}(y))]^{-1}$
+\item Determinants: $\det(A^{-1}) = 1/\det(A)$
+\item The Jacobian determinant in denominator - this is key for normalizing flows
+}
+
+\begin{frame}{Geometric interpretation of Jacobian}
+
+\structure{What does $|\det J_g(x)|$ mean geometrically?}
+
+\vskip 0.5em
+Local volume scaling factor at point $x$
+
+\vskip 1em
+\structure{In 1D:} $g: \mR \to \mR$
+\[
+|\det J_g(x)| = |g'(x)| = \text{local stretching factor}
+\]
+
+\vskip 1em
+\structure{Example:} $g(x) = 2x + 3$
+\begin{itemize}
+\item $g'(x) = 2$ everywhere
+\item stretches by factor 2 everywhere
+\item density: $p_Y(y) = \frac{p_X(g^{-1}(y))}{2}$ (matches our uniform example!)
+\end{itemize}
+
+\vskip 1em
+\structure{In higher dimensions:}
+\begin{itemize}
+\item $|\det J_g(x)|$ measures how $g$ stretches/compresses volume near $x$
+\item $|\det J_g(x)| > 1$: expansion $\Rightarrow$ density decreases
+\item $|\det J_g(x)| < 1$: contraction $\Rightarrow$ density increases
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item The Jacobian determinant has clear geometric meaning
+\item It tells us how volumes change under the transformation
+\item In 1D: just the derivative (slope)
+\item Our uniform example: constant Jacobian = 2, density halves
+\item In general: Jacobian varies with position $x$
+\item This is why neural networks can create complex distributions - varying Jacobian
+\item Key principle: stretching space → lower density, compressing space → higher density
+}
