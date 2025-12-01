@@ -226,13 +226,11 @@ p_X(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))}
 where $B_\epsilon(x)$ is a small ball of radius $\epsilon$ around $x$
 
 \vskip 1em
-\structure{Interpretation:}
-\begin{itemize}
-\item $P_X(B_\epsilon(x))$ = probability in small region around $x$
-\item $\lambda(B_\epsilon(x))$ = volume of that region
-\item ratio = probability per unit volume
-\item limit as region shrinks to point = density at $x$
-\end{itemize}
+\structure{Connection to Radon-Nikodym derivative:}
+\[
+p_X(x) = \frac{dP_X}{d\lambda}(x) = \lim_{\epsilon \to 0} \frac{P_X(B_\epsilon(x))}{\lambda(B_\epsilon(x))}
+\]
+This is literally the derivative of measure $P_X$ w.r.t. measure $\lambda$ at point $x$
 
 \vskip 0.5em
 \alert{Density exists at a point, but probability of a point is zero!}
@@ -241,12 +239,14 @@ where $B_\epsilon(x)$ is a small ball of radius $\epsilon$ around $x$
 
 \note[enumerate]
 {
-\item This is the Radon-Nikodym derivative made concrete
+\item This limit IS the Radon-Nikodym derivative - now concrete!
+\item The notation $\frac{dP_X}{d\lambda}$ means exactly this: derivative of one measure w.r.t. another
 \item In 1D: $B_\epsilon(x) = [x-\epsilon, x+\epsilon]$, $\lambda(B_\epsilon(x)) = 2\epsilon$
-\item So $p_X(x) = \lim_{\epsilon \to 0} \frac{P_X([x-\epsilon, x+\epsilon])}{2\epsilon}$ - looks like derivative!
+\item So $p_X(x) = \lim_{\epsilon \to 0} \frac{P_X([x-\epsilon, x+\epsilon])}{2\epsilon}$ - this looks like the derivative from calculus!
 \item In higher dimensions: ball has volume proportional to $\epsilon^d$
-\item This is why density can be $> 1$: it's a rate, not a probability
+\item This is why density can be $> 1$: it's a rate (derivative), not a probability
 \item Common mistake: confusing $p_X(x)$ (density, can be $> 1$) with $P_X(\{x\})$ (probability, equals 0)
+\item Interpretation: $p_X(x)$ measures local concentration of probability
 }
 
 \begin{frame}{When does density exist?}
