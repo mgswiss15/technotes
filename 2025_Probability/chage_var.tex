@@ -1,0 +1,34 @@
+\section{Change of variables at density level}
+\begin{frame}{From push-forward to change of variables}
+
+\structure{What we saw:} uniform distribution + affine transformation
+\begin{itemize}
+\item $X \sim \text{Uniform}[0,1]$, $g(x) = 2x + 3$, $Y = g(X)$
+\item stretching by factor 2 $\Rightarrow$ density halves
+\item easy to compute: $p_Y = \frac{1}{2}$
+\end{itemize}
+
+\vskip 1em
+\structure{General question:}\\
+Given arbitrary distribution $p_X$ and transformation $g$, how do we compute $p_Y$?
+
+\vskip 1em
+\structure{Challenge:}
+\begin{itemize}
+\item not just uniform distributions
+\item not just affine transformations
+\item need general formula relating $p_Y$ to $p_X$ and $g$
+\end{itemize}
+
+\vskip 0.5em
+\alert{Goal: derive the change of variables formula with Jacobian determinant}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item The uniform example was special - constant density, linear transformation
+\item In ML: we use complex distributions (Gaussian, data distributions) and complex transformations (neural networks)
+\item Need to understand how densities transform in general
+\item This is the change of variables formula - fundamental for normalizing flows, diffusion models, etc.
+}
