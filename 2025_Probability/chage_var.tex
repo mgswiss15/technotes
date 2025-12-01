@@ -196,10 +196,7 @@ dx = \left| \det J_{g^{-1}}(y) \right| \, dy
 
 \begin{frame}{Jacobian as linear approximation}
 
-\structure{The Jacobian measures local volume scaling}
-
-\vskip 1em
-\structure{Key idea:} Near point $x$, transformation $g$ is approximately linear
+\structure{Near point $x$, transformation $g$ is approximately linear:}
 \[
 g(x + \Delta x) \approx g(x) + J_g(x) \cdot \Delta x
 \]
@@ -208,26 +205,23 @@ where $J_g(x) = \frac{\partial g}{\partial x}(x)$ is the Jacobian matrix
 \vskip 1em
 \structure{Volume scaling:}
 \begin{itemize}
-\item linear map $A$ scales volumes by $|\det A|$
-\item $J_g(x)$ is the linear approximation of $g$ at $x$
-\item therefore: $g$ scales volumes locally by $|\det J_g(x)|$
+\item linear maps scale volumes by determinant
+\item $J_g(x)$ is linear approximation at $x$
+\item therefore: $|\det J_g(x)|$ = local volume scaling factor
 \end{itemize}
 
 \vskip 1em
-\structure{Consequence:}
+\structure{Consequence for small region around $x$:}
 \[
 \text{volume}(g(B_\epsilon(x))) \approx |\det J_g(x)| \cdot \text{volume}(B_\epsilon(x))
 \]
-for small ball $B_\epsilon(x)$ around $x$
 
 \end{frame}
 
 \note[enumerate]
 {
-\item This is the fundamental insight: Jacobian is the best linear approximation
-\item In 1D: this is just $g(x + \Delta x) \approx g(x) + g'(x) \Delta x$ (tangent line)
-\item In $\mR^d$: Jacobian matrix plays the role of derivative
+\item Jacobian is the best linear approximation of $g$ near $x$
+\item In 1D: $g(x + \Delta x) \approx g(x) + g'(x) \Delta x$ (tangent line)
 \item Linear maps scale volumes by their determinant
-\item Since $g$ is approximately linear near $x$, it scales volumes by $|\det J_g(x)|$
 \item This justifies the change of variables formula
 }
