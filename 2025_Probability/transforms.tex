@@ -120,30 +120,54 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 
 \begin{frame}{Example: uniform distribution and affine transformation}
 
-\structure{Setup:}
-\begin{itemize}
-\item $X \sim \text{Uniform}[0, 1]$ on $\mR$
-\item transformation: $g(x) = 2x + 3$ (scale by 2, shift by 3)
-\item $Y = g(X) = 2X + 3$
-\end{itemize}
+\structure{Setup:} $X \sim \text{Uniform}[0, 1]$, transformation $g(x) = 2x + 3$, find distribution of $Y = g(X)$
 
 \vskip 1em
-\structure{What is $P_Y$?}
+\centering
+\begin{tikzpicture}[scale=1.2]
+% Left: X ~ Uniform[0,1]
+\begin{scope}[shift={(-4,0)}]
+    % Axis
+    \draw[->] (-0.5,0) -- (2,0) node[right] {$x$};
+    \draw[->] (0,-0.3) -- (0,2) node[above] {$p_X(x)$};
+    
+    % Uniform distribution on [0,1]
+    \fill[blue!20] (0,0) rectangle (1,1);
+    \draw[blue,thick] (0,0) -- (0,1) -- (1,1) -- (1,0);
+    
+    % Labels
+    \node[below] at (0,-0.1) {$0$};
+    \node[below] at (1,-0.1) {$1$};
+    \node[left] at (0,1) {$1$};
+    \node[above] at (0.5,1.2) {$X \sim \text{Uniform}[0,1]$};
+\end{scope}
 
-Using push-forward formula: $P_Y(C) = P_X(g^{-1}(C))$
+% Arrow with transformation
+\draw[->,very thick] (-2.2,0.5) -- (-0.8,0.5) node[midway,above] {$g(x) = 2x+3$};
 
-\vskip 0.5em
-For $C = [a, b]$:
-\begin{itemize}
-\item preimage: $g^{-1}([a,b]) = \{x: 2x + 3 \in [a,b]\} = \left[\frac{a-3}{2}, \frac{b-3}{2}\right]$
-\item $P_Y([a,b]) = P_X\left(\left[\frac{a-3}{2}, \frac{b-3}{2}\right]\right) = \frac{(b-3)/2 - (a-3)/2}{1} = \frac{b-a}{2}$
-\end{itemize}
+% Right: Y ~ Uniform[3,5]
+\begin{scope}[shift={(1,0)}]
+    % Axis
+    \draw[->] (2.5,0) -- (5.5,0) node[right] {$y$};
+    \draw[->] (3,-0.3) -- (3,2) node[above] {$p_Y(y)$};
+    
+    % Uniform distribution on [3,5]
+    \fill[red!20] (3,0) rectangle (5,0.5);
+    \draw[red,thick] (3,0) -- (3,0.5) -- (5,0.5) -- (5,0);
+    
+    % Labels
+    \node[below] at (3,-0.1) {$3$};
+    \node[below] at (5,-0.1) {$5$};
+    \node[left] at (3,0.5) {$\frac{1}{2}$};
+    \node[above] at (4,0.7) {$Y \sim \text{Uniform}[3,5]$};
+\end{scope}
+\end{tikzpicture}
 
 \vskip 1em
-\structure{Conclusion:} $Y \sim \text{Uniform}[3, 5]$
+\structure{What happened:}
 \begin{itemize}
-\item interval $[0,1]$ shifted to $[3,5]$
-\item length doubled: mass spreads out
+\item interval $[0,1] \to [3,5]$: shifted by 3, scaled by 2
+\item height: $1 \to \frac{1}{2}$: density compressed (probability conserved!)
 \end{itemize}
 
 \end{frame}
