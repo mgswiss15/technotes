@@ -197,12 +197,14 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \end{center}
 
 \vskip 0.5em
-\structure{Why these density values?}
+\structure{Key insight:}
 \begin{itemize}
-\item $P_X([0.25, 0.75]) = \int_{0.25}^{0.75} p_X(x) \, dx = p_X \cdot 0.5 = 1 \cdot 0.5 = 0.5$
-\item $P_Y([3.5, 4.5]) = \int_{3.5}^{4.5} p_Y(y) \, dy = p_Y \cdot 1 = \frac{1}{2} \cdot 1 = 0.5$
-\item probability conserved: interval length doubles $\Rightarrow$ density halves
+\item transformation $g$ stretches the space: interval $[0.25, 0.75]$ becomes $[3.5, 4.5]$ (length doubles)
+\item same probability (0.5) must be distributed over larger space
+\item $\Rightarrow$ density decreases: $p_Y = \frac{1}{2} p_X$
 \end{itemize}
+
+\alert{Stretching space $\Rightarrow$ density decreases (probability conserved)}
 
 \end{frame}
 
@@ -215,4 +217,3 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \item The scaling factor 2 will become important when we look at densities (Jacobian)
 \item This example shows: push-forward preserves the "shape" but changes location and scale
 }
-
