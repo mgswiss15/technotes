@@ -128,7 +128,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \begin{tikzpicture}[>=Stealth]
 % LEFT: X ~ Uniform[0,1]
 \begin{scope}[shift={(-4,0)}]
-    \node at (1.8,3) {$X \sim \text{Uniform}[0,1]$};
+    \node at (2.3,2.8) {$X \sim \text{Uniform}[0,1]$};
     
     % Axis
     \draw[->] (-0.5,0) -- (4,0) node[right] {$x$};
@@ -154,7 +154,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     % Probability annotation
     \draw[<->,thick] (0.75,-0.8) -- (2.25,-0.8);
     \node[below] at (1.5,-0.8) {\small length $= 0.5$};
-    \node[above] at (1.5,-0.8) {\small $g^{-1}(C)$};
+    \node[above] at (1.5,-0.8) {\small $g^{-1}(C) = [-1, 1]$};
 \end{scope}
 
 % Arrow with transformation
@@ -164,7 +164,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 
 % RIGHT: Y ~ Uniform[3,5]
 \begin{scope}[shift={(0.5,0)}]
-    \node at (5.5,3) {$Y \sim \text{Uniform}[3,5]$};
+    \node at (5.7,2.8) {$Y \sim \text{Uniform}[3,5]$};
     
     % Axis
     \draw[->] (2.5,0) -- (9.5,0) node[right] {$y$};
@@ -190,7 +190,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     % Probability annotation
     \draw[<->,thick] (4.5,-0.8) -- (7.5,-0.8);
     \node[below] at (6,-0.8) {\small length $= 1$};
-    \node[above] at (6,-0.8) {\small $C$};
+    \node[above] at (6,-0.8) {\small $C = [3.5, 4.5]$};
 \end{scope}
 \end{tikzpicture}
 }
@@ -227,7 +227,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \begin{tikzpicture}[>=Stealth]
 % LEFT: X ~ N(0,1)
 \begin{scope}[shift={(-4,0)}]
-    \node at (1.5,3.5) {$X \sim \mathcal{N}(0,1)$};
+    \node at (2,3) {$X \sim \mathcal{N}(0,1)$};
     
     % Axis
     \draw[->] (-1,0) -- (4,0) node[right] {$x$};
@@ -244,7 +244,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
         plot (\x,{2.5*exp(-(\x-1.5)*(\x-1.5)/0.5)}) -- (2.5,0) -- (0.5,0) -- cycle;
     
     % Labels
-    \node[below] at (1.5,0) {$0$};
+    % \node[below] at (1.5,0) {$0$};
     \node[below] at (0.5,0) {\small $-1$};
     \node[below] at (2.5,0) {\small $1$};
     \node[left] at (0,2.5) {\small $0.4$};
@@ -255,7 +255,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     % Probability annotation
     \draw[<->,thick] (0.5,-0.6) -- (2.5,-0.6);
     \node[below] at (1.5,-0.6) {\small $\sigma = 1$};
-    \node[above] at (1.5,-0.6) {\small $g^{-1}(C)$};
+    \node[above] at (1.5,-0.6) {\small $g^{-1}(C) = [-1, 1]$};
 \end{scope}
 
 % Arrow with transformation
@@ -265,7 +265,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 
 % RIGHT: Y ~ N(3,4)
 \begin{scope}[shift={(0.5,0)}]
-    \node at (6,3.5) {$Y \sim \mathcal{N}(3,4)$};
+    \node at (6,3) {$Y \sim \mathcal{N}(3,4)$};
     
     % Axis
     \draw[->] (2,0) -- (10,0) node[right] {$y$};
@@ -282,7 +282,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
         plot (\x,{1.25*exp(-(\x-6)*(\x-6)/2)}) -- (8,0) -- (4,0) -- cycle;
     
     % Labels
-    \node[below] at (6,0) {$3$};
+    % \node[below] at (6,0) {$3$};
     \node[below] at (4,0) {\small $1$};
     \node[below] at (8,0) {\small $5$};
     \node[left] at (3,1.25) {\small $0.2$};
@@ -293,7 +293,7 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
     % Probability annotation
     \draw[<->,thick] (4,-0.6) -- (8,-0.6);
     \node[below] at (6,-0.6) {\small $\sigma = 2$};
-    \node[above] at (6,-0.6) {\small $C$};
+    \node[above] at (6,-0.6) {\small $C = [1, 5]$};
 \end{scope}
 \end{tikzpicture}
 }
@@ -310,3 +310,109 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \alert{Result: $Y \sim \mathcal{N}(3, 4)$ - mean shifts to 3, variance scales to $2^2 = 4$}
 
 \end{frame}
+
+\begin{frame}{Example: Gaussian to Chi-square distribution}
+
+\structure{Setup:} $X \sim \mathcal{N}(0, 1)$, transformation $g(x) = x^2$, find distribution of $Y = g(X)$
+
+\vskip 0.5em
+\begin{center}  
+\scalebox{0.75}{
+\begin{tikzpicture}[>=Stealth]
+% LEFT: X ~ N(0,1)
+\begin{scope}[shift={(-4.5,0)}]
+    \node at (1.5,2.5) {$X \sim \mathcal{N}(0,1)$};
+    
+    % Axis
+    \draw[->] (-3.5,0) -- (3.5,0) node[right] {$x$};
+    \draw[->] (0,-0.3) -- (0,3) node[above] {$p_X(x)$};
+    
+    % Gaussian density (centered at 0)
+    \draw[blue,thick,domain=-3:3,smooth,samples=100] 
+        plot (\x,{2.5*exp(-\x*\x/2)});
+    \fill[blue!20,opacity=0.6,domain=-3:3,smooth,samples=100] 
+        plot (\x,{2.5*exp(-\x*\x/2)}) -- (3,0) -- (-3,0) -- cycle;
+    
+    % Highlighted regions that map to [0,1]
+    \fill[blue!50,opacity=0.8,domain=-1:0,smooth,samples=50] 
+        plot (\x,{2.5*exp(-\x*\x/2)}) -- (0,0) -- (-1,0) -- cycle;
+    \fill[blue!50,opacity=0.8,domain=0:1,smooth,samples=50] 
+        plot (\x,{2.5*exp(-\x*\x/2)}) -- (1,0) -- (0,0) -- cycle;
+    
+    % Probability in middle
+    \node at (1,1.2) {$P_X(g^{-1}(C)) \approx 0.68$};
+
+    % Labels
+    \node[below] at (0,0) {$0$};
+    \node[below] at (-1,0) {\small $-1$};
+    \node[below] at (1,0) {\small $1$};
+    \node[left] at (0,2.5) {\small $0.4$};
+   
+    % Annotation
+    \draw[<->,thick] (-1,-0.6) -- (1,-0.6);
+    \node[below] at (0,-0.6) {\small $g^{-1}(C) = [-1,1]$};
+\end{scope}
+
+% Arrow with transformation
+% \node at (0,-0.5) {\color{carnelian}$g(x) = x^2$};
+% \node at (0,-1) {\color{carnelian}(non-invertible!)};
+\node at (0,-0.8) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C) \approx 0.68$};
+\draw[->,very thick] (-1,1.8) -- (1.5,1.8) node[midway,above] {$g(x) = x^2$};
+\draw[<-,thick] (-1,0.8) -- (1.5,0.8) node[midway,above] {preimage};
+
+% RIGHT: Y ~ Chi-square(1)
+\begin{scope}[shift={(2,0)}]
+    \node at (3,2.5) {$Y \sim \chi^2_1$};
+    
+    % Axis
+    \draw[->] (-0.5,0) -- (6.5,0) node[right] {$y$};
+    \draw[->] (0,-0.3) -- (0,3) node[above] {$p_Y(y)$};
+    
+    % Chi-square density with 1 d.f.: (1/sqrt(2*pi*y)) * exp(-y/2)
+    \draw[red,thick,domain=0.1:6,smooth,samples=100] 
+        plot (\x,{1.5/sqrt(\x)*exp(-\x/2)});
+    \fill[red!20,opacity=0.6,domain=0.1:6,smooth,samples=100] 
+        plot (\x,{1.5/sqrt(\x)*exp(-\x/2)}) -- (6,0) -- (0.1,0) -- cycle;
+    
+    % Highlighted region [0,1]
+    \fill[red!50,opacity=0.8,domain=0.1:1,smooth,samples=50] 
+        plot (\x,{1.5/sqrt(\x)*exp(-\x/2)}) -- (1,0) -- (0.1,0) -- cycle;
+    
+    % Probability in middle
+    \node at (1,1.2) {$P_Y(C) \approx 0.68$};
+
+    % Labels
+    \node[below] at (0,0) {$0$};
+    \node[below] at (1,0) {\small $1$};
+    \node[below] at (3,0) {\small $3$};
+      
+    % Annotation
+    \draw[<->,thick] (0.1,-0.6) -- (1,-0.6);
+    \node[below] at (0.55,-0.6) {\small $C = [0,1]$};
+\end{scope}
+\end{tikzpicture}
+}
+\end{center}
+
+\vskip 0.5em
+\structure{Key observations:}
+\begin{itemize}
+\item non-invertible: both $x$ and $-x$ map to $x^2$ (two preimages!)
+\item symmetric regions $[-1,0]$ and $[0,1]$ both map to $[0,1]$
+\item density piles up near zero: $p_Y(y) \to \infty$ as $y \to 0^+$
+\end{itemize}
+
+\alert{Non-affine transformation changes distribution family: Gaussian $\to$ Chi-square}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This example shows a fundamentally different transformation: non-linear and non-invertible
+\item For $g(x) = x^2$: each positive $y$ has two preimages $\pm\sqrt{y}$
+\item Chi-square with 1 d.f. is the distribution of the square of a standard normal
+\item Density near zero is high because small intervals near 0 in the Gaussian map to very small intervals in $[0,\infty)$
+\item The change of variables formula still works, but we need to account for both preimages
+\item This will be important when we derive the formula in Section 5
+\item Shows that push-forward can change distribution families dramatically
+}
