@@ -216,3 +216,97 @@ where $g^{-1}(C) = \{x \in T: g(x) \in C\}$ is the pre-image
 \item The scaling factor 2 will become important when we look at densities (Jacobian)
 \item This example shows: push-forward preserves the "shape" but changes location and scale
 }
+
+\begin{frame}{Example: Gaussian distribution and affine transformation}
+
+\structure{Setup:} $X \sim \mathcal{N}(0, 1)$, transformation $g(x) = 2x + 3$, find distribution of $Y = g(X)$
+
+\vskip 0.5em
+\begin{center}  
+\scalebox{0.75}{
+\begin{tikzpicture}[>=Stealth]
+% LEFT: X ~ N(0,1)
+\begin{scope}[shift={(-4,0)}]
+    \node at (1.5,3.5) {$X \sim \mathcal{N}(0,1)$};
+    
+    % Axis
+    \draw[->] (-1,0) -- (4,0) node[right] {$x$};
+    \draw[->] (0,-0.3) -- (0,3) node[above] {$p_X(x)$};
+    
+    % Gaussian density (centered at x=1.5, scaled to fit)
+    \draw[blue,thick,domain=-0.5:3.5,smooth,samples=100] 
+        plot (\x,{2.5*exp(-(\x-1.5)*(\x-1.5)/0.5)});
+    \fill[blue!20,opacity=0.6,domain=-0.5:3.5,smooth,samples=100] 
+        plot (\x,{2.5*exp(-(\x-1.5)*(\x-1.5)/0.5)}) -- (3.5,0) -- (-0.5,0) -- cycle;
+    
+    % Highlighted region (one standard deviation around mean)
+    \fill[blue!50,opacity=0.8,domain=0.5:2.5,smooth,samples=100] 
+        plot (\x,{2.5*exp(-(\x-1.5)*(\x-1.5)/0.5)}) -- (2.5,0) -- (0.5,0) -- cycle;
+    
+    % Labels
+    \node[below] at (1.5,0) {$0$};
+    \node[below] at (0.5,0) {\small $-1$};
+    \node[below] at (2.5,0) {\small $1$};
+    \node[left] at (0,2.5) {\small $0.4$};
+   
+    % Probability in middle
+    \node at (1.5,1.2) {$P_X(g^{-1}(C)) \approx 0.68$};
+    
+    % Probability annotation
+    \draw[<->,thick] (0.5,-0.6) -- (2.5,-0.6);
+    \node[below] at (1.5,-0.6) {\small $\sigma = 1$};
+    \node[above] at (1.5,-0.6) {\small $g^{-1}(C)$};
+\end{scope}
+
+% Arrow with transformation
+\node at (1.5,-0.8) {\color{carnelian}$P_X(g^{-1}(C)) = P_Y(C) \approx 0.68$};
+\draw[->,very thick] (-0,1.8) -- (2.5,1.8) node[midway,above] {$g(x) = 2x+3$};
+\draw[<-,thick] (-0,0.8) -- (2.5,0.8) node[midway,above] {preimage};
+
+% RIGHT: Y ~ N(3,4)
+\begin{scope}[shift={(0.5,0)}]
+    \node at (6,3.5) {$Y \sim \mathcal{N}(3,4)$};
+    
+    % Axis
+    \draw[->] (2,0) -- (10,0) node[right] {$y$};
+    \draw[->] (3,-0.3) -- (3,3) node[above] {$p_Y(y)$};
+    
+    % Gaussian density (centered at y=6, which is g(0)=3, variance 4)
+    \draw[red,thick,domain=2.5:9.5,smooth,samples=100] 
+        plot (\x,{1.25*exp(-(\x-6)*(\x-6)/2)});
+    \fill[red!20,opacity=0.6,domain=2.5:9.5,smooth,samples=100] 
+        plot (\x,{1.25*exp(-(\x-6)*(\x-6)/2)}) -- (9.5,0) -- (2.5,0) -- cycle;
+    
+    % Highlighted region (one standard deviation: sigma=2)
+    \fill[red!50,opacity=0.8,domain=4:8,smooth,samples=100] 
+        plot (\x,{1.25*exp(-(\x-6)*(\x-6)/2)}) -- (8,0) -- (4,0) -- cycle;
+    
+    % Labels
+    \node[below] at (6,0) {$3$};
+    \node[below] at (4,0) {\small $1$};
+    \node[below] at (8,0) {\small $5$};
+    \node[left] at (3,1.25) {\small $0.2$};
+      
+    % Probability in middle
+    \node at (6,0.6) {$P_Y(C) \approx 0.68$};
+    
+    % Probability annotation
+    \draw[<->,thick] (4,-0.6) -- (8,-0.6);
+    \node[below] at (6,-0.6) {\small $\sigma = 2$};
+    \node[above] at (6,-0.6) {\small $C$};
+\end{scope}
+\end{tikzpicture}
+}
+\end{center}
+
+\vskip 0.5em
+\structure{Key insight:}
+\begin{itemize}
+\item $g$ stretches space: standard deviation doubles ($1 \to 2$)
+\item same probability ($\approx 68\%$) distributed over larger space
+\item peak density halves: $\max p_Y \approx 0.2 = \frac{1}{2} \cdot 0.4$
+\end{itemize}
+
+\alert{Result: $Y \sim \mathcal{N}(3, 4)$ - mean shifts to 3, variance scales to $2^2 = 4$}
+
+\end{frame}
