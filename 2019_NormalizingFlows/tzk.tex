@@ -1,0 +1,32 @@
+\clearpage 
+
+\section{Livne \& Fleet: TzK: Flow-based Conditional Generative Model}\label{sec:TzK}
+
+\begin{notebox}
+\fullcite{livneTzKFlowBasedConditional2019}
+
+\hfill Notes taken: 3/7/2020 \index{July 2020}
+\end{notebox}
+
+A bit awkward paper, I'm not sure I understood.
+They propose a compositional conditional generative model which incorporates task-specific conditioning.
+The principal idea is that they learn common features across multiple datasets and they then train a complimentary task-specific model over the common features to account for the particularities of the task (sub-domain) of interest.
+Intuitively, this should work better than training each task separately by providing more data from the other tasks an therefore learning better features \note{though I don't think they ever say this}.
+It can either be trained end-to-end if you know the tasks of interest or you first train the common model and then you train the specific model. \\
+\note{This intuition seems easy and rather obvious but the paper and architecture are much less clear.}
+
+They use flow architecture and map the target variable $\bt$ to a latent variable $\bz$ via a smooth invertible mapping $\bz = f_\theta{\bt}$.
+They further condition the latent state $\bz$ on a latent code $\bk = \{\bk^i\}_{i=1}^K$, where $\bk^i = (e^i, \bc^i)$ with $e^i \in  \{0, 1\}$ and $\bc^i \in \mR^C$.
+They refer to $\bk^i$ is \emph{knowledge type} $i$ with $e^i$ being the \emph{existence} of the knowledge of the specific type $i$ and $\bc^i$ the latent code of the knowledge $i$.
+The knowledge classes can interact through the common latent representation $\bz$.
+
+They assume independence between the knowledge types and adopt an encoder decoder framework through which they can learn the many distributions they need.
+This is where I get lost because the architectures (and the reasons for making it so) seem very unclear to me.
+Particularly, check figure 1 and equations 3-7 in the paper which are the core of the thing. There are many distributions that need to be learned and I'm not sure which, when and why.
+
+
+
+
+
+
+

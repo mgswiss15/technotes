@@ -1,0 +1,68 @@
+\clearpage 
+
+\section{Ardizzone: Inverse problems through invertible networks}\label{sec:inverseProblem}\index{inverse problem}
+
+\begin{notebox}
+\fullcite{ardizzoneAnalyzingInverseProblems2019}
+
+\hfill Notes taken: 24/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr You know from some physical model the forward function $\by = s(\bx)$ which allows you to simulate data. However, this does not mean that from the observations of $\by$ you can recover $\bx$ (the inverse problem). They propose to learn the inverse function $f^{-1}$ via invertible network ensuring that the learned forward approximates the simulator $f \approx s$. \\
+
+The simulator may not be invertible (mathematically). Instead of learning a deterministic transformation $\bx = f^{-1}(\by)$ they therefore learn a probabilistic mapping $q(\bx| \by)$ where the conditional distribution is implied by a deterministic function $g(\by, \bz; \theta)$ with a random variable $\bz \sim \mathcal{N}(0, I)$. \\
+
+They pose it into the invertible architecture so that they get $g^{-1}(\bx) = f(\bx; \theta) = [f_y(\bx; \theta), f_z(\bz; \theta)]$ with single parametrization. They use the standard change of variable formulas to recover the density $q(\bx| \by)$ and optimize the forward pass as well as the backward pass with a different losses (checking the prediction of $\by$ compared to the ground truth and checking the normality of $\bz$ and its independence from $\by$ respectively.)
+\end{notebox}
+
+If you know the \emph{forward function}\index{forward function} (e.g. simulator) $\by = s(\bx)$ which generates some observables $\by$ from some hidden parameters, it does not mean we also know the inverse function $s^{-1}$ to get the hidden parameters $\bx$ from the observed $\by$.
+
+Nice example: $\bx$ are the parameters of a robotic arm (vertical location along a rail and 3 angles in 3 joints), $\by$ is the location (in 2D) where the arm reached. I can easily model the arm and get the location $\by = s(\bx)$. However, it is not obvious to get the setting of the parameters $\bx$ for a known location $\by$. Or rather, there are many possible and what they want to infer is the posterior distribution $p(\bx | \by)$ over these. 
+
+I find this a bit ill posed because in the set-up above, there is no reason why there should be some other than uniform distribution over all possible configurations. Hm, but in the marginals perhaps some configurations can be more probable because they can combine with multiple configurations of the other parameters? And there is certainly plenty of dependencies.
+
+They formulate it as a flow network where they 
+\begin{compactitem}
+\item assume latent variable model with $\bz \sim p(\bz) = \mathcal{N}(0, I_K)$ and $\bx = g(\by, \bz; \theta)$ where we learn the deterministic function $g$ as a neural network
+\item by the standard change of variable we get for the conditional density
+\begin{equation}\label{eqinverse:conditional}
+q(\bx | \by) = p(\bz) \, \big\lvert \det J_x \big\rvert^{-1}, \quad 
+J_x = \frac{\partial g(\by, \bz; \theta)}{\partial [\by, \bz]} \Bigg\rvert_{\by, f_z(\bx)}
+\end{equation}
+\item approximate the known forward function by learned $f_y(\bx; \theta) \approx s(\bx)$ and learn it jointly with the inverse process
+\begin{equation}
+[\by, \bz] = [f_y(\bx; \theta), f_z(\bx; \theta)] = f(\bx; \theta) = g^{-1}(\bx)
+\end{equation}
+tying together the parameters $\theta$ by the architecture of the invertible network. 
+\end{compactitem}
+
+There will be some problems with the dimensionality of the $\bx$ and $[\by, \bz]$ which normally should match but they propose to solve it simply by padding (and some more hacks, I think).
+
+They then use a variant of the \emph{coupling layers}\index{coupling layers}, actually also interesting because it does not pass part of the inputs unchanged. Instead it changes everything but needs to do the updates and the inverses sequentially
+\begin{equation}
+\bv_1 = \bu_1 \odot exp(s_2(\bu_2)) + t_2(\bu_2), \qquad
+\bv_2 = \bu_2 \odot exp(s_1(\bv_1)) + t_1(\bv_1)
+\end{equation}
+with the inverse
+\begin{equation}
+\bu_2 = (\bv_2 - t_1(\bv_1)) \odot exp(-s_1(\bv_1)), \qquad
+\bu_1 = (\bv_1 - t_2(\bu_2)) \odot exp(-s_2(\bu_2))
+\end{equation}
+
+The loss is not a simple maximum likelihood.
+Instead they do bi-derctional training where they accumulate the gradients from the forward and backward iterations and corresponding losses and only update after.
+\begin{compactitem}
+\item For the forward iteration the loss penalizes deviations of the network predictions from the simulations $L_y(f_y(\bx), s(\bx))$. This can be something like squared error or cross entropy.
+\item For the backward iteration the loss penalizes the mismatch between the joint latent distribution and the product of their marginals $L_z(q(\by, \bz), p(\by), p(\bz)) = MMD(q(\by, \bz), p(\by), p(\bz))$, where
+$p(\bz)$ is the normal prior, $p(\by = s(\bx)) = p(\bx) \, \big\lvert \det J_s \big\rvert^{-1}$ with $J_s = \partial s(\bx) / \partial \bx$ and $q(\by = f_y(\bx), \bz= f_z(\bz)) = p(\bx) \big\lvert \det J_f \big\rvert^{-1}$ with $J_f = \partial f(\bx) / \partial \bx$.
+Here $p(\bx)$ is some fixed prior distribution.
+This ensures that $\by, \bz$ are independent and that the generated $\bz$ follows the normal distribution.
+As the distance measure $MMD$\index{MMD} they use the \emph{Maximum Mean Discrepency}\index{Maximum Mean Discrepency} which can be evaluated efficiently over data samples
+\item To speed up convergence they add a third loss $L_x(p(\bx), q(\bx)) = MMD(p(\bx), q(\bx))$, where $q(\bx) = p(\by = f_y(\bx))p(\bz = f_z(\bx)) \big\lvert \det J_x \big\rvert^{-1}$ with $J_x$ as in equation \eqref{eqinverse:conditional}.
+\end{compactitem}
+
+The experiments compare the MAP estimates of the $\bx$ as well as the distributions through \emph{calibration error}\index{calibration error} (something to do with the proportion of true data within a confidence interval) and they plot the marginal posterior densities to show how they deviate from the priors $p(\bx)$ (the kernel density estimate over the data?)
+
+
+

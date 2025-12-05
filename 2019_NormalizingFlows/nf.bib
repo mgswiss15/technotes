@@ -1,0 +1,559 @@
+
+@misc{siegristRandomProbabilityMathematical,
+  title = {Random: {{Probability}}, {{Mathematical Statistics}}, {{Stochastic Processes}}},
+  author = {Siegrist, Kyle},
+  file = {/home/magda/Zotero/storage/45Y4A6GA/index.html},
+  howpublished = {https://www.randomservices.org}
+}
+
+@book{mackayInformationTheoryInference2005,
+    title = {Information Theory, Inference, and Learning Algorithms},
+    publisher = {Cambridge University Press},
+    author = {{MacKay}, David J C},
+    date = {2005},
+    langid = {english},
+    file = {MacKay_Information Theory, Inference, and Learning Algorithms.pdf:/home/magda/Dropbox/ZoteroFiles/MacKay_Information Theory, Inference, and Learning Algorithms.pdf:application/pdf}
+}
+
+
+@article{ardizzoneAnalyzingInverseProblems2019,
+  title = {Analyzing {{Inverse Problems}} with {{Invertible Neural Networks}}},
+  author = {Ardizzone, Lynton and Kruse, Jakob and Wirkert, Sebastian and Rahner, Daniel and Pellegrini, Eric W. and Klessen, Ralf S. and {Maier-Hein}, Lena and Rother, Carsten and K{\"o}the, Ullrich},
+  year = {2019},
+  month = feb,
+  abstract = {In many tasks, in particular in natural science, the goal is to determine hidden system parameters from a set of measurements. Often, the forward process from parameter- to measurement-space is a well-defined function, whereas the inverse problem is ambiguous: one measurement may map to multiple different sets of parameters. In this setting, the posterior parameter distribution, conditioned on an input measurement, has to be determined. We argue that a particular class of neural networks is well suited for this task -- so-called Invertible Neural Networks (INNs). Although INNs are not new, they have, so far, received little attention in literature. While classical neural networks attempt to solve the ambiguous inverse problem directly, INNs are able to learn it jointly with the well-defined forward process, using additional latent output variables to capture the information otherwise lost. Given a specific measurement and sampled latent variables, the inverse pass of the INN provides a full distribution over parameter space. We verify experimentally, on artificial data and real-world problems from astrophysics and medicine, that INNs are a powerful analysis tool to find multi-modalities in parameter space, to uncover parameter correlations, and to identify unrecoverable parameters.},
+  archivePrefix = {arXiv},
+  eprint = {1808.04730},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Ardizzone et al_2019_Analyzing Inverse Problems with Invertible Neural Networks.pdf;/home/magda/Zotero/storage/BRDRP5D5/1808.html},
+  journal = {arXiv:1808.04730 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{ardizzoneExactInformationBottleneck2020,
+  title = {Exact {{Information Bottleneck}} with {{Invertible Neural Networks}}: {{Getting}} the {{Best}} of {{Discriminative}} and {{Generative Modeling}}},
+  shorttitle = {Exact {{Information Bottleneck}} with {{Invertible Neural Networks}}},
+  author = {Ardizzone, Lynton and Mackowiak, Radek and K{\"o}the, Ullrich and Rother, Carsten},
+  year = {2020},
+  month = jan,
+  abstract = {The Information Bottleneck (IB) principle offers a unified approach to many learning and prediction problems. Although optimal in an information-theoretic sense, practical applications of IB are hampered by a lack of accurate high-dimensional estimators of mutual information, its main constituent. We propose to combine IB with invertible neural networks (INNs), which for the first time allows exact calculation of the required mutual information. Applied to classification, our proposed method results in a generative classifier we call IB-INN. It accurately models the class conditional likelihoods, generalizes well to unseen data and reliably recognizes out-of-distribution examples. In contrast to existing generative classifiers, these advantages incur only minor reductions in classification accuracy in comparison to corresponding discriminative methods such as feed-forward networks. Furthermore, we provide insight into why IB-INNs are superior to other generative architectures and training procedures and show experimentally that our method outperforms alternative models of comparable complexity.},
+  archivePrefix = {arXiv},
+  eprint = {2001.06448},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Ardizzone et al_2020_Exact Information Bottleneck with Invertible Neural Networks.pdf;/home/magda/Zotero/storage/AT2YDWAA/2001.html},
+  journal = {arXiv:2001.06448 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{ardizzoneGuidedImageGeneration2019,
+  title = {Guided {{Image Generation}} with {{Conditional Invertible Neural Networks}}},
+  author = {Ardizzone, Lynton and L{\"u}th, Carsten and Kruse, Jakob and Rother, Carsten and K{\"o}the, Ullrich},
+  year = {2019},
+  month = jul,
+  abstract = {In this work, we address the task of natural image generation guided by a conditioning input. We introduce a new architecture called conditional invertible neural network (cINN). The cINN combines the purely generative INN model with an unconstrained feed-forward network, which efficiently preprocesses the conditioning input into useful features. All parameters of the cINN are jointly optimized with a stable, maximum likelihood-based training procedure. By construction, the cINN does not experience mode collapse and generates diverse samples, in contrast to e.g. cGANs. At the same time our model produces sharp images since no reconstruction loss is required, in contrast to e.g. VAEs. We demonstrate these properties for the tasks of MNIST digit generation and image colorization. Furthermore, we take advantage of our bi-directional cINN architecture to explore and manipulate emergent properties of the latent space, such as changing the image style in an intuitive way.},
+  archivePrefix = {arXiv},
+  eprint = {1907.02392},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Ardizzone et al_2019_Guided Image Generation with Conditional Invertible Neural Networks.pdf;/home/magda/Zotero/storage/J9D7QRS5/1907.html},
+  journal = {arXiv:1907.02392 [cs]},
+  primaryClass = {cs}
+}
+
+@article{bergSylvesterNormalizingFlows2019,
+  title = {Sylvester {{Normalizing Flows}} for {{Variational Inference}}},
+  author = {van den Berg, Rianne and Hasenclever, Leonard and Tomczak, Jakub M. and Welling, Max},
+  year = {2019},
+  month = feb,
+  abstract = {Variational inference relies on flexible approximate posterior distributions. Normalizing flows provide a general recipe to construct flexible variational posteriors. We introduce Sylvester normalizing flows, which can be seen as a generalization of planar flows. Sylvester normalizing flows remove the well-known single-unit bottleneck from planar flows, making a single transformation much more flexible. We compare the performance of Sylvester normalizing flows against planar flows and inverse autoregressive flows and demonstrate that they compare favorably on several datasets.},
+  archivePrefix = {arXiv},
+  eprint = {1803.05649},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Berg et al_2019_Sylvester Normalizing Flows for Variational Inference.pdf;/home/magda/Zotero/storage/6EZ33IBB/1803.html},
+  journal = {arXiv:1803.05649 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{cornishLocalisedGenerativeFlows2019,
+  title = {Localised {{Generative Flows}}},
+  author = {Cornish, Rob and Caterini, Anthony L. and Deligiannidis, George and Doucet, Arnaud},
+  year = {2019},
+  month = sep,
+  abstract = {We argue that flow-based density models based on continuous bijections are limited in their ability to learn target distributions with complicated topologies, and propose Localised Generative Flows (LGFs) to address this problem. LGFs are composed of stacked continuous mixtures of bijections, which enables each bijection to learn a local region of the target rather than its entirety. Our method is a generalisation of existing flow-based methods, which can be used without modification as the basis for an LGF model. Unlike normalising flows, LGFs do not permit exact computation of log likelihoods, but we propose a simple variational scheme that performs well in practice. We show empirically that LGFs yield improved performance across a variety of density estimation tasks.},
+  archivePrefix = {arXiv},
+  eprint = {1909.13833},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Cornish et al_2019_Localised Generative Flows.pdf;/home/magda/Zotero/storage/XRPNYZSZ/1909.html},
+  journal = {arXiv:1909.13833 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@inproceedings{dinhDensityEstimationUsing2017,
+  title = {Density Estimation Using {{Real NVP}}},
+  booktitle = {{{ICLR}}},
+  author = {Dinh, Laurent and {Sohl-Dickstein}, Jascha and Bengio, Samy},
+  year = {2017},
+  abstract = {Unsupervised learning of probabilistic models is a central yet challenging problem in machine learning. Specifically, designing models with tractable learning, sampling, inference and evaluation is crucial in solving this task. We extend the space of such models using real-valued non-volume preserving (real NVP) transformations, a set of powerful invertible and learnable transformations, resulting in an unsupervised learning algorithm with exact log-likelihood computation, exact sampling, exact inference of latent variables, and an interpretable latent space. We demonstrate its ability to model natural images on four datasets through sampling, log-likelihood evaluation and latent variable manipulations.},
+  archivePrefix = {arXiv},
+  eprint = {1605.08803},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Dinh et al_2017_Density estimation using Real NVP.pdf;/home/magda/Zotero/storage/P4PQMB6Z/1605.html},
+  keywords = {coupling layers,done reading,normalizing flows,paper notes,xx}
+}
+
+@inproceedings{dinhNICENonlinearIndependent2015,
+  title = {{{NICE}}: {{Non}}-Linear {{Independent Components Estimation}}},
+  shorttitle = {{{NICE}}},
+  booktitle = {{{ICLR}} (Workshop)},
+  author = {Dinh, Laurent and Krueger, David and Bengio, Yoshua},
+  year = {2015},
+  abstract = {We propose a deep learning framework for modeling complex high-dimensional densities called Non-linear Independent Component Estimation (NICE). It is based on the idea that a good representation is one in which the data has a distribution that is easy to model. For this purpose, a non-linear deterministic transformation of the data is learned that maps it to a latent space so as to make the transformed data conform to a factorized distribution, i.e., resulting in independent latent variables. We parametrize this transformation so that computing the Jacobian determinant and inverse transform is trivial, yet we maintain the ability to learn complex non-linear transformations, via a composition of simple building blocks, each based on a deep neural network. The training criterion is simply the exact log-likelihood, which is tractable. Unbiased ancestral sampling is also easy. We show that this approach yields good generative models on four image datasets and can be used for inpainting.},
+  archivePrefix = {arXiv},
+  eprint = {1410.8516},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Dinh et al_2015_NICE.pdf;/home/magda/Zotero/storage/3TNZWGA7/1410.html},
+  keywords = {coupling layers,done reading,normalizing flows,paper notes,xx}
+}
+
+@article{dinhRADApproachDeep2019,
+  title = {A {{RAD}} Approach to Deep Mixture Models},
+  author = {Dinh, Laurent and {Sohl-Dickstein}, Jascha and Pascanu, Razvan and Larochelle, Hugo},
+  year = {2019},
+  month = mar,
+  abstract = {Flow based models such as Real NVP are an extremely powerful approach to density estimation. However, existing flow based models are restricted to transforming continuous densities over a...},
+  file = {/home/magda/Dropbox/ZoteroFiles/Dinh et al_2019_A RAD approach to deep mixture models.pdf;/home/magda/Zotero/storage/TFDJGQ36/forum.html}
+}
+
+@article{germainMADEMaskedAutoencoder2015,
+  title = {{{MADE}}: {{Masked Autoencoder}} for {{Distribution Estimation}}},
+  shorttitle = {{{MADE}}},
+  author = {Germain, Mathieu and Gregor, Karol and Murray, Iain and Larochelle, Hugo},
+  year = {2015},
+  month = jun,
+  abstract = {There has been a lot of recent interest in designing neural network models to estimate a distribution from a set of examples. We introduce a simple modification for autoencoder neural networks that yields powerful generative models. Our method masks the autoencoder's parameters to respect autoregressive constraints: each input is reconstructed only from previous inputs in a given ordering. Constrained this way, the autoencoder outputs can be interpreted as a set of conditional probabilities, and their product, the full joint probability. We can also train a single network that can decompose the joint probability in multiple different orderings. Our simple framework can be applied to multiple architectures, including deep ones. Vectorized implementations, such as on GPUs, are simple and fast. Experiments demonstrate that this approach is competitive with state-of-the-art tractable distribution estimators. At test time, the method is significantly faster and scales better than other autoregressive estimators.},
+  archivePrefix = {arXiv},
+  eprint = {1502.03509},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Germain et al_2015_MADE.pdf;/home/magda/Zotero/storage/TWZ39XBU/1502.html},
+  journal = {arXiv:1502.03509 [cs, stat]},
+  keywords = {autoencoder,autoregressive model,paper notes,skimmed through},
+  primaryClass = {cs, stat}
+}
+
+@inproceedings{hanVariationalGaussianCopula2016,
+  title = {Variational {{Gaussian Copula Inference}}},
+  booktitle = {Artificial {{Intelligence}} and {{Statistics}}},
+  author = {Han, Shaobo and Liao, Xuejun and Dunson, David and Carin, Lawrence},
+  year = {2016},
+  month = may,
+  pages = {829--838},
+  abstract = {We utilize copulas to constitute a unified framework for constructing and optimizing variational proposals in hierarchical Bayesian models. For models with continuous and non-Gaussian hidden variab...},
+  file = {/home/magda/Dropbox/ZoteroFiles/Han et al_2016_Variational Gaussian Copula Inference.pdf;/home/magda/Zotero/storage/DNE782IF/han16.html},
+  language = {en}
+}
+
+@article{hirtCopulalikeVariationalInference2019,
+  title = {Copula-like {{Variational Inference}}},
+  author = {Hirt, Marcel and Dellaportas, Petros and Durmus, Alain},
+  year = {2019},
+  month = dec,
+  abstract = {This paper considers a new family of variational distributions motivated by Sklar's theorem. This family is based on new copula-like densities on the hypercube with non-uniform marginals which can be sampled efficiently, i.e. with a complexity linear in the dimension of state space. Then, the proposed variational densities that we suggest can be seen as arising from these copula-like densities used as base distributions on the hypercube with Gaussian quantile functions and sparse rotation matrices as normalizing flows. The latter correspond to a rotation of the marginals with complexity \$\textbackslash{}mathcal\{O\}(d \textbackslash{}log d)\$. We provide some empirical evidence that such a variational family can also approximate non-Gaussian posteriors and can be beneficial compared to Gaussian approximations. Our method performs largely comparably to state-of-the-art variational approximations on standard regression and classification benchmarks for Bayesian Neural Networks.},
+  archivePrefix = {arXiv},
+  eprint = {1904.07153},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Hirt et al_2019_Copula-like Variational Inference.pdf;/home/magda/Zotero/storage/DBE5ST3Q/1904.html},
+  journal = {arXiv:1904.07153 [cs, stat]},
+  keywords = {copula,skimmed through,variational inference},
+  primaryClass = {cs, stat}
+}
+
+@article{hoFlowImprovingFlowBased2019,
+  title = {Flow++: {{Improving Flow}}-{{Based Generative Models}} with {{Variational Dequantization}} and {{Architecture Design}}},
+  shorttitle = {Flow++},
+  author = {Ho, Jonathan and Chen, Xi and Srinivas, Aravind and Duan, Yan and Abbeel, Pieter},
+  year = {2019},
+  month = may,
+  abstract = {Flow-based generative models are powerful exact likelihood models with efficient sampling and inference. Despite their computational efficiency, flow-based models generally have much worse density modeling performance compared to state-of-the-art autoregressive models. In this paper, we investigate and improve upon three limiting design choices employed by flow-based models in prior work: the use of uniform noise for dequantization, the use of inexpressive affine flows, and the use of purely convolutional conditioning networks in coupling layers. Based on our findings, we propose Flow++, a new flow-based model that is now the state-of-the-art non-autoregressive model for unconditional density estimation on standard image benchmarks. Our work has begun to close the significant performance gap that has so far existed between autoregressive models and flow-based models. Our implementation is available at https://github.com/aravindsrinivas/flowpp},
+  archivePrefix = {arXiv},
+  eprint = {1902.00275},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Ho et al_2019_Flow++.pdf;/home/magda/Zotero/storage/KJUDZC9X/1902.html},
+  journal = {arXiv:1902.00275 [cs, stat]},
+  keywords = {coupling layers,dequantization,normalizing flows,paper notes,skimmed through,xx},
+  primaryClass = {cs, stat}
+}
+
+@inproceedings{hoogeboomIntegerDiscreteFlows2019,
+  title = {Integer {{Discrete Flows}} and {{Lossless Compression}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}} 32 ({{NIPS}} 2019)},
+  author = {Hoogeboom, Emiel and Peters, Jorn W. T. and van den Berg, Rianne and Welling, Max},
+  year = {2019},
+  abstract = {Lossless compression methods shorten the expected representation size of data without loss of information, using a statistical model. Flow-based models are attractive in this setting because they admit exact likelihood optimization, which is equivalent to minimizing the expected number of bits per message. However, conventional flows assume continuous data, which may lead to reconstruction errors when quantized for compression. For that reason, we introduce a flow-based generative model for ordinal discrete data called Integer Discrete Flow (IDF): a bijective integer map that can learn rich transformations on high-dimensional data. As building blocks for IDFs, we introduce a flexible transformation layer called integer discrete coupling. Our experiments show that IDFs are competitive with other flow-based generative models. Furthermore, we demonstrate that IDF based compression achieves state-of-the-art lossless compression rates on CIFAR10, ImageNet32, and ImageNet64. To the best of our knowledge, this is the first lossless compression method that uses invertible neural networks.},
+  archivePrefix = {arXiv},
+  eprint = {1905.07376},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Hoogeboom et al_2019_Integer Discrete Flows and Lossless Compression.pdf;/home/magda/Zotero/storage/EAPXSPKL/1905.html},
+  keywords = {compression,discrete flows,done reading,normalizing flows,paper notes,xx}
+}
+
+@article{huangAugmentedNormalizingFlows2020,
+  title = {Augmented {{Normalizing Flows}}: {{Bridging}} the {{Gap Between Generative Flows}} and {{Latent Variable Models}}},
+  shorttitle = {Augmented {{Normalizing Flows}}},
+  author = {Huang, Chin-Wei and Dinh, Laurent and Courville, Aaron},
+  year = {2020},
+  month = feb,
+  abstract = {In this work, we propose a new family of generative flows on an augmented data space, with an aim to improve expressivity without drastically increasing the computational cost of sampling and evaluation of a lower bound on the likelihood. Theoretically, we prove the proposed flow can approximate a Hamiltonian ODE as a universal transport map. Empirically, we demonstrate state-of-the-art performance on standard benchmarks of flow-based generative modeling.},
+  archivePrefix = {arXiv},
+  eprint = {2002.07101},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Huang et al_2020_Augmented Normalizing Flows.pdf;/home/magda/Zotero/storage/JEN8XDTS/Huang et al. - 2020 - Augmented Normalizing Flows Bridging the Gap Betw.pdf;/home/magda/Zotero/storage/EPWP3ZWK/2002.html},
+  journal = {arXiv:2002.07101 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{huangNeuralAutoregressiveFlows2018,
+  title = {Neural {{Autoregressive Flows}}},
+  author = {Huang, Chin-Wei and Krueger, David and Lacoste, Alexandre and Courville, Aaron},
+  year = {2018},
+  month = apr,
+  abstract = {Normalizing flows and autoregressive models have been successfully combined to produce state-of-the-art results in density estimation, via Masked Autoregressive Flows (MAF), and to accelerate state-of-the-art WaveNet-based speech synthesis to 20x faster than real-time, via Inverse Autoregressive Flows (IAF). We unify and generalize these approaches, replacing the (conditionally) affine univariate transformations of MAF/IAF with a more general class of invertible univariate transformations expressed as monotonic neural networks. We demonstrate that the proposed neural autoregressive flows (NAF) are universal approximators for continuous probability distributions, and their greater expressivity allows them to better capture multimodal target distributions. Experimentally, NAF yields state-of-the-art performance on a suite of density estimation tasks and outperforms IAF in variational autoencoders trained on binarized MNIST.},
+  archivePrefix = {arXiv},
+  eprint = {1804.00779},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Huang et al_2018_Neural Autoregressive Flows.pdf;/home/magda/Zotero/storage/H78S4SVY/1804.html},
+  journal = {arXiv:1804.00779 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{kingmaGlowGenerativeFlow2018,
+  title = {Glow: {{Generative Flow}} with {{Invertible}} 1x1 {{Convolutions}}},
+  shorttitle = {Glow},
+  author = {Kingma, Diederik P. and Dhariwal, Prafulla},
+  year = {2018},
+  month = jul,
+  abstract = {Flow-based generative models (Dinh et al., 2014) are conceptually attractive due to tractability of the exact log-likelihood, tractability of exact latent-variable inference, and parallelizability of both training and synthesis. In this paper we propose Glow, a simple type of generative flow using an invertible 1x1 convolution. Using our method we demonstrate a significant improvement in log-likelihood on standard benchmarks. Perhaps most strikingly, we demonstrate that a generative model optimized towards the plain log-likelihood objective is capable of efficient realistic-looking synthesis and manipulation of large images. The code for our model is available at https://github.com/openai/glow},
+  archivePrefix = {arXiv},
+  eprint = {1807.03039},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Kingma_Dhariwal_2018_Glow.pdf;/home/magda/Zotero/storage/DQ2IKQTL/1807.html},
+  journal = {arXiv:1807.03039 [cs, stat]},
+  keywords = {1x1 convolution,coupling layers,normalizing flows,paper notes,skimmed through,xx},
+  primaryClass = {cs, stat}
+}
+
+@inproceedings{kingmaImprovedVariationalInference2016,
+  title = {Improved {{Variational Inference}} with {{Inverse Autoregressive Flow}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}} 29},
+  author = {Kingma, Durk P and Salimans, Tim and Jozefowicz, Rafal and Chen, Xi and Sutskever, Ilya and Welling, Max},
+  editor = {Lee, D. D. and Sugiyama, M. and Luxburg, U. V. and Guyon, I. and Garnett, R.},
+  year = {2016},
+  file = {/home/magda/Dropbox/ZoteroFiles/Kingma et al_2016_Improved Variational Inference with Inverse Autoregressive Flow2.pdf;/home/magda/Zotero/storage/MN9SQ8E8/6581-improved-variational-inference-with-inverse-autoregressive-flow.html},
+  keywords = {done reading,normalizing flows,paper notes,VAE,xx}
+}
+
+@article{magdon-ismailDensityEstimationRandom2002,
+  title = {Density Estimation and Random Variate Generation Using Multilayer Networks},
+  author = {{Magdon-Ismail}, M. and Atiya, A.},
+  year = {2002},
+  month = may,
+  volume = {13},
+  pages = {497--520},
+  issn = {1045-9227},
+  doi = {10.1109/TNN.2002.1000120},
+  file = {/home/magda/Dropbox/ZoteroFiles/Magdon-Ismail_Atiya_2002_Density estimation and random variate generation using multilayer networks.pdf},
+  journal = {IEEE Transactions on Neural Networks},
+  keywords = {cdf,inverse transform,paper notes,skimmed through,xx},
+  language = {en},
+  number = {3}
+}
+
+@article{oordConditionalImageGeneration2016,
+  title = {Conditional {{Image Generation}} with {{PixelCNN Decoders}}},
+  author = {van den Oord, Aaron and Kalchbrenner, Nal and Vinyals, Oriol and Espeholt, Lasse and Graves, Alex and Kavukcuoglu, Koray},
+  year = {2016},
+  month = jun,
+  abstract = {This work explores conditional image generation with a new image density model based on the PixelCNN architecture. The model can be conditioned on any vector, including descriptive labels or tags, or latent embeddings created by other networks. When conditioned on class labels from the ImageNet database, the model is able to generate diverse, realistic scenes representing distinct animals, objects, landscapes and structures. When conditioned on an embedding produced by a convolutional network given a single image of an unseen face, it generates a variety of new portraits of the same person with different facial expressions, poses and lighting conditions. We also show that conditional PixelCNN can serve as a powerful decoder in an image autoencoder. Additionally, the gated convolutional layers in the proposed model improve the log-likelihood of PixelCNN to match the state-of-the-art performance of PixelRNN on ImageNet, with greatly reduced computational cost.},
+  archivePrefix = {arXiv},
+  eprint = {1606.05328},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Oord et al_2016_Conditional Image Generation with PixelCNN Decoders.pdf;/home/magda/Zotero/storage/UCPMK4ZA/1606.html},
+  journal = {arXiv:1606.05328 [cs]},
+  keywords = {autoregressive model,CNN,paper notes,skimmed through},
+  primaryClass = {cs}
+}
+
+@inproceedings{oordPixelRecurrentNeural2016,
+  title = {Pixel {{Recurrent Neural Networks}}},
+  booktitle = {Proceedings of the 33rd {{International}}  {{Conference}}  on  {{MachineLearning}}},
+  author = {van den Oord, A{\"a}ron and Kalchbrenner, Nal and Kavukcuoglu, Koray},
+  year = {2016},
+  pages = {10},
+  abstract = {Modeling the distribution of natural images is a landmark problem in unsupervised learning. This task requires an image model that is at once expressive, tractable and scalable. We present a deep neural network that sequentially predicts the pixels in an image along the two spatial dimensions. Our method models the discrete probability of the raw pixel values and encodes the complete set of dependencies in the image. Architectural novelties include fast twodimensional recurrent layers and an effective use of residual connections in deep recurrent networks. We achieve log-likelihood scores on natural images that are considerably better than the previous state of the art. Our main results also provide benchmarks on the diverse ImageNet dataset. Samples generated from the model appear crisp, varied and globally coherent.},
+  file = {/home/magda/Dropbox/ZoteroFiles/2016_Pixel Recurrent Neural Networks.pdf},
+  keywords = {autoregressive model,CNN,paper notes,RNN,skimmed through},
+  language = {en}
+}
+
+@article{papamakariosMaskedAutoregressiveFlow2018,
+  title = {Masked {{Autoregressive Flow}} for {{Density Estimation}}},
+  author = {Papamakarios, George and Pavlakou, Theo and Murray, Iain},
+  year = {2018},
+  month = jun,
+  abstract = {Autoregressive models are among the best performing neural density estimators. We describe an approach for increasing the flexibility of an autoregressive model, based on modelling the random numbers that the model uses internally when generating data. By constructing a stack of autoregressive models, each modelling the random numbers of the next model in the stack, we obtain a type of normalizing flow suitable for density estimation, which we call Masked Autoregressive Flow. This type of flow is closely related to Inverse Autoregressive Flow and is a generalization of Real NVP. Masked Autoregressive Flow achieves state-of-the-art performance in a range of general-purpose density estimation tasks.},
+  archivePrefix = {arXiv},
+  eprint = {1705.07057},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Papamakarios et al_2018_Masked Autoregressive Flow for Density Estimation.pdf;/home/magda/Zotero/storage/MPUSE5FL/1705.html},
+  journal = {arXiv:1705.07057 [cs, stat]},
+  keywords = {must read},
+  primaryClass = {cs, stat}
+}
+
+@misc{papamakariosNormalizingFlowsProbabilistic2019,
+  title = {Normalizing {{Flows}} for {{Probabilistic Modeling}} and {{Inference}}},
+  author = {Papamakarios, George and Nalisnick, Eric and Rezende, Danilo Jimenez and Mohamed, Shakir and Lakshminarayanan, Balaji},
+  year = {2019},
+  month = dec,
+  abstract = {Normalizing flows provide a general mechanism for defining expressive probability distributions, only requiring the specification of a (usually simple) base distribution and a series of bijective transformations. There has been much recent work on normalizing flows, ranging from improving their expressive power to expanding their application. We believe the field has now matured and is in need of a unified perspective. In this review, we attempt to provide such a perspective by describing flows through the lens of probabilistic modeling and inference. We place special emphasis on the fundamental principles of flow design, and discuss foundational topics such as expressive power and computational trade-offs. We also broaden the conceptual framing of flows by relating them to more general probability transformations. Lastly, we summarize the use of flows for tasks such as generative modeling, approximate inference, and supervised learning.},
+  archivePrefix = {arXiv},
+  eprint = {1912.02762},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Papamakarios et al_2019_Normalizing Flows for Probabilistic Modeling and Inference.pdf;/home/magda/Zotero/storage/WJB8J66S/1912.html},
+  keywords = {done reading,tutorial,xxx}
+}
+
+@article{rezendeNormalizingFlowsTori2020,
+  title = {Normalizing {{Flows}} on {{Tori}} and {{Spheres}}},
+  author = {Rezende, Danilo Jimenez and Papamakarios, George and Racani{\`e}re, S{\'e}bastien and Albergo, Michael S. and Kanwar, Gurtej and Shanahan, Phiala E. and Cranmer, Kyle},
+  year = {2020},
+  month = feb,
+  abstract = {Normalizing flows are a powerful tool for building expressive distributions in high dimensions. So far, most of the literature has concentrated on learning flows on Euclidean spaces. Some problems however, such as those involving angles, are defined on spaces with more complex geometries, such as tori or spheres. In this paper, we propose and compare expressive and numerically stable flows on such spaces. Our flows are built recursively on the dimension of the space, starting from flows on circles, closed intervals or spheres.},
+  archivePrefix = {arXiv},
+  eprint = {2002.02428},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Rezende et al_2020_Normalizing Flows on Tori and Spheres.pdf;/home/magda/Zotero/storage/34XTA3NE/2002.html},
+  journal = {arXiv:2002.02428 [cs, stat]},
+  keywords = {done reading,normalizing flows,paper notes,sphere,topology,tori,x},
+  primaryClass = {cs, stat}
+}
+
+@article{rezendeVariationalInferenceNormalizing2016,
+  title = {Variational {{Inference}} with {{Normalizing Flows}}},
+  author = {Rezende, Danilo Jimenez and Mohamed, Shakir},
+  year = {2016},
+  month = jun,
+  abstract = {The choice of approximate posterior distribution is one of the core problems in variational inference. Most applications of variational inference employ simple families of posterior approximations in order to allow for efficient inference, focusing on mean-field or other simple structured approximations. This restriction has a significant impact on the quality of inferences made using variational methods. We introduce a new approach for specifying flexible, arbitrarily complex and scalable approximate posterior distributions. Our approximations are distributions constructed through a normalizing flow, whereby a simple initial density is transformed into a more complex one by applying a sequence of invertible transformations until a desired level of complexity is attained. We use this view of normalizing flows to develop categories of finite and infinitesimal flows and provide a unified view of approaches for constructing rich posterior approximations. We demonstrate that the theoretical advantages of having posteriors that better match the true posterior, combined with the scalability of amortized variational approaches, provides a clear improvement in performance and applicability of variational inference.},
+  archivePrefix = {arXiv},
+  eprint = {1505.05770},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Rezende_Mohamed_2016_Variational Inference with Normalizing Flows.pdf;/home/magda/Zotero/storage/84MVLTDG/1505.html},
+  journal = {arXiv:1505.05770 [cs, stat]},
+  keywords = {done reading,normalizing flows,paper notes,planar flows,VAE,xx},
+  primaryClass = {cs, stat}
+}
+
+@article{rippelHighDimensionalProbabilityEstimation2013,
+  title = {High-{{Dimensional Probability Estimation}} with {{Deep Density Models}}},
+  author = {Rippel, Oren and Adams, Ryan Prescott},
+  year = {2013},
+  month = feb,
+  abstract = {One of the fundamental problems in machine learning is the estimation of a probability distribution from data. Many techniques have been proposed to study the structure of data, most often building around the assumption that observations lie on a lower-dimensional manifold of high probability. It has been more difficult, however, to exploit this insight to build explicit, tractable density models for high-dimensional data. In this paper, we introduce the deep density model (DDM), a new approach to density estimation. We exploit insights from deep learning to construct a bijective map to a representation space, under which the transformation of the distribution of the data is approximately factorized and has identical and known marginal densities. The simplicity of the latent distribution under the model allows us to feasibly explore it, and the invertibility of the map to characterize contraction of measure across it. This enables us to compute normalized densities for out-of-sample data. This combination of tractability and flexibility allows us to tackle a variety of probabilistic tasks on high-dimensional datasets, including: rapid computation of normalized densities at test-time without evaluating a partition function; generation of samples without MCMC; and characterization of the joint entropy of the data.},
+  archivePrefix = {arXiv},
+  eprint = {1302.5125},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Rippel_Adams_2013_High-Dimensional Probability Estimation with Deep Density Models.pdf;/home/magda/Zotero/storage/CBJP56I4/1302.html},
+  journal = {arXiv:1302.5125 [cs, stat]},
+  keywords = {decoder,encoder,normalizing flows,paper notes,skimmed through,xx},
+  primaryClass = {cs, stat}
+}
+
+@article{salimansMarkovChainMonte2015,
+  title = {Markov {{Chain Monte Carlo}} and {{Variational Inference}}: {{Bridging}} the {{Gap}}},
+  shorttitle = {Markov {{Chain Monte Carlo}} and {{Variational Inference}}},
+  author = {Salimans, Tim and Kingma, Diederik P. and Welling, Max},
+  year = {2015},
+  month = may,
+  abstract = {Recent advances in stochastic gradient variational inference have made it possible to perform variational Bayesian inference with posterior approximations containing auxiliary random variables. This enables us to explore a new synthesis of variational inference and Monte Carlo methods where we incorporate one or more steps of MCMC into our variational approximation. By doing so we obtain a rich class of inference algorithms bridging the gap between variational methods and MCMC, and offering the best of both worlds: fast posterior approximation through the maximization of an explicit objective, with the option of trading off additional computation for additional accuracy. We describe the theoretical foundations that make this possible and show some promising first results.},
+  archivePrefix = {arXiv},
+  eprint = {1410.6460},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Salimans et al_2015_Markov Chain Monte Carlo and Variational Inference.pdf;/home/magda/Zotero/storage/BK3TJ7UE/1410.html},
+  journal = {arXiv:1410.6460 [stat]},
+  primaryClass = {stat}
+}
+
+@incollection{shiVariationalMixtureofExpertsAutoencoders2019,
+  ids = {shiVariationalMixtureofExpertsAutoencoders2019a},
+  title = {Variational {{Mixture}}-of-{{Experts Autoencoders}} for {{Multi}}-{{Modal Deep Generative Models}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}} 32},
+  author = {Shi, Yuge and N, Siddharth and Paige, Brooks and Torr, Philip},
+  editor = {Wallach, H. and Larochelle, H. and Beygelzimer, A. and d\textbackslash{}textquotesingle {Alch{\'e}-Buc}, F. and Fox, E. and Garnett, R.},
+  year = {2019},
+  pages = {15692--15703},
+  publisher = {{Curran Associates, Inc.}},
+  file = {/home/magda/Dropbox/ZoteroFiles/Shi et al_2019_Variational Mixture-of-Experts Autoencoders for Multi-Modal Deep Generative_supplement.pdf;/home/magda/Dropbox/ZoteroFiles/Shi et al_2019_Variational Mixture-of-Experts Autoencoders for Multi-Modal Deep Generative.pdf;/home/magda/Zotero/storage/9TUEPUE6/9702-variational-mixture-of-experts-autoencoders-for-multi-modal-deep-generative-models.html},
+  keywords = {done reading}
+}
+
+@article{tabakFamilyNonparametricDensity2013,
+  title = {A {{Family}} of {{Nonparametric Density Estimation Algorithms}}},
+  author = {Tabak, E. G. and Turner, Cristina V.},
+  year = {2013},
+  volume = {66},
+  pages = {145--164},
+  issn = {1097-0312},
+  doi = {10.1002/cpa.21423},
+  abstract = {A new methodology for density estimation is proposed. The methodology, which builds on the one developed by Tabak and Vanden-Eijnden, normalizes the data points through the composition of simple maps. The parameters of each map are determined through the maximization of a local quadratic approximation to the log-likelihood. Various candidates for the elementary maps of each step are proposed; criteria for choosing one includes robustness, computational simplicity, and good behavior in high-dimensional settings. A good choice is that of localized radial expansions, which depend on a single parameter: all the complexity of arbitrary, possibly convoluted probability densities can be built through the composition of such simple maps. \textcopyright{} 2012 Wiley Periodicals, Inc.},
+  copyright = {Copyright \textcopyright{} 2012 Wiley Periodicals, Inc.},
+  file = {/home/magda/Dropbox/ZoteroFiles/Tabak_Turner_2013_A Family of Nonparametric Density Estimation Algorithms.pdf;/home/magda/Zotero/storage/P2T74XX5/cpa.html},
+  journal = {Communications on Pure and Applied Mathematics},
+  language = {en},
+  number = {2}
+}
+
+@article{tagasovskaCopulasHighDimensionalGenerative2019,
+  title = {Copulas as {{High}}-{{Dimensional Generative Models}}: {{Vine Copula Autoencoders}}},
+  shorttitle = {Copulas as {{High}}-{{Dimensional Generative Models}}},
+  author = {Tagasovska, Natasa and Ackerer, Damien and Vatter, Thibault},
+  year = {2019},
+  month = nov,
+  abstract = {We introduce the vine copula autoencoder (VCAE), a flexible generative model for high-dimensional distributions built in a straightforward three-step procedure. First, an autoencoder (AE) compresses the data into a lower dimensional representation. Second, the multivariate distribution of the encoded data is estimated with vine copulas. Third, a generative model is obtained by combining the estimated distribution with the decoder part of the AE. As such, the proposed approach can transform any already trained AE into a flexible generative model at a low computational cost. This is an advantage over existing generative models such as adversarial networks and variational AEs which can be difficult to train and can impose strong assumptions on the latent space. Experiments on MNIST, Street View House Numbers and Large-Scale CelebFaces Attributes datasets show that VCAEs can achieve competitive results to standard baselines.},
+  archivePrefix = {arXiv},
+  eprint = {1906.05423},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Tagasovska et al_2019_Copulas as High-Dimensional Generative Models.pdf;/home/magda/Zotero/storage/XYGC5SB3/1906.html},
+  journal = {arXiv:1906.05423 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{tranCopulaVariationalInference2015,
+  title = {Copula Variational Inference},
+  author = {Tran, Dustin and Blei, David M. and Airoldi, Edoardo M.},
+  year = {2015},
+  month = oct,
+  abstract = {We develop a general variational inference method that preserves dependency among the latent variables. Our method uses copulas to augment the families of distributions used in mean-field and structured approximations. Copulas model the dependency that is not captured by the original variational distribution, and thus the augmented variational family guarantees better approximations to the posterior. With stochastic optimization, inference on the augmented distribution is scalable. Furthermore, our strategy is generic: it can be applied to any inference procedure that currently uses the mean-field or structured approach. Copula variational inference has many advantages: it reduces bias; it is less sensitive to local optima; it is less sensitive to hyperparameters; and it helps characterize and interpret the dependency among the latent variables.},
+  archivePrefix = {arXiv},
+  eprint = {1506.03159},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Tran et al_2015_Copula variational inference.pdf;/home/magda/Zotero/storage/5P75RYP9/1506.html},
+  journal = {arXiv:1506.03159 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@inproceedings{tranDiscreteFlowsInvertible2019,
+  title = {Discrete {{Flows}}: {{Invertible Generative Models}} of {{Discrete Data}}},
+  shorttitle = {Discrete {{Flows}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}} 32 ({{NIPS}} 2019)},
+  author = {Tran, Dustin and Vafa, Keyon and Agrawal, Kumar Krishna and Dinh, Laurent and Poole, Ben},
+  year = {2019},
+  abstract = {While normalizing flows have led to significant advances in modeling high-dimensional continuous distributions, their applicability to discrete distributions remains unknown. In this paper, we show that flows can in fact be extended to discrete events---and under a simple change-of-variables formula not requiring log-determinant-Jacobian computations. Discrete flows have numerous applications. We consider two flow architectures: discrete autoregressive flows that enable bidirectionality, allowing, for example, tokens in text to depend on both left-to-right and right-to-left contexts in an exact language model; and discrete bipartite flows that enable efficient non-autoregressive generation as in RealNVP. Empirically, we find that discrete autoregressive flows outperform autoregressive baselines on synthetic discrete distributions, an addition task, and Potts models; and bipartite flows can obtain competitive performance with autoregressive baselines on character-level language modeling for Penn Tree Bank and text8.},
+  archivePrefix = {arXiv},
+  eprint = {1905.10347},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Tran et al_2019_Discrete Flows.pdf;/home/magda/Zotero/storage/3D6Z6KX3/1905.html},
+  keywords = {coupling layers,discrete flows,done reading,normalizing flows,paper notes,xx}
+}
+
+@article{uriaRNADERealvaluedNeural2014,
+  title = {{{RNADE}}: {{The}} Real-Valued Neural Autoregressive Density-Estimator},
+  shorttitle = {{{RNADE}}},
+  author = {Uria, Benigno and Murray, Iain and Larochelle, Hugo},
+  year = {2014},
+  month = jan,
+  abstract = {We introduce RNADE, a new model for joint density estimation of real-valued vectors. Our model calculates the density of a datapoint as the product of one-dimensional conditionals modeled using mixture density networks with shared parameters. RNADE learns a distributed representation of the data, while having a tractable expression for the calculation of densities. A tractable likelihood allows direct comparison with other methods and training by standard gradient-based optimizers. We compare the performance of RNADE on several datasets of heterogeneous and perceptual data, finding it outperforms mixture models in all but one case.},
+  archivePrefix = {arXiv},
+  eprint = {1306.0186},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Uria et al_2014_RNADE.pdf;/home/magda/Zotero/storage/T4LKR9JE/1306.html},
+  journal = {arXiv:1306.0186 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{vaswaniAttentionAllYou2017,
+  title = {Attention {{Is All You Need}}},
+  author = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
+  year = {2017},
+  month = dec,
+  abstract = {The dominant sequence transduction models are based on complex recurrent or convolutional neural networks in an encoder-decoder configuration. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.},
+  archivePrefix = {arXiv},
+  eprint = {1706.03762},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Vaswani et al_2017_Attention Is All You Need.pdf;/home/magda/Zotero/storage/K9R4DPKK/1706.html},
+  journal = {arXiv:1706.03762 [cs]},
+  primaryClass = {cs}
+}
+
+@inproceedings{wangNeuralGaussianCopula2019,
+  title = {Neural {{Gaussian Copula}} for {{Variational Autoencoder}}},
+  booktitle = {Proceedings of the 2019 {{Conference}} on {{Empirical Methods}} in {{Natural Language Processing}} and the 9th {{International Joint Conference}} on {{Natural Language Processing}} ({{EMNLP}}-{{IJCNLP}})},
+  author = {Wang, Prince Zizhuang and Wang, William Yang},
+  year = {2019},
+  pages = {4332--4342},
+  publisher = {{Association for Computational Linguistics}},
+  address = {{Hong Kong, China}},
+  doi = {10.18653/v1/D19-1442},
+  file = {/home/magda/Dropbox/ZoteroFiles/Wang_Wang_2019_Neural Gaussian Copula for Variational Autoencoder.pdf},
+  language = {en}
+}
+
+@article{wieseCopulaMarginalFlows2019,
+  title = {Copula \& {{Marginal Flows}}: {{Disentangling}} the {{Marginal}} from Its {{Joint}}},
+  shorttitle = {Copula \& {{Marginal Flows}}},
+  author = {Wiese, Magnus and Knobloch, Robert and Korn, Ralf},
+  year = {2019},
+  month = jul,
+  abstract = {Deep generative networks such as GANs and normalizing flows flourish in the context of high-dimensional tasks such as image generation. However, so far exact modeling or extrapolation of distributional properties such as the tail asymptotics generated by a generative network is not available. In this paper, we address this issue for the first time in the deep learning literature by making two novel contributions. First, we derive upper bounds for the tails that can be expressed by a generative network and demonstrate Lp-space related properties. There we show specifically that in various situations an optimal generative network does not exist. Second, we introduce and propose copula and marginal generative flows (CM flows) which allow for an exact modeling of the tail and any prior assumption on the CDF up to an approximation of the uniform distribution. Our numerical results support the use of CM flows.},
+  archivePrefix = {arXiv},
+  eprint = {1907.03361},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Wiese et al_2019_Copula & Marginal Flows.pdf;/home/magda/Zotero/storage/EL4XVUS9/1907.html},
+  journal = {arXiv:1907.03361 [cs, stat]},
+  primaryClass = {cs, stat}
+}
+
+@article{kumarVideoFlowConditionalFlowBased2020,
+  title = {{{VideoFlow}}: {{A Conditional Flow}}-{{Based Model}} for {{Stochastic Video Generation}}},
+  shorttitle = {{{VideoFlow}}},
+  author = {Kumar, Manoj and Babaeizadeh, Mohammad and Erhan, Dumitru and Finn, Chelsea and Levine, Sergey and Dinh, Laurent and Kingma, Durk},
+  date = {2020-02-12},
+  url = {http://arxiv.org/abs/1903.01434},
+  urldate = {2020-06-18},
+  abstract = {Generative models that can model and predict sequences of future events can, in principle, learn to capture complex real-world phenomena, such as physical interactions. However, a central challenge in video prediction is that the future is highly uncertain: a sequence of past observations of events can imply many possible futures. Although a number of recent works have studied probabilistic models that can represent uncertain futures, such models are either extremely expensive computationally as in the case of pixel-level autoregressive models, or do not directly optimize the likelihood of the data. To our knowledge, our work is the first to propose multi-frame video prediction with normalizing flows, which allows for direct optimization of the data likelihood, and produces high-quality stochastic predictions. We describe an approach for modeling the latent space dynamics, and demonstrate that flow-based generative models offer a viable and competitive approach to generative modelling of video.},
+  archivePrefix = {arXiv},
+  eprint = {1903.01434},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Kumar et al_2020_VideoFlow.pdf;/home/magda/Zotero/storage/8QIXFH59/1903.html},
+  primaryClass = {cs}
+}
+
+@article{winklerLearningLikelihoodsConditional2019,
+  title = {Learning {{Likelihoods}} with {{Conditional Normalizing Flows}}},
+  author = {Winkler, Christina and Worrall, Daniel and Hoogeboom, Emiel and Welling, Max},
+  date = {2019-11-29},
+  url = {http://arxiv.org/abs/1912.00042},
+  urldate = {2020-06-24},
+  abstract = {Normalizing Flows (NFs) are able to model complicated distributions p(y) with strong inter-dimensional correlations and high multimodality by transforming a simple base density p(z) through an invertible neural network under the change of variables formula. Such behavior is desirable in multivariate structured prediction tasks, where handcrafted per-pixel loss-based methods inadequately capture strong correlations between output dimensions. We present a study of conditional normalizing flows (CNFs), a class of NFs where the base density to output space mapping is conditioned on an input x, to model conditional densities p(y|x). CNFs are efficient in sampling and inference, they can be trained with a likelihood-based objective, and CNFs, being generative flows, do not suffer from mode collapse or training instabilities. We provide an effective method to train continuous CNFs for binary problems and in particular, we apply these CNFs to super-resolution and vessel segmentation tasks demonstrating competitive performance on standard benchmark datasets in terms of likelihood and conventional metrics.},
+  archivePrefix = {arXiv},
+  eprint = {1912.00042},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Winkler et al_2019_Learning Likelihoods with Conditional Normalizing Flows.pdf;/home/magda/Zotero/storage/HU97Z8WV/1912.html},
+  keywords = {conditional generations,done reading,dropbox paper notes,xxx},
+  primaryClass = {cs, stat},
+  version = {1}
+}
+
+@article{livneTzKFlowBasedConditional2019,
+  title = {{{TzK}}: {{Flow}}-{{Based Conditional Generative Model}}},
+  shorttitle = {{{TzK}}},
+  author = {Livne, Micha and Fleet, David},
+  date = {2019-04-22},
+  url = {http://arxiv.org/abs/1902.01893},
+  urldate = {2020-06-27},
+  abstract = {We formulate a new class of conditional generative models based on probability flows. Trained with maximum likelihood, it provides efficient inference and sampling from class-conditionals or the joint distribution, and does not require a priori knowledge of the number of classes or the relationships between classes. This allows one to train generative models from multiple, heterogeneous datasets, while retaining strong prior models over subsets of the data (e.g., from a single dataset, class label, or attribute). In this paper, in addition to end-to-end learning, we show how one can learn a single model from multiple datasets with a relatively weak Glow architecture, and then extend it by conditioning on different knowledge types (e.g., a single dataset). This yields log likelihood comparable to state-of-the-art, compelling samples from conditional priors.},
+  archivePrefix = {arXiv},
+  eprint = {1902.01893},
+  eprinttype = {arxiv},
+  file = {/home/magda/Dropbox/ZoteroFiles/Livne_Fleet_2019_TzK.pdf;/home/magda/Zotero/storage/VY33D7DL/1902.html},
+  keywords = {conditional generations,done reading,flows,lifelong},
+  primaryClass = {cs, stat}
+}
+

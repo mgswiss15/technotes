@@ -1,0 +1,50 @@
+\clearpage
+
+\section{Rezende's variational inference with normalizing flows}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{rezendeVariationalInferenceNormalizing2016}
+
+\hfill Notes taken: 13/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr Increase the flexibility of the variational posterior $q_{\phi}(\bz | \bx)$ in VAEs by constructing it as a normalizing flow $\bz = f(\bz_0)$ where $\bz_0 \sim \mathcal{N}(0, I)$ and $f$ is a neural network stacking a set of specifically designed transformations, planar or radial flows, which have relatively cheap Jacobian determinants. Here they never need the inverse $f^{-1}$ so they don't care about the cost of inverting.
+\end{notebox}
+
+One shortcoming of standard VAEs is that if the class of approximate posterior distributions $q_{\phi}(\bz | \bx)$ is too simple, such as isotropic Gaussian, this will be too far from the true posterior $p(\bz | \bx)$ thus hampering the effectiveness of the inference.
+
+They propose to use normalizing flows\index{normalizing flows} to increase the flexibility of the approximate posteriors.
+This is done through a standard stacking of differentiable invertible transformations starting from a simple latent distribution such as isotropic Gaussian.
+
+They make a link of flows to the standard expectation identity $\mE_{h(\bX)}(h(\bx)) = \mE_{\bX}(h(\bx))$ and interpret the flows as a series of contractions and expansions of the initial density.
+
+They call \emph{infinitesimal flows}\index{infinitesimal flows} a stacking of transformations with the number of stacks tending to infinity.
+This can be described by partial differential equations describing the continuous-time dynamics.
+
+They give two examples: \emph{Langevin flow}\index{Langevin flow} and \emph{Hamiltonian flow}\index{Hamiltonian flow}. The first has been previously used for sampling from complex distributions, the second can be used to describe the dynamics of Hamiltonian MC. \note{This is beyond me.}
+
+Constructing normalizing flows is in principle easy, but the computational complexity will be prohibitive for any reasonable application.
+The problem is mainly the computation of the Jacobian determinant and its gradients.
+They propose two classes of invertible transformations:
+\paragraph{planar flows}\index{planar flows} with contractions and expansions in direction perpendicular to a hyperplane $\bw^T \bz + b = 0$
+\begin{equation}
+f(\bz) = \bz + \bu h(\bw^T \bz + b) \enspace, 
+\end{equation}
+where $h$ is an elementwise non-linearity
+and 
+\paragraph{radial flows}\index{radial flows} with contractions and expansions around a reference point $\bz_0$
+\begin{equation}
+f(\bz) = \bz + \beta \frac{\bz - \bz_0}{\alpha + \abs{\bz - \bz_0}}
+\end{equation}
+and show how to obtain the Jacobian determinant in linear time. 
+They show on simple simulated example what these transformations look like starting from simple Gaussian.
+
+\begin{notebox}
+\textbf{Note:} These transformations are only invertible under some conditions that they give in the appendix and show how to ensure these in training (e.g. re-parametrization). But the fact that they are invertible does not make them computationally easy to invert! Nevertheless, in their case it is not a problem cause they do not actually need the inverse for anything. They never need to evaluate the density of $\bx$ which would not be constructed from $\bz$ through $\bx = f(\bz)$ so that they would need to recover $\bz = f^{-1}(\bx)$.
+\end{notebox}
+
+They show how the standard ELBO objective can be updated to take into account the flow (the expectation of the Jacobian determinant appears) and how the whole VAE algorithm needs to be updated - just need to pass the sample $z_0$ through the transformation network and change accordingly the objective.
+
+In experiments they compare to NICE \parencite{dinhNICENonlinearIndependent2015} (section \ref{sec:Nice}) and show that they can get closer to the true distributions through lower number of transformations. When plugged to VAEs for MNIST, they get better log-likelihood values (estimated by importance sampling).
+

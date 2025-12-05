@@ -1,0 +1,31 @@
+\clearpage 
+
+\section{Kumar et al.: VideoFlow}\label{sec:videoFlow}
+
+\begin{notebox}
+\fullcite{kumarVideoFlowConditionalFlowBased2020}
+
+\hfill Notes taken: 24/6/2020 \index{June 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr They use flow model to predict future video frames. They argue by the usual advantages of flows as compared to VAEs, GANs and autoregressive (explicit likelihood, easier training, faster generations). The flows operate over individual frames (usual realNVP and Glow architecture and tricks) and the temporal dependence is only factored into the latent distribution $p_{\theta}(\bz)$ via temporal autoregressive probability model. 
+\end{notebox}
+
+The aim is stochastic prediction of video\index{video} sequences - synthesizing RGB video frames conditioned on a few previous frames. Unlike previous work for video generations the flow-based model can generate diverse stochastic futures (as opposed to deterministic models) relatively cheaply (as compared to autoregressive models) and at the same time provide exact likelihood estimates (as opposed to VAEs or GANs).
+
+Points out standard disadvantages of other generative models (VAEs \& GANs lack of likelihood estimtes, GANs difficult to train, autoregressive slow to sample/generate). Moreover previously proposed \emph{deterministic} models for video generation can only generate single future which either disregards other possibilities or mixes all of them into a blurry single future.
+
+They use flow model for each frame with architectural tricks similar to Glow (section \ref{sec:Glow}) with multi-scale architecture as in realNVP (section \ref{sec:realNVP}). To account for the time-dependency between frames they make the prior over the latent $\bz$ autoregressive conditioning on the previous frames
+\begin{gather}
+p_\theta(\bz) = \prod_{t=1}^T p_\theta(\bz_t | \bz_<t) \\
+p_\theta(\bz_t | \bz_{<t}) = \prod_{l=1}^L p_\theta(\bz_t^{(l)} | \bz_{<t}^{(l)}, \bz_t^{(>l)}) = \mathcal{N}(\bz_t^{(l)} ; \mu, \sigma) \\
+(\mu, \log \sigma) = \text{neural net}_\theta(\bz_{<t}^{(l)}, \bz_t^{(>l)})
+\end{gather}
+where $<t$ indicates previous time frame, $>l$ indicates higher levels at the multi-scale architecture and the neural net is a 3D residual network \note{see Fig10 in paper for sketch of architecture}.
+This means that the temporal dependency between the video frames is factored into the model by the autoregressive structure in the latent prior while the flow model acts on individual frames. They claim making the flow temporal via 3D convolutions was too expensive to train.
+
+The experiments show comparable or slightly better results compared to stochastic VAE or GAN based models in video prediction in terms of Frechet Video Distance, better in likelihood. However, they are quite honest in the evaluation showing also less good results such as accuracy of best prediction and failures for more complex dataset such as human motion videos (in the appendix).
+
+They typically condition on only 1-3 previous frames and then generate up to 100 future frames. I wonder why they condition on so little data, I'm guessing computational complexity in combination with these datasets being such that only few frames give enough info for the future. Perhaps true for most datasets, needs some thinking.
+

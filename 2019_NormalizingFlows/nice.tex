@@ -1,0 +1,127 @@
+\clearpage
+
+\section{Dinh et al.: NICE}\label{sec:Nice}\index{NICE}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{dinhNICENonlinearIndependent2015}
+
+\hfill Notes taken: 11/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr Learn the transformation $\ff : \mR^D \to \mR^D, \ \bH = \ff(\bX)$ from data $\bX$ to a hidden variable $\bH$ with a factorial distribution $p_H(\bh) = \prod_i^D p_{H_i}(h_i)$ by maximizing the log likelihood
+\begin{equation}
+\log p_X(\bx) = \sum_{i=1}^D \log p_{H_i}(\ff_i(\bx)) + \log \Big\lvert \det \frac{\partial \ff(\bx)}{\partial \bx} \Big\rvert \enspace .
+\end{equation}
+The transformation $\ff$ is a stacking of \textbf{additive coupling layers} operating over two blocks of the data vector $\bx = (\bx_1, \bx_2)$
+\begin{equation}
+\bh_1 = \bx_1 \qquad \qquad \bh_2 = \bx_2 + \bm(\bx_1)
+\end{equation}
+which have very simple inverse $\ff^{-1}$
+\begin{equation}
+\bx_1 = \bh_1 \qquad \qquad \bx_2 = \bh_2 - \bm(\bh_1)
+\end{equation}
+to be able to do the ancestral sampling $\bh \sim p_{H}(\bh), \ \bx = \ff^{-1}(\bh)$
+and trivial Jacobian determinant
+$\det \frac{\partial \bh}{\partial \bx} = 1$
+so that we can easily evaluate and maximize the likelihood.
+They add element-wise scaling factors $S_{ii}$ to the last transformation in the stack to give more weight to some dimensions of the latent variable and achieve a PCA effect.
+This makes the objective only slightly more complex as the the $\det J$ is just the product $\det \frac{\partial \ff(\bx)}{\partial \bx} = \prod_i S_{ii}$.
+\end{notebox}
+
+\subsection{Intro}
+
+\note{This was written before the realNVP \parencite{dinhDensityEstimationUsing2017} with the same 1st author.}
+
+How to capture complex data distribution?
+``Good representation is one in which the data distribution is easy to model''.
+
+Find transformation of the data $\bX$ to a latent variable $\bH = \ff(\bX)$ such that the resulting distribution of the r.v. $\bH$ factorizes across the $D$
+\begin{equation}
+p_{H}(\bh) = \prod_i^D p_{H_i}(h_i) \enspace .
+\end{equation}
+
+The transformation $\ff : \mR^D \to \mR^D$ should be invertible and differentiable so that by the change of variable we get
+\begin{equation}\label{eqnice:changeOfVar}
+p_X(\bx) = p_H(\ff(\bx)) \,\Big\lvert \det \frac{\partial \ff(\bx)}{\partial \bx} \Big\rvert \enspace .
+\end{equation}
+The prior distribution $p_H$ is some predefined fixed distribution (e.g. isotropic Gaussian).
+We want $\ff$ with simple inverse $\ff^{-1}$ so that we can easily sample $\bx$ by ancestral sampling
+\begin{equation}
+\bh \sim p_{H}(\bh) \qquad \qquad
+\bx = \ff^{-1}(\bh)
+\end{equation}
+and that the determinant of the Jacobian $\det \frac{\partial \ff(\bx)}{\partial \bx}$ is easy to compute so that we can evaluate the density $p_X$ in \eqref{eqnice:changeOfVar}.
+
+For factorial prior $p_H$ the data log likelihood is
+\begin{equation}\label{eqnice:logLike}
+\log p_X(\bx) = \sum_{i=1}^D \log p_{H_i}(\ff_i(\bx)) + \log \Big\lvert \det \frac{\partial \ff(\bx)}{\partial \bx} \Big\rvert \enspace ,
+\end{equation}
+which they call the \emph{non-linear independent component estimation}\index{non-linear independent component estimation} criterion (NICE).
+The factorization in the prior should help the model to find meaningful structure in the data.
+
+In analogy with VAE's they call $\ff$ the \emph{encoder}\index{encoder} and $\ff^{-1}$ the \emph{decoder}\index{decoder}.
+
+\subsection{Architecture}
+
+We can stack the layers of  transformations $\ff_L \circ \ldots \circ \ff_2 \circ \ff_1$ because we can get the inverse and determinants by layer and then stack them again (composition of inverses and product of per-layer Jacobian determinants).
+
+\subsubsection{Coupling layers}\index{coupling layer}
+
+Main idea is to split the data vectors to blocks $\bx = (\bx_1, \bx_2)$ use transformation $\ff$
+\begin{equation}
+\bh_1 = \bx_1 \qquad \qquad \bh_2 = \bg(\bx_2, \bm(\bx_1)) \enspace ,
+\end{equation}
+where $\bm$ is the \emph{coupling} function, an arbitrarily complex function such as NN.
+
+The inverse $\ff^{-1}$ is
+\begin{equation}
+\bx_1 = \bh_1 \qquad \qquad \bx_2 = \bg^{-1}(\bh_2, \bm(\bh_1))
+\end{equation}
+and the Jacobian
+\begin{equation}
+\frac{\partial \bh}{\partial \bx} =
+\begin{bmatrix}
+\mathbf{I} & \mathbf{0} \\
+\frac{\partial \bh_2}{\partial \bx_1} & \frac{\partial \bh_2}{\partial \bx_2}
+\end{bmatrix}
+\end{equation}
+so that $\det \frac{\partial \bh}{\partial \bx} = \det \frac{\partial \bh_2}{\partial \bx_2}$.
+
+\paragraph{Additive coupling layer}\index{additive coupling layer} makes the inverse and determinant even easier. The additive transformation $\ff$
+\begin{equation}
+\bh_1 = \bx_1 \qquad \qquad \bh_2 = \bx_2 + \bm(\bx_1)
+\end{equation}
+has the inverse $\ff^{-1}$
+\begin{equation}
+\bx_1 = \bh_1 \qquad \qquad \bx_2 = \bh_2 - \bm(\bh_1)
+\end{equation}
+and Jacobian determinant
+$\det \frac{\partial \bh}{\partial \bx} = 1$.
+
+They stack several coupling layers (4 but at least 3 needed) so that all dimensions may influence all the others.
+
+In the last layer they further allow for rescaling by a diagonal scaling matrix so that each dimension is rescaled as $h_i^{(s)} = S_{ii} h_i$ with a simple Jacobian determinant $\prod_i S_{ii}$ If $S_{ii} \to \infty$ then the dimension of the latent space becomes irrelevant ($h_i^{(s)} / S_{ii} \to 0$).
+This is similar to non-linear PCA with the scaling $S_{ii}$ as the eigenspectrum.
+
+With the factorial prior, additive coupling layers and the rescaling in the last layer the NICE criterion becomes
+
+\begin{equation}\label{eqnice:niceObjective}
+\log p_X(\bx) = \sum_{i=1}^D \big( \log p_{H_i}(\ff_i(\bx)) + \log \lvert S_{ii} \rvert \big) \enspace .
+\end{equation}
+
+They use simple isotropic Gaussian or logistic as the prior distribution.
+
+\subsection{Links to other methods}
+
+\paragraph{VAE} has a stochastic encoder $q(\bh | \bx)$ (while NICE has deterministic $\bh = \ff(\bx)$) and a noisy decoder $p(\bx | \bh)$ which can be made deterministic by simply using the mean or mode of the distribution (similar to the NICE deterministic $\bx = \ff^{-1}(\bh)$).
+However, the sampling of $\bh$ passed to the decoder injects noise into the auto-encoding architecture.
+
+You can look at the two terms in the objective \eqref{eqnice:logLike} as the maximization of the likelihood $p_H$ of the code $\bh = \ff(\bx)$ and a regularization term $\log \Big\lvert \det \frac{\partial \ff(\bx)}{\partial \bx} \Big\rvert$ encouraging the encoded distribution to occupy more volume, kind of similarly as in VAEs you encourage high entropy of the approximate posterior.
+
+Obviously this is all linked to inverse transform sampling with the cumulative distribution function as the transformation.
+
+GANs transform a noise variable to data $\bx = \bg(\bh)$ but do not ensure that the learned transformation $\bg$ is invertibel so cannot evaluate and maximaze the data likelihood. Instead they use an adversary to discriminate between true and GAN samples of data.
+
+
+

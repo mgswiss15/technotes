@@ -1,0 +1,29 @@
+\clearpage 
+
+\section{Winkler et al.: Conditional Normalizing Flow}\label{sec:CNF}
+
+\begin{notebox}
+\fullcite{winklerLearningLikelihoodsConditional2019}
+
+\hfill Notes taken: 2/7/2020 \index{July 2020}
+\end{notebox}
+
+Use normalizing flow to learn conditional density $p_{Y|X}(\by | \bx)$. They use conditional prior $p_{Z|X}(\bz | \bx)$ and a mapping $f_\phi : \mY \times \mX \to \mZ, \ \bz = f_\phi(\by, \bx)$ bijective in $\mY$ and $\mZ$.
+The likelihood model by the change of variable is
+\begin{equation}
+p_{Y|X}(\by | \bx) = p_{Z|X}(\bz | \bx) \left\lvert \frac{\partial \bz}{\partial \by} \right\rvert
+=
+p_{Z|X}(\bz | \bx) \left\lvert \frac{\partial f_\phi(\by, \bx)}{\partial \by} \right\rvert \enspace ,
+\end{equation}
+where all the distribution are conditioned on $\bx$.
+
+They point out that by maximizing the likelihood through the $\mZ$ space rather than directly the $\mY$ we do not bias the learning by our assumptions on the shape (family) of the $p_{Y|X}(\by | \bx)$ distribution to hand-craft the loss. So this can be seen as learning the loss.
+
+They use all the tricks from RealNVP sec. \ref{sec:realNVP} (coupling layers, sqeeze layers, split prior), Glow sec. \ref{sec:Glow} (invertible 1x1 convoluitions) and Flow++ sec. \ref{sec:flow++} (variational dequantization).
+
+The conditioning is applied to the prior $p(\bz | \bx) = \mathcal{N}(\bz; \mu(\bx), \sigma(\bx))$, the split prior $p(\bz_1 | \bz_0, \bx) = \mathcal{N}(\bz_1; \mu(\bz_0, \bx), \sigma(\bz_0, \bx))$, and in the coupling layers $\by_0 = s(\bz_1, \bx) \bz_0 + t(\bz_1, \bx), \ \by_1 = \bz_1$.
+
+They claim for binary data the variational dequantization proposed in Flow++ is not that great because the quantization prior is not bounded a propose to use something they call half-infinite noise. I'm not quite sure what they mean here but my feeling is they are getting away from the symmetrical Gaussian to something only positive and simple so they can simply recover the $\{0, 1\}^D$ space.
+
+The experiments are on single image super resolution\index{super resolution} (ImageNet32 and 64) and image-to-image\index{image-to-image translation} translation and (DRIVE) meaning their conditioning variable $\bx$ is always a full image so quite a strong signal. \note{Would work equally well if it were just a class indicator?}
+

@@ -1,0 +1,132 @@
+\clearpage
+
+\section{Tran et al.: Discrete flows}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{tranDiscreteFlowsInvertible2019}
+
+\hfill Notes taken: 18/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr Extending normalizing flows to discrete (categorical) distributions. For invertible $\by = f(\bx)$ the change-of-variable simplifies to 
+\begin{equation}
+p_Y(\by) = p_X(f^{-1}(\by))
+\end{equation}
+because discrete data have no volume that should be catered for by the Jacobian determinant.
+All this can achieve is relabel the categories so that the transformed variables are easier to model (e.g. become independent). Entropy of the original and transformed variable is the same.
+
+The flow they propose follows from the autoregressive or bipartite constructions (coupling layer)
+\begin{equation}
+y_d = (\mu_d + \sigma_d x_d)\bmod K
+\end{equation}
+with $(\mu, \sigma)$ being either
+\begin{compactitem}
+\item autoregressive functions of previous dimensions or
+\item for the coupling approach $(0, 1)$ for a subset of dimensions and a function of these for the rest of the output dimensions
+\end{compactitem}
+Because of the discreteness, the forward pass uses one-hot encoding of $\argmax$ over the $K$-category output of the network. For the backward it uses the straight-through gradient estimator based on the softmax approximation.
+
+Experiments look reasonably good with comparative results to baselines but in the bipartite case much faster generations.
+
+\end{notebox}
+
+\subsection{Intro}
+
+Normalizing flows based on the change-of-variable formula have not previously been explored for discrete variables.
+
+Here they extend the ideas from the continous case to the discrete.
+They specifically foucs on two architectures
+\begin{compactitem}
+\item discrete autoregressive flows with $\mu, \sigma$ defined as autoregressive functions 
+\begin{gather}
+\by = f(\bx): \qquad y_d = \mu_d + \sigma_d x_d, \quad (\mu_d, \sigma_d) = h(y_1, \ldots, y_{d-1}), \quad d = 1, \ldots, D \nn
+\bx = f^{-1}(\by): \qquad x_d = \sigma^{-1}_d (y_d - \mu_d), \quad (\mu_d, \sigma_d) = h(y_1, \ldots, y_{d-1}), \quad d = 1, \ldots, D \nn
+\det \frac{\dif \bx}{\dif \by} = \det \left(\frac{\dif \by}{\dif \bx}\right)^{-1} = \left(\det \frac{\dif \by}{\dif \bx}\right)^{-1} = \prod_{i=1}^D 1 / \sigma_i
+\end{gather}
+\item discrete bipartite flows with \emph{coupling layers}\index{coupling layers} as in the realNVPs (section \ref{sec:realNVP})
+\begin{gather}
+\by = f(\bx): \qquad \by_{1:d} = \bx_{1:d}, \quad \by_{d+1:D} = \pmb{\mu} + \pmb{\sigma} \odot \bx_{d+1:D}, \quad (\pmb{\mu}, \pmb{\sigma}) = h(\bx_{1:d}) \nn
+\bx = f^{-1}(\by): \qquad \bx_{1:d} = \by_{1:d}, \quad \bx_{d+1:D} = (\by_{d+1:D} - \pmb{\mu}) \oslash \pmb{\sigma} , \quad (\pmb{\mu}, \pmb{\sigma}) = h(\bx_{1:d}) \nn
+\det \frac{\dif \bx}{\dif \by} = \prod_{i=d+1}^D 1 / \sigma_i
+\end{gather}
+\end{compactitem}
+
+\subsection{Discrete flows}
+
+In general for discrete r.v. $\bX \sim p(\bx)$ and function $\by = f(\bx)$ the induced probability mass function of $\bY$ is
+\begin{equation}
+p(\bY = \by) = \sum_{\bx \in f^{-1}(\by)} p(\bX = \bx) \enspace ,
+\end{equation}
+where $f^{-1}(\by)$ is the pre-image\index{pre-image} of $\by$ under $f$.
+
+For invertible $f$ this simplifies to
+\begin{equation}
+p(\bY = \by) = p(\bX = f^{-1}(\by)) \enspace .
+\end{equation}
+
+Since for discrete distributions \emph{volume} is not defined (counting measure vs Lebesgue measure), there is no need to account for it as in the continuous case via the Jacobian determinant (see e.g. equation \eqref{eqnice:changeOfVar}).
+
+What discrete flows do is relabelling of the data so that the relabelled data distribution can be modelled with the base distribution. However, the number of categories remains the same and the entropy of the base and target distribution is preserved.
+
+\paragraph{xor transform}
+For example bi-variate distribution with dependent r.v. $\bx = (x_1, x_2)$ can be relabelled into independet r.v. $\by = (y_1, y_2)$ using the xor $\oplus$ operator $(y_1, y_2) = (x_1, x_1 \oplus x_2)$
+\begin{equation*}
+\begin{matrix}
+  & x_2 = 0 & x_2 = 1 & \\
+\hline
+x_1 = 0 | & 0.63 & 0.07 & | 0.7\\
+x_1 = 1 | & 0.03 & 0.27 & | 0.3\\
+\hline
+  & 0.66 & 0.34 &  \\
+\end{matrix}
+\qquad p(x_1, x_2) \neq p(x_1) p(x_2)
+\end{equation*}
+With the xor transform\index{xor transform} $\by = f(\bx) = (y_1, y_2) = (x_1, x_1 \oplus x_2)$ and $\bx = f^{-1}(\by) = (x_1, x_2) = (y_1, y_1 \oplus y_2)$ the transformed variable .
+\begin{equation*}
+\begin{matrix}
+  & y_2 = 0 & y_2 = 1 & \\
+\hline
+y_1 = 0 | & 0.63 & 0.07 & | 0.7\\
+y_1 = 1 | & 0.27 & 0.03 & | 0.3\\
+\hline
+  & 0.9 & 0.1 &  \\
+\end{matrix}
+\qquad p(y_1, y_2) = p(y_1) p(y_2)
+\end{equation*}
+
+\paragraph{modulo location-scale transform} for a $D$ dimensional vector $\bx = (x_1, \dots, x_D)$ with each $x_i$ taking values in $0, 1, \ldots, K-1$
+\begin{equation}
+y_d = (\mu_d + \sigma_d x_d)\bmod K, \quad (\mu_d, \sigma_d) = h(y_1, \ldots, y_{d-1})
+\end{equation}
+with autoregressive functions $(\mu_d, \sigma_d)$.
+(The bipartite version would have $(\mu, \sigma) = (0,1)$ for a subset of the dimensions and being a function of these dimensions for outputting the other dimensions.)
+
+For the transform to be invertible $\sigma$ and $K$ need to be \emph{coprimes}\index{coprime} which is possible to ensure by masking noninvertible values of $\sigma$ or fixing $\sigma = 1$ and the inverse can be found by Euclid's algorithm \note{no clue what it is}.
+
+The modulo transform does not preserve ordering information so not good for ordinal data.
+
+\subsubsection{Training}
+
+The flow is defined (parametrised) by the $\mu$ and $\sigma$ autoregressive or bipartite networks and the parameters of the base distribution.
+
+$\mu$ and $\sigma$ should be discrete. It is achieved by the network spitting out two vectors of $K$ logits $\theta_d$ for each dimension $d$ and using for the forward pass
+\begin{equation}
+\pmb{\mu}_d = \text{one\_hot}(\argmax(\theta_d)) \enspace .
+\end{equation}
+Since this is non-differentiable for the backward pass they use
+\begin{equation}
+\frac{\dif \pmb{\mu}_d}{\dif \theta_d} \approx \frac{\dif}{\dif \theta_d}\text{softmax}\left(\frac{\theta_d}{\tau}\right)
+\end{equation}
+with temperature fixed to $\tau = 0.1$ in experiments (which I understand is a version of the straight-through gradient estimation\index{straight-through gradient estimation}).
+
+\subsection{Experiments}
+
+In the experiments they use autoregressive categorical with reverse ordering as the base distribution for autoregressive flows and factorized categorical base for bipartite flows.
+
+They show on some toy examples that 1 flow over base autoregressive improves over just the base autoregressive distribution an that bipartite flow is only slightly worse while much faster (parallel) for generations.
+
+They also explored tasks such as addition of multiple digit integers (this in my head is more about exploring the strength of autoregressive flows for feature extraction than for generations), Potts model, and character-level language modelling (I don't know the datasets and cannot quite appreciate the beauty of it).
+In all of these, the bipartite performed reasonably well and was much faster to generate new examples.
+
+

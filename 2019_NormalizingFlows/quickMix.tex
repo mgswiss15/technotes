@@ -1,0 +1,289 @@
+\clearpage
+
+\section{Short dirty notes for more papers}
+
+
+\subsection{Rippel, Adams: High dimensional density estimation}
+
+\begin{notebox}
+\fullcite{rippelHighDimensionalProbabilityEstimation2013}
+
+\hfill Notes taken: 22/2/2020 \index{February 2020}
+\end{notebox}
+
+Good review of various density estimation methods organised in tow groups:
+\begin{compactitem}
+\item graphical models, e.g. Boltzmann machine, directed belief networks, etc.
+\item manifold learning, e.g. Gaussian latent variable model, kernel PCA, auto-encoder neural network
+\end{compactitem}
+Inference is often costly and not scalable to high dimensions.
+They propose the \emph{deep density model} (DDM)\index{deep density model} using deep learning for bijective transformations of the observed space.
+
+The structure they propose is quite different from modern flow architectures.
+They suggested to have an invertible \emph{decoder}\index{decoder} $f_\theta : \mZ \subseteq \mR^D \to \mX \subseteq \mR^D$ such that the transformation of the observed data $f_\theta^{-1} : \mX \to \mZ$ has a simple factorised distribution 
+\begin{equation}
+p_Z(\bz) = \prod_i^D p(z_i) \enspace .
+\end{equation}
+The decoder $f$ shall be a stacking of standard sigmoidal layers $\sigma(\bW \bx + \bb)$.
+
+They also have non-bijective \emph{encoder}\index{encoder} $g_\phi : \mX \to \mZ$.
+
+Their objective is composed of three terms:
+\begin{compactitem}
+\item divergence term making sure that after the encoding transform $g_\phi$ the empirical distribution of the latent representation matches the target distribution of choice. They work with Beta distributions and do this by calculating analytically the KL divergence between the base Beta and the a Beta fit to the empirical $\bz$'s. \note{this seems complicated}
+\item invertibility measure which makes sure that the learned $\bW$'s are invertible. This is based on the condition number but as they say, in high dimensions virtually all matrices are orthogonal.
+\item Reconstruction loss checking that the encoder-decoder chain reconstructs well. This is based on entropy which I don't really understand why.
+\end{compactitem}
+
+They have some interesting ideas for experiments:
+\begin{compactitem}
+\item to test their density estimation they check the density assigned to train data and test data which should both be high and distorted data which should have low density
+\item they train on MNIST digit 9 and check the density for 6 (should be low) and rotated 6 (should be high)
+\end{compactitem}
+
+They mention the possiblity to extend to supervised learning with calibrated classificaiton predictions.
+
+
+\subsection{Germain et al, Masked Autoencoder for Distribution Estimation (MADE)}\index{MADE}
+
+\begin{notebox}
+\fullcite{germainMADEMaskedAutoencoder2015}
+
+\hfill Notes taken: 22/2/2020 \index{February 2020}
+\end{notebox}
+
+Standard autoencoders over binary data optimizing cross-entropy per dimension are equivalent to maximizing the factorised log likelihood. However, the true distribution is unlikely to be factorised. In contrast, any distribution can be decomposed into the product of \emph{autoregressive} conditionals where the distribution for each dimension is conditioned on the previous dimensions.
+
+They propose to multiply (element-wise) the weight matrices in the encoder and decoder by binary masks that will block the paths so that the outputs only depend on previous dimensions of the inputs. The idea is fairly simple and the trick is only how to construct these automatically so that it actually really blocks the path as needed - they give simple heuristic that can be initialised randomly.
+
+They further make this more complicated by randomly permuting the order of the dimensions during the training when the order has no ture meaning.
+
+
+\subsection{Oord et al., PixelRNN}\index{PixelRNN}
+
+\begin{notebox}
+\fullcite{oordPixelRecurrentNeural2016}
+
+\hfill Notes taken: 22/2/2020 \index{February 2020}
+\end{notebox}
+
+Model the distribution of an image by expressing the joint distribution as a product of conditional distributions where we condition the distribution of each pixel on the prevoius pixels (to the left and top).
+
+To model the recurences they use RNN (with LSTM layers) and masked CNN where the filters are masked so that they don't peak to the future pixels.
+
+The paper discusses plenty of architectures for the RNN or CNN models achieving this. But the point is that the images have to be generated sequentially by passing the outputs again and again through the networks to produce more and more pixels.
+
+\subsection{Oord et al., Conditinal generations with PixelCNNs}
+
+\begin{notebox}
+\fullcite{oordConditionalImageGeneration2016}
+
+\hfill Notes taken: 22/2/2020 \index{February 2020}
+\end{notebox}
+
+Extends the previous PixelCNN\index{PixelCNN} by conditioning all the autoregressive distributions on a common vector $\bh$ giving some high-level description of the image (e.g. class). This can be either global, so used for conditioning all pixels or local and then would be applied only to some pixels through masking.
+
+\subsection{Kingma and Dhariwal: Glow}\label{sec:Glow}\index{Glow}
+
+\begin{notebox}
+\fullcite{kingmaGlowGenerativeFlow2018}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+Good motivation of generative modelling and major pros and cons of flows as compared to autoregressive, VAEs and GANs in the intro.
+
+Very clear intro to flows (hinting to the fact that continuous variables are always discretized by digitalization process so they add uniform noise to the observation to make them continuous again).
+
+Takes realNVP architecture (section \ref{sec:realNVP}) and replaces 
+\begin{compactitem}
+\item batch norm with \emph{actnorm} - for large images the minibatch has size 1 and therefore batchnorm would be very unstable. Actnorm normalizes initial activations per channel by the mean and std calculated over initial minibatch and then treats these as learnable parameters
+\item dimension permutation with invertible 1x1 convolution - this is easy to invert and get Jacobian determinant
+\item affine coupling layer with additive layers - in the factor-out architecture they split the features along channels
+\end{compactitem}
+
+\textbf{Good experimental results.} They claim the 1x1 convolution does better than random or reverse permutations reaching higher log likelihood values. Generations from CelebA look good.
+They also show interpolations in the latent representations and these look very good suggesting the latent space is very smooth. 
+They also have a nice trick for semantic manipulation: they simply calculate average latent vectors for images with and without some discrete feature (e.g. smile) and then move along the difference of these two. Looks good.
+
+They speak about somehow reducing the temperature of the model but I'm not sure what temperature they speak about. This seems like post-hoc reduction in the variance of the latent space for neater 4sampling.
+
+
+\subsection{Ho et al: Flow++}\label{sec:flow++}
+
+\begin{notebox}
+\fullcite{hoFlowImprovingFlowBased2019}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+Builds on Glow (secttion \ref{sec:Glow}) and claims that transforming the digitized data to continuous by adding uniform noise (\emph{dequantization}\index{dequantization})
+\begin{equation}
+\tilde{\bx} = \bx + \bu, \qquad \bu \sim \mathcal{U}(0, 1)^D
+\end{equation}
+and maximizing the likelihood $p(\tilde{\bx})$ is not great.
+It does prevent the model from collapsing to the discrete data, however, it asks the model to assign uniform density to to unit hypercubes around the data $\bx + [0, 1)^D$ which is not natural for a smooth function approximator.
+
+They therefore propose to learn the most reasonable distribution of the additive $\bu$ through approximation $q(\bu | \bx)$ which itself is modelled as a flow $\bu = q_x(\pmb{\epsilon})$, $\pmb{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$.
+Doing this they don't optimize the likelihood but a variational bound but they claim that even the uniform deqauntization boils down to optimizing a variational bound where we approximate the true $p(\bu| \bx)$ by the uniform distribution.
+
+They add some more tweaks to the architecture. They design more complex affine layers with extra invertible nonlinearity babsed on Logistic CDF of the data which requires learning plenty more parameters. They bring attention and gating to the networks acting in the coupling layers. They claim these help but are less important than learning of the $\bu$ distribution.
+
+
+\subsection{Magdon-Ismail, Atiya: Density Estimation Using Multilayer Networks}
+
+\begin{notebox}
+\fullcite{magdon-ismailDensityEstimationRandom2002}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+Rather old paper. They propose to learn the data distribution via NN as non-parametric class. They rely on the CDF rather than the pdf as pdf is just a derivative of the CDF which should be able to obtain from the neural net.
+
+In the univariate case $x \in \mR$ the r.v. $y=CDF(x)$ is uniform on (0, 1). They propose to learn the nn as the CDF, that is the outputs of the network should be distributed uniformly.
+They pose it as a supervised learning problem and to each $x$ they associate an $y \sim Uni(0, 1)$ and optimize the network. They generate new $y$s after every forward-backward pass to allow it to learn a truly uniform distribution not just fit the outputs.
+
+In the multivariate case $\bx \in \mR^d$ the variable $\by = CDF(\bx)$ is not necessarily uniform. \\
+(\note{I had though it is still marginally uniform but not independent}).
+They construct targets for the learning as the fraction of the training data smaller than each of the training points. 
+The density is simply the derivatve of the learned CDF.
+
+
+\subsection{Uria, Murray, Larochell: RNADE}
+
+\begin{notebox}
+\fullcite{uriaRNADERealvaluedNeural2014}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+Good review of traditional approaches to density estimation in the intro.
+
+Extends previous Neural Autoregressive Distribution Estimator\index{neural autoregressive distribution estimator} (NADE)\index{NADE} which modelled discrete distribution to the continuous case.
+
+The model is autoregressive relying on the generally valid decomposition of probability density by the product rule (chain rule)\index{product rule}\index{chain rule}
+\begin{equation}
+p(\bx) = p(x_1) \prod_{d=2}^D p(x_d \vert \bx_{<d})
+\end{equation}
+
+In NADE each conditional is given by a feed-forward neural net with one hidden layer $\bh_d \in \mR^H$
+\begin{equation}
+p(x_d \vert \bx_{<d}) = sigm(\bv_d^T \bh_d + b_d), \qquad \bh_d = sigm(\bW_{<d} \bx_{<d} + \bc) \enspace .
+\end{equation}
+The parameters are tied across the dimensions with $\bW_{<d}$ being the first $d-1$ columns of a shared weight matrix $\bW$.
+
+For the Real-valued neural autoregressive distribution estimator\index{real-valued neural autoregressive distribution estimator} (RNADE)\index{RNADE} the conditionals are modelled as mixture of Gaussians  so that the outputs of the network are the mixing fractions (softmax), component means and component standard deviations ($\log \sigma$).
+Otherwise the architecture pretty much follows NADE including the parameter tying.
+The architecture is a rather shallow network, probably due to the date of drafting and comp resources available at the time.
+
+In addition to mixture of Gaussian they also tried mixture of Laplacians, claiming it may be more appropriate for some types of data.
+They only experimented with relatively low diemansional data and compared to simple baselines such as mixture of Gaussians optimised by EM and it performed reasonably well.
+
+\subsection{Papamakarios, Pavlakou, Murray: MAF}
+
+\begin{notebox}
+\fullcite{papamakariosMaskedAutoregressiveFlow2018}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+View autoregressive model as a normalizing flow and use MADE\index{MADE} to avoid the sequential looping. Can stack multiple autoregressive flows on top of each permuting the order of the dimensions which breaks the arbitrary ordering creating troubles in autoregressive models.
+
+After stating the main idea it shows how the autoregressive models can be interpreted as flows and how this links to inverse autoregressive flows of Kingma (section \ref{sec:iaf}).
+
+Experiments are not amazing so seem more honest. Also does conditional density estimation and generation by conditioning all the densities in the autoregression on an side variable $y$ by $p(\bx | \by) = p(x_1 | \by) \prod_{d=2}^D p(x_d \vert \bx_{<d}, \by)$
+
+
+\subsection{Wang, Wang: Neural Gaussian Copula for Variational Autoencoders}
+
+\begin{notebox}
+\fullcite{wangNeuralGaussianCopula2019}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+They argue that one of the problems in VAEs is the mean field assumption for the approximate posterior $q(\bz | \bx)$. They propose to use copulas\index{copula} to capture the dependencies. Though the idea of using copulas in general may be interesting, in their case I don't see the beauty because it essentially boils down to learn $q(\bz | \bx) = N(\mu(\bx), \Sigma(\bx))$ with full covariance matrix where $\Sigma(\bx) = L(\bx)^T L(\bx)$ are outputs of the NN.
+
+
+\subsection{Weise et al.: Copula and Marginal flows}
+
+\begin{notebox}
+\fullcite{wieseCopulaMarginalFlows2019}
+
+\hfill Notes taken: 23/2/2020 \index{February 2020}
+\end{notebox}
+
+I don't think I understand. 
+They first that you distribution estimate should coincide with the true distribution in cumulative distribution function and that if you have some tail beliefs you should be able to factor them in.
+
+Then they show that current flows do not necessarily learn the tail probabilities satisfactorily (I don't understand the proofs).
+
+Then they suggest to model the density as the product of copula\index{copula} and marginal densities
+\begin{equation}\label{eqmix:copulMarginals}
+p(x_1, x_2) = p(x_2 | x_1) p(x_1) = c(F_1(x_1), F_2(x_2)) p(x_1) p(x_2) \enspace ,
+\end{equation}
+where $c$ is the copula density and $F_i$ are the marginal cumulative distribution functions.
+
+They then propose flows for the marginals and the copula. Somehow it seems to me that they assume you know the copula over the uniform vector $u_i = F_i(x_i)$ a priori and you just need to flow it through and combine with the data distribution.
+
+They only develop and experiment with bivariate case but claim this can be extended to higher dimansions via vine copula.
+
+
+\subsection{Tagasovska et al.: Copulas as High-Dimensional Generative Models}
+
+\begin{notebox}
+\fullcite{tagasovskaCopulasHighDimensionalGenerative2019}
+
+\hfill Notes taken: 24/2/2020 \index{February 2020}
+\end{notebox}
+
+Train normal neural autoencoder with lower-dimensional latent space and learn a copula\index{copula} distribution over the latent space (post-hoc) to be able to generate new data by decoding the $z$ samples.
+
+They use the same density representation as above in equation \eqref{eqmix:copulMarginals} (product of copula density and the marginals) generalizing to $d>2$ variables.
+To estimate the marginals they use Gaussian kernel density estimation.
+They use parametric and non-parametric (claim this is better since more flexible) vine copulas based on pair-copula constructions (pair-wise dependencies conditioned on other variables) to estimate the copula density. The standard estimation procedure is sequential constructing \emph{conditioned pseudo-observations} to be able to evaluate the conditional copulas. This somehow reminds me of autoregressive  models but I'm not quite sure about the link.
+They use the R implemented rvinecopulib to do the estimation.
+
+
+\subsection{Dinh et al.: RAD}\index{RAD - Real And Discrete flow}
+
+\begin{notebox}
+\fullcite{dinhRADApproachDeep2019}
+
+\hfill Notes taken: 24/2/2020 \index{February 2020}
+\end{notebox}
+
+Flow model where they intorduce an extra latent variale $k$ which shall cater for multiple modes (clusters) in the data. The flow transformation $f$ thus has to be no-longer invertible but only piecewise invertible over partitions of data associated to the invidual clusters. They consider the partitions to be disjoint (means hard-clustering / strict separation which seem quite strong and restrictive assumption). 
+
+Otherwise just extending RealNVPs (section \ref{sec:realNVP}) with the extra $f_K$ clustering function. They not this is difficult to optimise due to discontinuities but they say they solve it by gating layers. Not sure how.
+
+On experiments seems to perform better than standard RealNVP
+
+
+\subsection{Tabak and Turner: Family of Nonparametric Density Estimation Algos}
+
+\begin{notebox}
+\fullcite{tabakFamilyNonparametricDensity2013}
+
+\hfill Notes taken: 24/2/2020 \index{February 2020}
+\end{notebox}
+
+One of the original normalizing flow papers.
+Suggests to maximize the likelihood via the parametrized flow map $x = f_\beta(z)$ from a standard Gaussian latent $\bz$.
+They also propose to stak the transformations to combine simple transforamtions into something more complex. However, they don't go around it by NN but rather something that looks like kernel density estimation. 
+
+\subsection{Ardizzone: Guided image generation, conditional INN}
+
+\begin{notebox}
+\fullcite{ardizzoneGuidedImageGeneration2019}
+
+\hfill Notes taken: 24/2/2020 \index{February 2020}
+\end{notebox}
+
+Builds upon their paper on inverse problems (section \ref{sec:inverseProblem}).
+It proposes conditional generations where the condition enters directly as inputs to the $t()$ and $s()$ networks in the coupling layers (this is ok, since these are not iverted). This is easy for something like MNIST and the class one hot vectors. For something more complicated, the condition (e.g. image) may need to be pre-processed by a conditioning network, either some pre-trained network allowing to extract reasonable features or trained together directly with the cINN.
+For MNIST they train with $c$ the one-hot vectors for the digit classes and can then conditionally generate from each digits tweaking the style by changing $\bz$. They can do the reverse in fixing the style in $\bz$ and change $c$ to generate different digits or even style transfer by passing $\bx$, getting the corresponding $\bz$ and changing $\bc$.
+
+They also tweak the style of the single digits by moving in the $\bz$ space along PCA latent vectors (learned post-hoc over $\bz$s of training data).
+
+They have another experiment on coloring images where the conditioning info is the grayscale image and the colorization comes from learned distribution. I don't quite understand how this works (what is \emph{Lab color space}?) but the results seem rather impressive to me. Not so much to ICLR reviewers, it seems ;)

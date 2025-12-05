@@ -1,0 +1,141 @@
+\clearpage
+
+\section{Dinh et al.: RealNVP}\label{sec:realNVP}\index{realNVP}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{dinhDensityEstimationUsing2017}
+
+\hfill Notes taken: 6/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr Unsupervised generative model relying on the \emph{change of variable formula} for probability densities
+\begin{equation}
+p_X(\bx) = p_Z(g^{-1}(\bx)) \,\Big\lvert \det J_{g^{-1}}(\bx) \Big\rvert \enspace ,
+\end{equation}
+where $\bz \sim p_Z$ is a latent variable generated from an arbitrary (simple) distribution with density $p_Z$ (e.g. standard Gaussian) and we learn the transformation $\bx = g(\bz)$ to get the data distribution $p_X$ (the random vars $\bZ$ and $\bX$ need to have the same number of dimensions).
+
+The learned function $g$ has to be sufficiently flexible to enable transforming the simple $p_Z$ to arbitrarily complex $p_X$. Yet it also has to be invertible to be able to perform both inference and sampling. Furthermore the inverse and the determinant of the Jacobian $J_{g^{-1}}$ should not be too expensive to get to be able to train efficiently.
+
+They propose to construct $g$ as a stacking of \textbf{affine coupling layers}
+\begin{align}
+\by_{1:d} & = \bx_{1:d} \nn
+\by_{d+1:D} & = \bx_{d+1:D} \odot \exp\big(s(\bx_{1:d})\big) + t(\bx_{1:d}) \enspace ,
+\end{align}
+where $s$ and $t$ are neural networks.
+Each of these layers has triangular Jacobian with cheap determinant and easy inverse, and the determinant and inverse of the whole stacking is just a product of determinants and inverses of each layer.
+
+The partitions need to be alternated to ensure that all dimensions get updated and can interact. They implement the partitioning by masking.
+\end{notebox}
+
+\subsection{Intro}
+
+Generative probabilistic modelling for high-dimensional and highly structured data yet still trainable = \emph{real-valued non-volume preserving (real NVP) transformations}.
+The model enables efficient and exact inference, sampling and density estimation.
+
+\emph{VAEs}\index{VAE} train a generative network and an approximate inference network and optimize a lower bound on the log-likelihood. The approximate inference limits the ability to learn good representations.
+
+\emph{Autoregressive models}\index{autoregressive models} are tractable models of the log-likelihood but the arbitrary ordering of the dimensions in the conditioning chain in the joint distribution may be critical for the performance. Also these are sequential and hence non-parallelizable so computationally not efficient.
+
+\emph{GANs}\index{GAN} don't optimize likelihood but instead use a discriminator network to provide a training signal to the generative network. Measures for diversity of the generated samples are currently intractable.
+
+\subsection{Model}
+
+Generative network $g : z \to x$ mapping latent variable $z \sim p_Z$ to a sample $x \sim p_X$ ($p$ are the respective densities) can be trained through maximum likelihood, if $g$ is \emph{bijective}, using the \textbf{change of variable formula}\index{change of variable formula} (see details and proofs in section \ref{secpre:changeOfVar})
+\begin{equation}
+p_X(\bx) = p_Z(g^{-1}(\bx)) \,\Big\lvert \det J_{g^{-1}}(\bx) \Big\rvert
+\end{equation}
+\begin{equation}
+\log p_X(\bx) = \log p_Z(g^{-1}(\bx)) + \log \Big\lvert \det J_{g^{-1}}(\bx) \Big\rvert
+\end{equation}
+
+\begin{notebox}
+\textbf{Some useful math:}
+\begin{equation}
+\det(AB) = \det(A) \, \det(B) \qquad \qquad \det(A^{-1}) = \big(\det(A) \big)^{-1}
+\end{equation}
+
+For $f: \mR \to \mR$ and $b = f(a)$ and $F : \mR^n \to \mR^n$ and $\bq = F(\bp)$
+\begin{equation}
+\big(f^{-1}\big)'(b) = \frac{1}{f'(a)} = \frac{1}{f'\big(f^{-1}(b)\big)}
+\qquad \qquad
+J_{F^{-1}}(\bq) = \big(J_{F}(\bp)\big)^{-1},
+\end{equation}
+where $J_{F}(\bp) = \frac{\partial F}{\partial \bp}(\bp)$ is the Jacobian matrix evaluated at $\bp$.
+\end{notebox}
+
+\subsubsection{Coupling layers}\index{coupling layer}
+
+Computing Jacobian and its determinant is expensive in high dimensions but if Jacobian is upper- or lower- triangular then the determinant is just a product of the diagonal terms.
+
+We can build flexible but tractable bijective function by stacking simple bijections.
+
+They propose to stack \textbf{affine coupling layers}\index{affine coupling layers} operating over the inputs $\bx \in \mR^D$ and spitting out the outputs $\by \in \mR^D$ as follows ($d < D$):
+\begin{align}\label{eqrnvp:couplingLayer}
+\by_{1:d} & = \bx_{1:d} \nn
+\by_{d+1:D} & = \bx_{d+1:D} \odot \exp\big(s(\bx_{1:d})\big) + t(\bx_{1:d}) \enspace ,
+\end{align}
+where $s$ and $t$ are scale and translation functions $\mR^d \to \mR^{D-d}$.
+
+\textbf{Jacobian of the coupling layer} is triangular
+\begin{equation}
+\frac{\partial \by}{\partial \bx} = 
+\begin{bmatrix}
+\mathbf{I}_d & \mathbf{0} \\
+\frac{\partial \by_{d+1:D}}{\partial \bx_{1:d}} & \diag \big( \exp\big(s(\bx_{1:d})\big)\big)
+\end{bmatrix}
+\end{equation}
+so that the determinant is just
+\begin{equation}
+\det \frac{\partial \by}{\partial \bx} = \exp\big( \sum_j s(\bx_{1:d})_j \big) \enspace .
+\end{equation}
+
+As computing the Jacobian of the coupling layer does not involve computing the Jacobians of $s$ or $t$, these can be arbitrarily complex and are modelled by neural nets.
+
+\textbf{Inverse} of the coupling layer is easy meaning that the sampling is also computationally efficient
+\begin{align}
+\bx_{1:d} & = \by_{1:d} \nn
+\bx_{d+1:D} & = \big(\by_{d+1:D} - t(\by_{1:d})\big) \odot \exp\big(-s(\by_{1:d})\big) \enspace ,
+\end{align}
+
+They propose to implement the \textbf{partitioning via binary mask} $b$
+\begin{equation}
+\by = \bb \odot \bx + (1 - \bb) \odot \Big( \bx \odot \exp\big(s(b \odot \bx)\big) + t(b \odot \bx) \Big)
+\end{equation}
+
+To ensure that all components of the inputs $\bx$ get transformed, they apply the coupling layers in \textbf{alternating pattern swapping the fixed and the transformed parts}.
+The Jacobian of the stacking remains tractable because by the chain rule and the math above
+\begin{equation}
+\det \left( \frac{\partial (g \circ h)}{\partial x}(\bx) \right) = \det \left(\frac{\partial g}{\partial y}(\by = h(\bx)) \right)  \det \left(\frac{\partial h}{\partial x}(\bx)\right) \enspace .
+\end{equation}
+
+The inverse is also tractable by
+\begin{equation}
+(g \circ h)^{-1} = h^{-1} \circ g^{-1} \enspace .
+\end{equation}
+
+\subsection{Experiments}
+
+They experiment with standard image datasets (CIFAR-10, small Imagenet, etc.). They claim that compared to VAE their generations are sharper and that \emph{as well known} optimizing for likelihood values diversity over sample quality. The bits/dimension metric is somewhat worse than in pixelRNN but they claim this could be improved by larger model. 
+
+They also explore how smoothly varying the latent space translate to meaningful changes in the output space which goes beyond just altering the pixel values. This looks interesting but is only coming out from the experiments, not from the theory.
+
+\subsubsection{Implementation tricks}
+
+They explain a couple of tricks to make the implementation faster and more stable.
+\begin{compactitem}
+\item multi-scale architecture with squeezing - a way to alternate the coupling layers
+\item factoring out half of dimensions at regular intervals - to alleviate the need for propagating all dimensions through all coupling layers
+\item batch normalization using running averages - robust to training with small minibatches
+\end{compactitem}
+Check sections 3.6-3.7 of the paper if implementation is of the essence.
+
+\subsubsection{Conclusions}
+
+Possible future work is extending this to semi-supervised and/or conditionally generative model.
+In appendix F they also show a bit on conditional generations but it is not very clear how they did this.
+
+
+
+
+

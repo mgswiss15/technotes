@@ -1,0 +1,35 @@
+\clearpage
+
+\section{Rezende et al.: Normalizing flows for spheres and tori}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{rezendeNormalizingFlowsTori2020}
+
+\hfill Notes taken: 12/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr Normalizing flows over non-Euclidean data should take into account the particular topology of the space and use specific diffeomorphic transformations. If you project to $\mR^D$ to do the flows there, the projection itself may not be diffeomorphic and therefore the whole chain of transformations in the change of variable formula breaks. Quite a lot of math bruhaha for modelling data on spheres and tori.
+\end{notebox}
+
+\subsection{Intro}
+
+Use normalizing flows, that is the usual change of variable rule for density, e.g. equation \eqref{eqpre:changeOfVarMulti} over data in some non-Euclidean space $\mM$.
+The simple solution of applying the flow in $\mR^D$ and then project to $\mM$ is problematic when $\mM$ is not diffeomorphic to $\mR^D$.
+
+The simple solution of applying the flow in $\mR^D$ and then project to $\mM$ is problematic if $\mM$ and $\mR^D$ are not diffeomorphic.
+
+They focus on data on a sphere $\mS^D$\index{sphere} or tori\index{tori} $\mT^D$. A circle $\mS^1$ in $\mR^2$ can be parametrised either by $\{(x_1, x_2) \in \mR^2 : x_1^2 + x_2^2 = 1\}$ or by $\theta \in [0, 2\pi]$.
+They give conditions for a valid diffeomorphism $f : [0, 2\pi] \to [0, 2\pi]$ taking into account the periodic nature of the circle.
+They then discuss three types of diffeomorphisms on circle: M\:{o}bius transformations\index{M\:{o}bius transformations}, circular splines\index{circular splines} and non-compact projections\index{non-compact projections}.
+
+They explain how to combine these either by composition or as convex combinations to increase the expressivity of the transformed distributions and the complexity of evaluating the final transform $f$ and its inverse $f^{-1}$. Sometimes these cannot be done analytically and require numerical methods.
+
+Generalizations to torus are based on autoregressive flows over the circle transformers.
+To extend to higher-dimensional spheres they use recursive construction based on exponential map and cylindrical coordinates.
+
+It is all very mathematical (space topology) and I'm not sure how useful. It seems they want to extend this to Li groups that or of interest in fundamental physics (particle interactions).
+
+
+
+

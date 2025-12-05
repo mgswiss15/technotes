@@ -1,0 +1,108 @@
+\clearpage
+
+\section{Kingma's VAE with inverse autoregressive flows}\label{sec:iaf}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{kingmaImprovedVariationalInference2016}
+
+\hfill Notes taken: 22/2/2020 \index{February 2020}
+\end{notebox}
+
+\begin{notebox}
+\tldr 
+The aim is to increase the flexibility of the approximate posterior (the inference model) $q(\bx \vert \bx)$ in standard VAEs through normalizing flows on $\bz$. \\
+
+Standard Guassian autoregressive models build the random variable $\by = \{y_i\}_{i=1}^D$ by fixing an order in the dimensions and then getting the dimensions one by one as transformation of some easy to sample random variable $\pmb{\epsilon} = \{\epsilon_i\}_{i=1}^D$ (this is not the data here!).
+\begin{equation}
+\by = \pmb{\mu} + \pmb{\sigma} \pmb{\epsilon}
+\end{equation}
+\begin{equation}
+y_0 = \mu_0 + \sigma_0 \, \epsilon_0, \quad y_i = \mu_i(\by_{1:i-1}) + \sigma_i(\by_{1:i-1}) \, \epsilon_i, \ i=1, \ldots D-1
+\end{equation}
+with not-autoregressive $\mu_0, \sigma_0$ and $\mu_i, \sigma_i$ being the outputs of some autoregressive network.
+
+The problem with this is that the sampling is slow (you need to sample recursively). Hence this is not very practical in VAEs with high dimensional latent space $\bz$ because there we need to sample the $\bz$ every time we do a forward pass for each of the inputs $\bx$. \\
+
+The \emph{inverse autoregressive flows} (IAF) say you should flip the dependency so that
+\begin{equation}
+\by = \pmb{\mu} + \pmb{\sigma} \pmb{\epsilon}
+\end{equation}
+\begin{equation}
+y_0 = \mu_0 + \sigma_0 \, \epsilon_0, \quad y_i = \mu_i(\pmb{\epsilon}_{1:i-1}) + \sigma_i(\pmb{\epsilon}_{1:i-1}) \, \epsilon_i, \ i=1, \ldots D-1
+\end{equation}
+This is much faster to sample (can be parallelized) and the Jacobian is still triangular with simple terms on the diagonal (just $\sigma_i(\pmb{\epsilon}_{1:i-1})$) so that the induced density $p(\by)$ is easy to evaluate.
+\end{notebox}
+
+\subsection{Intro}
+
+The aim is to improve VAE's\index{VAE} by increasing the flexibility of the inference model $q(\bz \vert \pmb{\epsilon})$ (so that the approximate posterior $q(\bz \vert \pmb{\epsilon})$ can be closer to the true posterior $p(\bz \vert \pmb{\epsilon})$) through \emph{inverse autoregressive flows} (IAF)\index{inverse autoregressive flows}.
+
+\subsubsection{Normalizing flows}
+
+Build posterior $q(\bz \vert \pmb{\epsilon})$ by starting off an initial random variable $\bz_0$ with known density and distribution which is easy to sample from and apply a chain of invertible transformations $f_t$ such that the last iterate $\bz_T$ has more flexible distribution
+\begin{equation}
+\bz_0 \sim q(\bz_0 \vert \pmb{\epsilon}), \qquad \bz_t = f_f(\bz_{t-1, \pmb{\epsilon}}), \ t=1, \ldots, T
+\end{equation}
+\begin{equation}
+\log  q(\bz_T \vert \pmb{\epsilon}) = \log q(\bz_0 \vert \pmb{\epsilon}) - \sum_{t=1}^T \log \left\lvert \det \frac{\dif \bz_t}{\bz_{t-1}} \right\rvert
+\end{equation} 
+
+\subsection{Inverse autoregressive transformation}
+
+The idea is based on Gaussian autoregressive functions. The variable $\by = \{y_i\}_{i=1}^D$ is modelled as a transformation of an easy to sample random variable $\pmb{\epsilon} = \{\epsilon_i\}_{i=1}^D$ as
+\begin{equation}
+\by = \pmb{\mu}(\by) + \pmb{\sigma}(\by) \, \pmb{\epsilon} \enspace ,
+\end{equation}
+where $\pmb{\mu}(\by)$ and $\pmb{\sigma}(\by)$ denote the autoregressive functions so that
+\begin{equation}
+y_i = \mu_i(\by_{1:i-1}) + \sigma_i(\by_{1:i-1}) \, \epsilon_i, \quad y_0 = \mu_0 + \sigma_0 \, \epsilon_0 \enspace .
+\end{equation}
+
+
+The computational cost of sampling is proportional to the dimension $D$ as we need to iteratively follow from the ancestral dimensions.
+However, the determinant of the Jacobian $\frac{\partial \by}{\partial \by}$ is trivial. The Jacobian is lower triangular with zeros on the diagonal because
+\begin{equation}\label{eqiaf:autoregressJacob}
+\frac{\partial [\mu_i(\by_{1:i-1}), \sigma_i(\by_{1:i-1})]}{\partial y_j} = [0, 0] \quad \text{ for } i \leq j \enspace .
+\end{equation}
+
+
+The inverse transformation
+\begin{equation}
+\pmb{\epsilon} = \frac{\by - \pmb{\mu}(\by)}{\pmb{\sigma}(\by)}
+\qquad 
+\epsilon_i = \frac{y_i - \mu_i(\by_{1:i-1})}{\sigma_i(\by_{1:i-1})}
+\end{equation}
+can be panellized for sampling since the computation of dimensions of $\pmb{\epsilon}$ does not depend on each other.
+This transformation has a simple Jacobian determinant as the Jacobian $\partial \pmb{\epsilon} / \partial \by$ is lower triangular with $\partial \epsilon_i / \partial y_j = 0$ for $j > i$ and a simple diagonal $\partial \epsilon_i / \partial y_i = 1 / \sigma_i(\by_{1:i-1})$.
+The log determinant is hence simply
+\begin{equation}
+\log \left\lvert \det \frac{\partial \pmb{\epsilon}}{\partial \by} \right\rvert = - \sum_{i=1}^D \log \sigma_i(\by_{1:i-1})
+\end{equation}
+
+\subsection{Inverse autoregressive flows}
+
+They bring the inverse transform into the VAE's as follows:
+\begin{compactitem}
+\item let the encoder spit out initial $\pmb{\mu}_0, \pmb{\sigma}_0, \bh$
+\item initialize chain by $\bz_0 = \pmb{\mu}_0 + \pmb{\sigma}_0 \, \pmb{\epsilon}$, with $\pmb{\epsilon} \sim N(\mathbf{0}, \mathbf{I})$
+\item construct flow as the chain of transformations $\bz_t = \pmb{\mu}_t(\bz_{t-1}, \bh) + \pmb{\sigma}_t(\bz_{t-1}, \bh) \, \bz_{t-1}$ with autoregressive $\pmb{\mu}_t, \pmb{\sigma}_t$ outputs of an autoregressive neural network.  
+\end{compactitem}
+Jacobians of $\partial [\pmb{\mu}_t(\bz_{t-1}, \bh), \pmb{\sigma}_t(\bz_{t-1}, \bh)] / \partial \bz_{t-1}$ are triangular with zeros on the diagonal so that the Jacobian of each of the transformation is triangular with $\partial \bz_t / \partial \bz_{t-1} = \pmb{\sigma}_t(\bz_{t-1}, \bh)$ on the diagonal.
+
+For gaussian $\pmb{\epsilon}$ the density of the final iterate is
+\begin{equation}
+p(\bz_T \vert \pmb{\epsilon}) = - \sum_i^D \left( 
+0.5 \epsilon_i^2 + 0.5 \log(2\pi) + \sum_{t=0}^T \log \sigma_{t,i}(\bz_{t-1})
+\right)
+\end{equation}
+\note{Is this a Gaussian distribution with diagonal covariance? It should not be but the density looks like it is.}
+
+\subsection{Implementation tricks}
+They use MADE \parencite{germainMADEMaskedAutoencoder2015} and PixelRNN \parencite{oordPixelRecurrentNeural2016} as the autoregressive networks for the flow. They also use a numerically more stable version of the flow transformation
+\begin{equation}
+[\bm_t, \bs_t] \gets autoregressNN(\bz_t, \bh) \quad \pmb{\sigma}_t = sigmoid(\bs_t) \quad \bz_t = \pmb{\sigma}_t \odot \bz_{t-1} + (1 - \pmb{\sigma}_t) \odot \bm_t \enspace .
+\end{equation} 
+\note{I'm not sure of the role of $\bh$ which is being used as an input into all the flow layers.}
+
+\subsection{Experiments}
+They compare to baselines (results taken from other papers) over MNIST and CIFAR and show that likelihood (by importance sampling) is competitive and the generations can be much faster than that of standard autoregressive models such as PixelCNN. 

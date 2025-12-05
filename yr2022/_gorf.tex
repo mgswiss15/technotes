@@ -1,0 +1,31 @@
+\clearpage
+
+\section{GORF}\label{sec:gorf}\index{GORF}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{luo_towards_2021}
+\vspace{5pt}
+
+\href{}{no reviews}
+\hspace{1cm}
+\href{}{no code}
+\hspace{1cm}
+\href{run:/home/magda/Dropbox/Zot//home/magda/Dropbox/Zot/Luo et al_2021_Towards Unbiased Random Features with Lower Variance For Stationary Indefinite.pdf}{Local pdf}
+\vspace{3pt}
+
+Read on 16/3/2022 for \iterm{CAIRO readings} by \iterm{Simon}
+\hfill Notes taken: 17/3/2022 \index{March 2022}
+\end{notebox}
+
+\begin{notebox}[colback=red!5]
+\tldr They propose to use \iterm{Random Fourier Features}(\iterm{RFF}) for \iterm{stable indefinite kernels} (stable = \iterm{translation invariant}) with further orthogonalised approximation (instead of usual approximation through Monte Carlo sampling) to reduce the approximation variance. The RFF extension to indefinite kernels is based on treating the Fourier transform of the kernel as a signed measure and using \iterm{Jordan decomposition} to split it to positive and negative parts which can be both normalized (by their norms = total volumes) and then treated as probability measures. This means that we simply need to sample twice as many random Fourier features, one for the positive and one for the negative part of the measure corresponding to the imaginary part of the indefinite kernel. This has ll been done before by the group of Suykens and colleagues (26).
+They further propose to replace standard iid Monte-Carlo sampling by orthogonalized random features (has been also proposed before for PD kernels, Google research in 2016). They take the sample sampling strategy and claim without proofs that it possesses desirable properties - unbiasedness and lower variance. They show on experiments excellent performance - so good that it is hard to believe. 
+\end{notebox}
+
+\begin{notebox}[colback=yellow!5]
+\textbf{Notes:} 
+\begin{itemize}[nosep]
+\item The orgthogonalization is based on sampling from a Gaussian and rescaling by normed samples from the decomposed signed measure. I am not convinced that this is really unbiased estimate of the RFF expectation and they don't show it is. It feels a bit as they recover some sort of rescaled Gaussian kernel. But hard to say. The excellent results seem to corroborate this idea. If the RFF approximation is Guassian, than they are comparing non-PD kernel performance with Gaussian kernel performance over standard dataset and it is no surprise the Gaussian does better. \emph{\textbf{But perhaps I'm wrong :)}}
+\end{itemize}
+\end{notebox}
+
