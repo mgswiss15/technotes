@@ -1,0 +1,30 @@
+\clearpage
+
+\section{Tishby's information theory of DL}\label{sec:infoDL:_Tisby}\index{information bottleneck}
+
+\begin{notebox}
+\textbf{Video: } \fullcite{tishbyInformationTheoryDeep2017}
+
+\hfill Notes taken: 26/12/2019 \index{December 2019}
+\end{notebox}
+
+Bringing information theory into classification problems solved by DL.
+
+Transferring information bottleneck method and data processing inequality (DPI) into the learning. The DPI basically says that for any three random variables in a Markov chain Y->X->H we have $\rI(Y, X) \geq \rI(Y, H)$. Thinking about hidden layers H as useful compression, we should try to compress H to reduce as much as possible $\rI(X,H)$ while keeping $\rI(H,Y)$ $\approx$ information bottleneck method.
+
+He is very keen to replace the standard PAC learning theory by his IB based theory so he is well aware of the problem of generalization. But I don't find in his talk any really convincing arguments. He simplifies so much that in the end it seem he is missing the point.
+
+He has plenty of stories about how what we see in training is first a drift of the layers to remember the data followed by a stage of compression. It all seems to me like a somewhat far-fetched try to push the coding theory onto the learning. But for it to work you would need to shift the DL training from \note{continuous to discrete} problem and instead of the nets being \note{deterministic}, have them as \note{stochastic}.
+
+It seems to me that plenty of what he shows is rather the \note{result of his evaluation procedure}, e.g. the binning which suggests loss of information while in the continuous case no info is lost and some sort of clustering which again never really happens and rather the Bayes decision rule is applied over the continuous outputs.
+
+\note{Other questions:} As he says, each of the layers is just a deterministic transformation of the previous layer which is moreover in the case of simple nonlinearities such as sigmoid or tanh invertible. He also says that mutual information is invariant under invertible transformations $\rI(X, Y) = \rI(f(X), g(Y))$. If both of these are true, how could any information be lost?
+
+He also admits that the learning rule cannot be completely deterministic because otherwise his theory breaks and that they kind of get away from it by the binning. But this is not what really happens. What in his talk is real effect and what just evaluation artifact?
+
+He argues by typicality that the network actually learns some clusters. I can see the network learns clusters but the typicality arguments seem far-fetched.
+
+The usual coding theory is based on knowing the true $p(x,y)$ distribution but we only observe samples of it. He admits this is a problem but almost trivializes this too much.
+
+He has a graph showing how during the training gradients first have high mean and small std (across the batches within epoch) and some point shift to low means and high gradients. I find this perfectly natural. The network first needs to learn so all gradients are high and not too different as all the updates from all the batches push the weights to something reasonable. After this happens, the gradients become smaller in mean (reaching a plateau so don't need so big changes) but each batch suggests a move in different direction. In my head this does not necessarily have to do anything with compression, just the way the optimization happens.
+

@@ -1,0 +1,39 @@
+\clearpage
+
+\section{Goldfeld (MIT): Estimating Info Flow in DNNs}\label{sec:estimInfoFlowDL}\index{information flow}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{goldfeldEstimatingInformationFlow2019}
+
+\hfill Notes taken: 26/12/2019 \index{December 2019}
+\end{notebox}
+
+Coming back to recent papers of \cite{shwartz-zivOpeningBlackBox2017,saxeInformationBottleneckTheory2018} they recognize that using mutual information $\rI(.;.)$ for measuring the effect of learning does not make sense in non-stochastic setting because it is either constant (in the discrete setting) or infinite (in the continuous).
+Furthermore, the compression effect empirically observed in the previous papers is likely an artefact of the estimation procedure of $\rI(.;.)$ relying on binning the neuron output space.
+
+To address this they propose a stochastic DNN framework where each neuron output is contaminated by Gaussian noise.
+This makes $\rI(.;.)$ express something reasonable \emph{(though to me it seems just making the problem even more contrived because what we will be measuring is somehow the resiliency to the imputed noise)}.
+$\rI(.;.)$ still has no exact analytical expression due to the complex transformations of the variables (and the distributions) in the DNN.
+
+They propose an estimator of $\rI(.;.)$ (based on their previous work) which uses the empirical estimates of the differential entropies of the Gaussian noisy signals (Gaussian noisy channel in the info theory jargon)\index{noisy channel}.
+These rely on the fact that the data sample is i.i.d. and therefore entropy estimates should converge to the true differential entropies with enough samples. They still need some Monte Carlo integration to really evaluate the entropies but they don't elaborate. Obviously, the number of samples is critical and they do admit it but provide results for manageable sample sizes claiming they should be good enough.
+
+Finally, they empirically explore the behaviour of the mutual information $\rI(X; T_k)$ and the entropy $\rH\left( binned(T_k)\right)$, where $T_k$ is the layer output after adding the noise.
+They conclude that what is actually happening during the training across the layers is better and better clustering to finally correspond to the output categories.
+The compression previously observed was actually this clustering which is naturally captured in the bin-based entropy but not in the true mutual information, and certainly not in the deterministic case when measuring mutual info makes no sense.
+Furthermore, compression measured through mutual information does not seem to causally relate to generalization.
+The clustering effect of the layers (its geometry) is worth further study.
+
+\begin{notebox}
+\tldr Mutual information is useless for tracing learning through layers of deterministic nets (it's constant for discrete and infinite for continuous).
+What has been previously observed as compression is artefact of estimating differential entropy via binning.
+The binning estimates clustering within the transformed space and it is the clustering effect which is important for accuracy and generalization (not the compression measured by mutual information). Whatever the previous papers were saying about compression holds if you \textbf{replace compression with clustering}.
+\end{notebox}
+
+\begin{notebox}
+\concl To me the clustering effect of the neurons and layers seems so obvious that I find it difficult to believe no one discussed it before.
+However, if you think about clustering it is a form of compression so one needs to be careful about the terminology.
+Perhaps rather than clustering, what is happening is some sort of concentration, mode creation in the distributions?
+Well, this is sort of clustering as well (aka Gaussian mixture).
+\end{notebox}
+

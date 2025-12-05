@@ -1,0 +1,129 @@
+
+@article{tishbyInformationBottleneckMethod2000,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {physics/0004057},
+  title = {The Information Bottleneck Method},
+  abstract = {We define the relevant information in a signal \$x\textbackslash{}in X\$ as being the information that this signal provides about another signal \$y\textbackslash{}in \textbackslash{}Y\$. Examples include the information that face images provide about the names of the people portrayed, or the information that speech sounds provide about the words spoken. Understanding the signal \$x\$ requires more than just predicting \$y\$, it also requires specifying which features of \$\textbackslash{}X\$ play a role in the prediction. We formalize this problem as that of finding a short code for \$\textbackslash{}X\$ that preserves the maximum information about \$\textbackslash{}Y\$. That is, we squeeze the information that \$\textbackslash{}X\$ provides about \$\textbackslash{}Y\$ through a `bottleneck' formed by a limited set of codewords \$\textbackslash{}tX\$. This constrained optimization problem can be seen as a generalization of rate distortion theory in which the distortion measure \$d(x,\textbackslash{}x)\$ emerges from the joint statistics of \$\textbackslash{}X\$ and \$\textbackslash{}Y\$. This approach yields an exact set of self consistent equations for the coding rules \$X \textbackslash{}to \textbackslash{}tX\$ and \$\textbackslash{}tX \textbackslash{}to \textbackslash{}Y\$. Solutions to these equations can be found by a convergent re-estimation method that generalizes the Blahut-Arimoto algorithm. Our variational principle provides a surprisingly rich framework for discussing a variety of problems in signal processing and learning, as will be described in detail elsewhere.},
+  journal = {arXiv:physics/0004057},
+  author = {Tishby, Naftali and Pereira, Fernando C. and Bialek, William},
+  month = apr,
+  year = {2000},
+}
+
+@book{coverElementsInformationTheory2006,
+  title = {Elements of Information Theory},
+  language = {en},
+  publisher = {{Wiley}},
+  author = {Cover, Thomas M and Thomas, Joy A},
+  year = {2006},
+  file = {/home/magda/Dropbox/ZoteroFiles/Cover_Thomas_Elements of information theory.pdf}
+}
+
+@misc{tishbyInformationTheoryDeep2017,
+  address = {{Yandex}},
+  title = {Information {{Theory}} of {{Deep Learning}} - {{Naftali Tishby}}},
+  author = {Tishby, Naftali},
+  year = {2017},
+  keywords = {done reading,information bottleneck}
+}
+
+@inproceedings{tishbyDeepLearningInformation2015,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1503.02406},
+  title = {Deep {{Learning}} and the {{Information Bottleneck Principle}}},
+  abstract = {Deep Neural Networks (DNNs) are analyzed via the theoretical framework of the information bottleneck (IB) principle. We first show that any DNN can be quantified by the mutual information between the layers and the input and output variables. Using this representation we can calculate the optimal information theoretic limits of the DNN and obtain finite sample generalization bounds. The advantage of getting closer to the theoretical limit is quantifiable both by the generalization bound and by the network's simplicity. We argue that both the optimal architecture, number of layers and features/connections at each layer, are related to the bifurcation points of the information bottleneck tradeoff, namely, relevant compression of the input layer with respect to the output layer. The hierarchical representations at the layered network naturally correspond to the structural phase transitions along the information curve. We believe that this new insight can lead to new optimality bounds and deep learning algorithms.},
+  booktitle = {{{IEEE Information Theory Workshop}} ({{ITW}})},
+  author = {Tishby, Naftali and Zaslavsky, Noga},
+  year = {2015},
+  keywords = {done reading,information bottleneck,rate distortion curve,x},
+  file = {/home/magda/Dropbox/ZoteroFiles/Tishby_Zaslavsky_2015_Deep Learning and the Information Bottleneck Principle.pdf;/home/magda/Zotero/storage/3PSVLRQW/1503.html}
+}
+
+
+@article{shwartz-zivOpeningBlackBox2017,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1703.00810},
+  primaryClass = {cs},
+  title = {Opening the {{Black Box}} of {{Deep Neural Networks}} via {{Information}}},
+  abstract = {Despite their great success, there is still no comprehensive theoretical understanding of learning with Deep Neural Networks (DNNs) or their inner organization. Previous work proposed to analyze DNNs in the \textbackslash{}textit\{Information Plane\}; i.e., the plane of the Mutual Information values that each layer preserves on the input and output variables. They suggested that the goal of the network is to optimize the Information Bottleneck (IB) tradeoff between compression and prediction, successively, for each layer. In this work we follow up on this idea and demonstrate the effectiveness of the Information-Plane visualization of DNNs. Our main results are: (i) most of the training epochs in standard DL are spent on \{\textbackslash{}emph compression\} of the input to efficient representation and not on fitting the training labels. (ii) The representation compression phase begins when the training errors becomes small and the Stochastic Gradient Decent (SGD) epochs change from a fast drift to smaller training error into a stochastic relaxation, or random diffusion, constrained by the training error value. (iii) The converged layers lie on or very close to the Information Bottleneck (IB) theoretical bound, and the maps from the input to any hidden layer and from this hidden layer to the output satisfy the IB self-consistent equations. This generalization through noise mechanism is unique to Deep Neural Networks and absent in one layer networks. (iv) The training time is dramatically reduced when adding more hidden layers. Thus the main advantage of the hidden layers is computational. This can be explained by the reduced relaxation time, as this it scales super-linearly (exponentially for simple diffusion) with the information compression from the previous layer.},
+  journal = {arXiv:1703.00810 [cs]},
+  author = {{Shwartz-Ziv}, Ravid and Tishby, Naftali},
+  month = apr,
+  year = {2017},
+  file = {/home/magda/Dropbox/ZoteroFiles/Shwartz-Ziv_Tishby_2017_Opening the Black Box of Deep Neural Networks via Information.pdf;/home/magda/Zotero/storage/9X69YJ62/1703.html}
+}
+
+
+@inproceedings{goldfeldEstimatingInformationFlow2019,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1810.05728},
+  title = {Estimating {{Information Flow}} in {{Deep Neural Networks}}},
+  abstract = {We study the flow of information and the evolution of internal representations during deep neural network (DNN) training, aiming to demystify the compression aspect of the information bottleneck theory. The theory suggests that DNN training comprises a rapid fitting phase followed by a slower compression phase, in which the mutual information \$I(X;T)\$ between the input \$X\$ and internal representations \$T\$ decreases. Several papers observe compression of estimated mutual information on different DNN models, but the true \$I(X;T)\$ over these networks is provably either constant (discrete \$X\$) or infinite (continuous \$X\$). This work explains the discrepancy between theory and experiments, and clarifies what was actually measured by these past works. To this end, we introduce an auxiliary (noisy) DNN framework for which \$I(X;T)\$ is a meaningful quantity that depends on the network's parameters. This noisy framework is shown to be a good proxy for the original (deterministic) DNN both in terms of performance and the learned representations. We then develop a rigorous estimator for \$I(X;T)\$ in noisy DNNs and observe compression in various models. By relating \$I(X;T)\$ in the noisy DNN to an information-theoretic communication problem, we show that compression is driven by the progressive clustering of hidden representations of inputs from the same class. Several methods to directly monitor clustering of hidden representations, both in noisy and deterministic DNNs, are used to show that meaningful clusters form in the \$T\$ space. Finally, we return to the estimator of \$I(X;T)\$ employed in past works, and demonstrate that while it fails to capture the true (vacuous) mutual information, it does serve as a measure for clustering. This clarifies the past observations of compression and isolates the geometric clustering of hidden representations as the true phenomenon of interest.},
+  booktitle = {{{ICML}}},
+  author = {Goldfeld, Ziv and van den Berg, Ewout and Greenewald, Kristjan and Melnyk, Igor and Nguyen, Nam and Kingsbury, Brian and Polyanskiy, Yury},
+  year = {2019},
+  keywords = {must read},
+  file = {/home/magda/Dropbox/ZoteroFiles/Goldfeld et al_2019_Estimating Information Flow in Deep Neural Networks.pdf;/home/magda/Zotero/storage/WD9YULKB/1810.html}
+}
+
+
+@misc{zhaoInfoVAEInformationMaximizing2017,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1706.02262},
+  title = {{{InfoVAE}}: {{Information Maximizing Variational Autoencoders}}},
+  shorttitle = {{{InfoVAE}}},
+  abstract = {A key advance in learning generative models is the use of amortized inference distributions that are jointly trained with the models. We find that existing training objectives for variational autoencoders can lead to inaccurate amortized inference distributions and, in some cases, improving the objective provably degrades the inference quality. In addition, it has been observed that variational autoencoders tend to ignore the latent variables when combined with a decoding distribution that is too flexible. We again identify the cause in existing training criteria and propose a new class of objectives (InfoVAE) that mitigate these problems. We show that our model can significantly improve the quality of the variational posterior and can make effective use of the latent features regardless of the flexibility of the decoding distribution. Through extensive qualitative and quantitative analyses, we demonstrate that our models outperform competing approaches on multiple performance metrics.},
+  language = {en},
+  author = {Zhao, Shengjia and Song, Jiaming and Ermon, Stefano},
+  month = jun,
+  year = {2017},
+  keywords = {done reading,VAE,elbo,good,relwork notes},
+  file = {/home/magda/Dropbox/ZoteroFiles/Zhao et al_2017_InfoVAE.pdf}
+}
+
+
+
+@inproceedings{saxeInformationBottleneckTheory2018,
+  title = {On the {{Information Bottleneck Theory}} of {{Deep Learning}}},
+  abstract = {The practical successes of deep neural networks have not been matched by theoretical progress that satisfyingly explains their behavior. In this work, we study the information bottleneck (IB)...},
+  booktitle = {{{ICLR}}},
+  author = {Saxe, Andrew Michael and Bansal, Yamini and Dapello, Joel and Advani, Madhu and Kolchinsky, Artemy and Tracey, Brendan Daniel and Cox, David Daniel},
+  year = {2018},
+  keywords = {controversial,done reading,good,information bottleneck,xx},
+  file = {/home/magda/Dropbox/ZoteroFiles/Saxe et al_2018_On the Information Bottleneck Theory of Deep Learning.pdf;/home/magda/Zotero/storage/V8ZDRILF/forum.html}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@article{voloshynovskiyInformationBottleneckVariational2019,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1912.00830},
+  primaryClass = {cs},
+  title = {Information Bottleneck through Variational Glasses},
+  abstract = {Information bottleneck (IB) principle [1] has become an important element in information-theoretic analysis of deep models. Many state-of-the-art generative models of both Variational Autoencoder (VAE) [2; 3] and Generative Adversarial Networks (GAN) [4] families use various bounds on mutual information terms to introduce certain regularization constraints [5; 6; 7; 8; 9; 10]. Accordingly, the main difference between these models consists in add regularization constraints and targeted objectives. In this work, we will consider the IB framework for three classes of models that include supervised, unsupervised and adversarial generative models. We will apply a variational decomposition leading a common structure and allowing easily establish connections between these models and analyze underlying assumptions. Based on these results, we focus our analysis on unsupervised setup and reconsider the VAE family. In particular, we present a new interpretation of VAE family based on the IB framework using a direct decomposition of mutual information terms and show some interesting connections to existing methods such as VAE [2; 3], beta-VAE [11], AAE [12], InfoVAE [5] and VAE/GAN [13]. Instead of adding regularization constraints to an evidence lower bound (ELBO) [2; 3], which itself is a lower bound, we show that many known methods can be considered as a product of variational decomposition of mutual information terms in the IB framework. The proposed decomposition might also contribute to the interpretability of generative models of both VAE and GAN families and create a new insights to a generative compression [14; 15; 16; 17]. It can also be of interest for the analysis of novelty detection based on one-class classifiers [18] with the IB based discriminators.},
+  journal = {arXiv:1912.00830 [cs]},
+  author = {Voloshynovskiy, Slava and Kondah, Mouad and Rezaeifar, Shideh and Taran, Olga and Holotyak, Taras and Rezende, Danilo Jimenez},
+  month = dec,
+  year = {2019},
+  keywords = {skimmed through,rate distortion curve,information bottleneck},
+  file = {/home/magda/Dropbox/ZoteroFiles/Voloshynovskiy et al_2019_Information bottleneck through variational glasses.pdf;/home/magda/Zotero/storage/B2A9AKVQ/1912.html}
+}
+

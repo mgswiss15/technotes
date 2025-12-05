@@ -1,0 +1,285 @@
+\providecommand{\qfz}{}
+\renewcommand{\qfz}{q_\phi( \bz \mid \bx)}
+\providecommand{\ptc}{}
+\renewcommand{\ptc}{p_\theta( \bc \mid \bz)}
+\providecommand{\ptx}{}
+\renewcommand{\ptx}{p_\theta( \bx \mid \bz)}
+\providecommand{\pxz}{}
+\renewcommand{\pxz}{p_\xi(\bz)}
+
+\clearpage
+
+\section{Slava's WP linking VAEs and GANs through information bottleneck}\label{sec:ibvariational}\index{information bottleneck}\index{Slava}
+
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{voloshynovskiyInformationBottleneckVariational2019}\index{Slava}\index{information bottleneck}
+
+\hfill Notes taken: 26/12/2019 \index{December 2019}
+\end{notebox}
+
+\begin{notebox}
+\textbf{Warning:} In this summary I deviate quite a bit from the original paper because the original structure and notation is difficult to follow.
+\end{notebox}
+
+\subsection{Introduction}
+
+They aim at transferring the IB method from supervised learning to unsupervised learning of the VAE and GAN family and try to link all these together by formulating unified learning objectives.
+This is achieved through various decomposition and reformulations of the original IB method (not really achieved for GANs, in my view.)
+
+\begin{notebox}
+\textbf{Thought:} The IB supervised method was initially motivated by the unsupervised rate-distortion coding. Isn't this a bit running in circles?
+\end{notebox}
+
+\subsection{IB for supervised models}
+
+Standard supervised classification setup with observations $\{(\bx_i, \bc_i) \in \mR^d \times \mathcal{M}\}_{i=1}^N$ assuming true generative process $p(\bx, \bc) = p(\bc)\pc{\bx}{\bc}$.
+
+According to Tishby's bottleneck method \parencite{tishbyInformationBottleneckMethod2000, tishbyDeepLearningInformation2015} (see sections \ref{sec:ibmethod}, \ref{sec:ibdnn}) the optimization problem is the minimization of the functional 
+\begin{align}\label{ibvar:optimsuper}
+\mL^{S}[\qfz] 
+& := \rI_{\phi}(\bX; \bZ) - \beta \rI(\bZ; \bC) \nn
+& = \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) - \beta \left( \rH(\bC) - \rH_\phi(\bC \mid \bZ) \right) 
+ \enspace ,
+\end{align}
+where $\bZ$ is a representation of $\bX$ with a learned probabilistic mapping $\qfz$ and Markov chain condition $\bC \to \bX \to \bZ$ so that $(\bZ \perp \bC) \mid \bX$.
+
+In the original Tishby's paper it was assumed that the true generative distribution $p(\bx, \bc)$ and the support sets of $\bX$ and $\bZ$ \textbf{\emph{are known}} and they are both finite (i.e. discrete random vars).
+However, here they use integrals which means they assume continuous $\bX$ and $\bZ$ which corresponds better to DL (but I'm not sure what are the consequences for the mutual info which breaks for deterministic mappings).
+
+The following relations are needed for the entropy evaluations in \ref{ibvar:optimsuper}) hold
+\begin{gather}
+p(\bx, \bc) = p(\bc)\pc{\bx}{\bc} \qquad \pc{\bc}{\bx} = \frac{p(\bx, \bc)}{p(\bx)} \nn
+p_\phi(\bx , \bz) = p(\bx) \qfz \qquad p_\phi(\bz) = \int_\bx p(\bx) \qfz \dif \bx \qquad 
+p_\phi(\bx \mid \bz) = \frac{p(\bx) \qfz}{\int_\bx p(\bx) \qfz \dif \bx} \nn
+p_\phi(\bc , \bz) 
+= \int_\bx \pc{\bc}{\bx} p_\phi(\bx, \bz) \dif \bx = \int_\bx \frac{p(\bx, \bc)}{p(\bx)} p(\bx) \qfz \dif \bx 
+=  \int_\bx p(\bx, \bc) \qfz \dif \bx \nn
+p_\phi(\bc \mid \bz) = \int_\bx \pc{\bc}{\bx} p_\phi(\bx \mid \bz) \dif \bx 
+=  \int_\bx  \frac{p(\bx, \bc)}{p(\bx)} \frac{p(\bx) \qfz}{\int_\bx p(\bx) \qfz \bx} \dif \bx
+= \int_\bx  \frac{p(\bx, \bc) \qfz}{\int_\bx p(\bx) \qfz \dif \bx} \dif \bx
+\nonumber
+\end{gather}
+
+\begin{gather}
+\rH_\phi(\bZ)  = - \int_\bz p_\phi(\bz) \log p_\phi(\bz) \dif \bz
+= - \int_\bz \int_\bx p(\bx) \qfz \log \left( \int_\bx p(\bx) \qfz \dif \bx \right) \dif \bx \dif \bz
+\nn
+\rH_\phi(\bZ \mid \bX) = - \int_\bx \int_\bz  p(\bx) \qfz \log \qfz \dif \bz \dif \bx 
+\qquad 
+\rH(\bC) = - \sum_\bc p(\bc) \log p(\bc)
+\nn 
+\rH_\phi(\bC \mid \bZ)
+ = - \int_\bz \sum_\bc p_\phi(\bz) p_\phi(\bc \mid \bz) \log p_\phi(\bc \mid \bz) \dif \bz 
+ = - \int_\bz \int_\bx \sum_\bc p(\bx, \bc) \qfz \log p_\phi(\bc \mid \bz) \dif \bx \dif \bz \nn
+ = - \int_\bz \int_\bx \sum_\bc p(\bx, \bc) \qfz \log \left( \int_\bx  \frac{p(\bx, \bc) \qfz}{\int_\bx p(\bx) \qfz \dif \bx} \dif \bx \right) \dif \bx \dif \bz \nonumber
+\end{gather}
+For the moment, we cannot evaluate any of the above entropies and learn $\qfz$ because a) the true generative distribution is unknown, b) integrations over the $\bX$ and $\bZ$ spaces.
+
+In the next step they introduce a learnable approximation to the classification distribution $p_\phi(\bc \mid \bz) \approx \ptc$ parametrized by $\theta$ (they don't really explain why) with a cross-entropy $\rH_{\phi, \theta}(\bC \mid \bZ)$
+\begin{gather}
+\rH_\phi(\bC \mid \bZ) \leq \rH_{\phi, \theta}(\bC \mid \bZ)
+= - \int_\bz \int_\bx \sum_\bc p(\bx, \bc) \qfz \log \ptc \dif \bx \dif \bz 
+\nn
+\rH_{\phi, \theta}(\bC \mid \bZ) - \rH_\phi(\bC \mid \bZ) =
+\int_\bz p_\phi(\bz) \KL{p_\phi(\bc \mid \bz)}{\ptc} \dif \bz
+\enspace ,
+\end{gather}
+where the inequality holds by standard properties of cross-entropy and the positive KL.
+
+They replace the classification entropy with the cross-entropy in the objective function \ref{ibvar:optimsuper} to obtain an upper bound which can be minimized instead
+\begin{equation}
+\mL^S[\qfz] \leq \mL^{SB}[\qfz, \ptc] := \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) + \beta \rH_{\phi, \theta}(\bC \mid \bZ) - \beta \rH(\bC) .
+\end{equation}
+Note that the last term is constant (though unknown) and can be dropped from the optimization objective.
+Also note that for any pair $(\qfz, \ptc)$ (including the optimal) we have
+\begin{equation}
+\mL^{SB}[\qfz, \ptc] = \mL^S[\qfz] + \int_\bz p_\phi(\bz) \KL{p_\phi(\bc \mid \bz)}{\ptc} \dif \bz
+\end{equation}
+
+\begin{notebox}
+\tldr Start from Tishby's IB method objective for classification problem.
+In addition to learning the $\phi$ parameter of the representation stochastic mapping $\qfz$, learn also the $\theta$ parameters of the variational approximation to the classification entropy $\ptc \approx p_\phi(\bc \mid \bz)$.
+Instead of optimising the original objective $\mL^S[\qfz]$, minimise its upper bound 
+\begin{align}
+\mL^{SB}[\qfz, \ptc] & = \mL^S[\qfz] + \int_\bz p_\phi(\bz) \KL{p_\phi(\bc \mid \bz)}{\ptc} \dif \bz \nn
+& = \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) + \beta \rH_{\phi, \theta}(\bC \mid \bZ) \nonumber \enspace ,
+\end{align}
+where $\rH_{\phi, \theta}(\bC \mid \bZ)
+= - \int_\bz \int_\bx \sum_\bc p(\bx, \bc) \qfz \log \ptc \dif \bx \dif \bz$ is the cross-entropy for ecoding $\ptc$ via $p_\phi(\bc \mid \bz)$.
+It is not clear how this problem can be optimised. 
+\end{notebox}
+
+
+\subsection{Information bottleneck for unsupervised problem}
+The set-up changes in that we only observe samples of $\bX \sim p(\bx)$ and want to predict $\bX$ from the representation $\bZ$.
+
+Essentially, they replace $\bC$ with $\bX$ in all the above.
+
+The original objective is 
+\begin{align}\label{ibvar:optimunsuper}
+\mL^{U}[\qfz] 
+& := \rI_{\phi}(\bX; \bZ) - \beta \rI(\bZ; \bX) \nn
+& = \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) - \beta \left( \rH(\bX) - \rH_\phi(\bX \mid \bZ) \right) 
+ \enspace ,
+\end{align}
+with the following relations
+\begin{gather}
+p_\phi(\bx , \bz) = p(\bx) \qfz \qquad p_\phi(\bz) = \int_\bx p(\bx) \qfz \dif \bx \qquad 
+p_\phi(\bx \mid \bz) = \frac{p(\bx) \qfz}{\int_\bx p(\bx) \qfz \dif \bx} \nonumber
+\end{gather}
+\begin{gather}
+\rH_\phi(\bZ)  = - \int_\bz p_\phi(\bz) \log p_\phi(\bz) \dif \bz
+= - \int_\bz \int_\bx p(\bx) \qfz \log \left( \int_\bx p(\bx) \qfz \dif \bx \right) \dif \bx \dif \bz
+\nn
+\rH_\phi(\bZ \mid \bX) = - \int_\bx \int_\bz  p(\bx) \qfz \log \qfz \dif \bz \dif \bx 
+\qquad 
+\rH(\bX) = - \int_\bx p(\bx) \log p(\bx)
+\nn 
+\rH_\phi(\bX \mid \bZ)
+ = - \int_\bz \int_\bx p_\phi(\bz) p_\phi(\bx \mid \bz) \log p_\phi(\bx \mid \bz) \dif \bz 
+ = - \int_\bz \int_\bx p(\bx) \qfz \log p_\phi(\bx \mid \bz) \dif \bx \dif \bz \nn
+ = - \int_\bz \int_\bx p(\bx) \qfz \log \left( \frac{p(\bx, \bc) \qfz}{\int_\bx p(\bx) \qfz \dif \bx} \right) \dif \bx \dif \bz \nonumber
+\end{gather}
+
+Next they introduce the learnable approximation $\ptx \approx p_\phi(\bx \mid \bz)$ parametrized by $\theta$ with the cross-entropy $\rH_{\phi, \theta}(\bX \mid \bZ)$
+\begin{gather}
+\rH_\phi(\bX \mid \bZ) \leq \rH_{\phi, \theta}(\bX \mid \bZ)
+= - \int_\bz \int_\bx p(\bx) \qfz \log \ptx \dif \bx \dif \bz 
+\nn
+\rH_{\phi, \theta}(\bX \mid \bZ) - \rH_\phi(\bX \mid \bZ) =
+\int_\bz p_\phi(\bz) \KL{p_\phi(\bx \mid \bz)}{\ptx} \dif \bz
+\enspace .
+\end{gather}
+
+Finally, they plug this into the objective so that
+\begin{equation}\label{ibvar:otimunsuperb}
+\mL^U[\qfz] \leq \mL^{UB}[\qfz, \ptx] := \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) + \beta \rH_{\phi, \theta}(\bX \mid \bZ) - \beta \rH(\bX).
+\end{equation}
+The last constant (though unknown) term can again be dropped and we also have the bound relation for any pair $(\qfz, \ptx)$ (including the optimal)
+\begin{equation}
+\mL^{UB}[\qfz, \ptx = \mL^U[\qfz] + \int_\bz p_\phi(\bz) \KL{p_\phi(\bx \mid \bz)}{\ptx} \dif \bz
+\end{equation}
+
+\begin{notebox}
+\tldr In the unsupervised setting we only have $\bX \sim p(\bx)$ but will use exactly the same machinery for predicting (reconstructing) $\bX$ from $\bZ$ as in the supervised setting simply by replacing $\bC$ with $\bX$ everywhere.
+We learn the distribution $\qfz$ and the variational approximation $\ptx \approx p_\phi(\bx \mid \bz)$ by minimising
+\begin{align}
+\mL^{UB}[\qfz, \ptx] & = \mL^U[\qfz] + \int_\bz p_\phi(\bz) \KL{p_\phi(\bx \mid \bz)}{\ptx} \dif \bz \nn
+& = \rH_\phi(\bZ) - \rH_\phi(\bZ \mid \bX) + \beta \rH_{\phi, \theta}(\bX \mid \bZ) \nonumber \enspace ,
+\end{align}
+with $\rH_{\phi, \theta}(\bX \mid \bZ)
+= - \int_\bz \int_\bx p(\bx) \qfz \log \ptx \dif \bx \dif \bz$.
+\end{notebox}
+
+\subsubsection{Rewriting the objective}
+
+We can rewrite the final objective \ref{ibvar:otimunsuperb} as
+\begin{align}
+\mL^{UB}[\qfz, \ptx] = &
+- \int_\bz \int_\bx p(\bx) \qfz \log \frac{p_\phi(\bz)}{\qfz} \dif \bx \dif \bz \nn
+& - \beta \int_\bz \int_\bx p(\bx) \qfz \log \ptx \dif \bx \dif \bz
+\end{align}
+
+They introduce another variational approximation $\pxz \approx p_\phi(\bz)$, this time of the marginal of $\bZ$, and bring it into the objective
+\begin{gather}
+\mL^{UB}[\qfz, \ptx, \pxz] = 
+- \mE_{p(\bx)} \mE_{\qfz} \log \frac{p_\phi(\bz) \pxz}{\pxz \qfz}
+- \beta \mE_{p(\bx)} \mE_{\qfz} \log \ptx \nn
+= 
+\mE_{p(\bx)} \KL{\qfz}{\pxz} - \KL{p_\phi(\bz)}{\pxz}
+- \beta \mE_{p(\bx)} \mE_{\qfz} \log \ptx \nonumber
+\end{gather}
+
+Finally they introduce an estimate of the true data density $p_\varphi(\bx) \approx p(\bx)$ and simply plug into the objective a KL divergence to minimize the distance between the two (which is equivalent to maximizing the log likelihood $\mE_{p(\bx)}\log p_\varphi(\bx)$) making the objective yet another upper bound on the original (we minimize the objective)
+\begin{gather}
+\mL^{U}[\qfz] \leq \mL^{UB}[\qfz, \ptx] \leq \mL^{UBD}[\qfz, \ptx, \pxz, p_\varphi(\bx)] := \nn
+\underbrace{\mE_{p(\bx)} \KL{\qfz}{\pxz}}_A - \underbrace{\KL{p_\phi(\bz)}{\pxz}}_B
+- \beta \underbrace{\mE_{p(\bx)} \mE_{\qfz} \log \ptx}_C 
++ \beta \underbrace{\KL{p(\bx)}{p_\varphi(\bx)}}_D
+\nonumber
+\end{gather}
+
+\begin{notebox}
+This is a very weird step. The only link between the approximate data density $p_\varphi(\bx)$ and all the other learned distributions is only through the variational objective, not through basic probability manipulations as is usual in VAEs where we have $p_\theta(\bx) = \int_\bz p(\bz) \ptx \dif \bz$ which is estimated for each $\bx \in \mX$ by importance sampling $\int_\bz \qfz \frac{p(\bz)}{\qfz} \ptx \dif \bz \approx \frac{1}{k} \sum_i^k \frac{p(\bz_i)}{q_\phi(\bz_i \mid \bx)} p_\theta(\bx \mid \bz_i)$.
+Also, for the variational inference to be tractable, we need to pick for the approximating distribution some simple class, e.g. a Gaussian. This would mean that the density of all possible observed datasets is modelled simply as a Gaussian (with pre-fixed dimensions) $p_\varphi(\bx)$.
+\end{notebox}
+
+Term $C$ is the reconstruction loss term of the VAE ELBO, $A$ is similar to the regularization shrinking to the prior (though here $\pxz$ is learned), $B$ is similar to what was added in InfoVAE paper \parencite{zhaoInfoVAEInformationMaximizing2017} though again with prior instead of $\pxz$ and $D$ is just a likelihood maximization term.
+They call this final formulation \emph{bounded information bottleneck AE} (BIB-AE).\index{bounded information bottleneck AE}
+
+
+\begin{notebox}
+\tldr They introduce even more variational approximations: one for the marginal of $\bZ$ $\pxz \approx p_\phi(\bz)$ and another for the data distribution $p_\varphi(\bx) \approx p(\bx)$.
+Bringing the first into the objective makes it a function of another parameter ($\xi$), the data probability is brought simply by adding another KL term so that finally we have 
+\begin{gather}
+\mL^{U}[\qfz] \leq \mL^{UB}[\qfz, \ptx] \leq \mL^{UBD}[\qfz, \ptx, \pxz, p_\varphi(\bx)] := \nn
+\underbrace{\mE_{p(\bx)} \KL{\qfz}{\pxz}}_A - \underbrace{\KL{p_\phi(\bz)}{\pxz}}_B
+- \beta \underbrace{\mE_{p(\bx)} \mE_{\qfz} \log \ptx}_C 
++ \beta \underbrace{\KL{p(\bx)}{p_\varphi(\bx)}}_D
+\nonumber
+\end{gather}
+$A$ and $C$ are in elbo (except that here the prior $\pxz$ is learned), $B$ is in InfoVAE and $D$ is just maximizing the likelihood $p_\varphi(\bx)$.
+This they call the \emph{bounded information bottleneck AE} (BIB-AE).
+\end{notebox}
+
+\subsubsection{Links to generative adversarial model}
+
+They further try to link this to GANs but the treatment is so strange (e.g. assuming that we observe data-noise pairs $\{(\bx_i, \bz_i) \in \mR^d \times \mR^h\}_{i=1}^N$ and that we can actually compute directly some loss between the generator and the data such as $\mE \norm{\bx - g_\theta(\bz)}$) that I won't discuss it further.
+
+\subsection{My rewriting the objective}
+
+I will drop $\beta$, replace the last two variational approximations $\pxz$ simply with a prior $p(\bz)$ and with the learned likelihood linked to the learned distributions through the standard VAE assumption
+$p_\varphi(\bx) = p_\theta(\bx) = \int_\bz p(\bz) p_\theta(\bx \mid \bz) \dif \bz$.
+
+Standard results for ELBO in VAE say that
+\begin{align*}
+ELBO & = \mE_{p(\bx)} \log p_\theta(\bx) - \mE_{p(\bx)} \KL{\qfz}{p_\theta(\bz \mid \bx)} \nn
+& = \mE_{p(\bx)} \mE_{\qfz} \log \ptx - \mE_{p(\bx)} \KL{\qfz}{p(\bz)} \nn
+& = \mE_{p(\bx)} \mE_{\qfz} \log \frac{p_\theta(\bx, \bz)}{q_\phi(\bx, \bz)} + \mE_{p(\bx)} \log p(\bx) \nn
+& = \mE_{p(\bx)} \mE_{\qfz} \log \frac{p_\theta(\bx \mid \bz) p(\bz)}{q_\phi(\bx \mid \bz) p_\phi(\bz)} + \mE_{p(\bx)} \log p(\bx) \nn
+& = - \mE_{p_\phi(\bz)} \KL{q_\phi(\bx \mid \bz)}{p_\theta(\bx \mid \bz)}  - \KL{p_\phi(\bz)}{p(\bz)} + \mE_{p(\bx)} \log p(\bx) \\
+& = \mE_{p(\bx)} \mE_{\qfz} \log \frac{p_\theta(\bz \mid \bx) p_\theta(\bx)}{q_\phi(\bz \mid \bx) p(\bx)} + \mE_{p(\bx)} \log p(\bx) \nn
+& = - \mE_{p(\bx)} \KL{q_\phi(\bz \mid \bx)}{p_\theta(\bz \mid \bx)}  - \KL{p(\bx)}{p_\theta(\bx)} + \mE_{p(\bx)} \log p(\bx)
+\enspace ,
+\end{align*}
+where 
+\begin{equation}
+p_\theta(\bz \mid \bx) = \frac{p(\bz) \ptx}{p_\theta(\bx)} \qquad 
+p_\theta(\bx, \bz) = \ptx p(\bz)
+\qquad 
+q_\phi(\bx, \bz) = \qfz p(\bx)
+\end{equation}
+
+
+The objective is
+\begin{gather*}
+\mL[\qfz, \ptx] = \\
+= - ELBO - \KL{p_\phi(\bz)}{p(\bz)} + \mE_{p(\bx)} \log p(\bx) - \mE_{p(\bx)} \log p_\theta(\bx) \nn
+=  \mE_{p_\phi(\bz)} \KL{q_\phi(\bx \mid \bz)}{p_\theta(\bx \mid \bz)}  + \KL{p_\phi(\bz)}{p(\bz)} - \mE_{p(\bx)} \log p(\bx) \\
+- \KL{p_\phi(\bz)}{p(\bz)} + \mE_{p(\bx)} \log p(\bx) - \mE_{p(\bx)} \log p_\theta(\bx) \\
+\mE_{p_\phi(\bz)} \KL{q_\phi(\bx \mid \bz)}{p_\theta(\bx \mid \bz)} - \mE_{p(\bx)} \log p_\theta(\bx)
+\end{gather*}
+
+\begin{notebox}
+\textbf{Result: }
+Standard VAE maximizes the follwing lower bound the log likelihood (ELBO)
+\begin{equation}
+ELBO = \mE_{p(\bx)} \log p_\theta(\bx) - \mE_{p(\bx)} \KL{\qfz}{p_\theta(\bz \mid \bx)}
+\end{equation}
+BIB-AE maximizes a different lower bound
+\begin{equation}
+\mE_{p(\bx)} \log p_\theta(\bx) - \mE_{p_\phi(\bz)} \KL{q_\phi(\bx \mid \bz)}{p_\theta(\bx \mid \bz)}
+\end{equation}
+\textbf{Can it be shown that this lower bound is somehow tighter? (I don't think so.)}
+Also, ELBO has expectations with respect to $p(\bx)$ which can be approximated by MC, BIB-AE has expectation with respect to $q_\phi(\bz)$ which I don't know how to simplify to be able to evaluate and train.
+\end{notebox}
+
+\begin{notebox}
+\concl The paper is not good - difficult to follow and decipher due to cluttered and unclear notation and not enough motivation for the individual steps.
+My interpretaiton and rewrites help it quite a bit.
+It suffers from usual problems of IB methods: deterministic vs stochastic netowrks and discrete vs continuos differential entropy.
+There are far too many variational approximations (and hence networks to learn) and there is no hint on how the training shall be performed.
+What is even a trainable form of the objecive?
+\textbf{However, it was a useful trigger to read on IB in DL.}
+\end{notebox}

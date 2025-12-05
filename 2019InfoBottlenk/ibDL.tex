@@ -1,0 +1,20 @@
+\clearpage
+
+\section{Saxe (Harvard): IB in DL - critique of Tishby's findings}\label{sec:ibDL}\index{information bottleneck}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{saxeInformationBottleneckTheory2018}
+
+\hfill Notes taken: 26/12/2019 \index{December 2019}
+\end{notebox}
+
+They question the conclusions of \parencite{tishbyInformationTheoryDeep2017} (see section \ref{sec:infoDL:_Tisby}) who claims that a) DL training consists of two phases - fitting followed by compression, b) it is due to the compression phase that DN don't overfit, c) the compression appears due to diffusion-like effect of SGD. Here they show that none of these is generally true (mainly empirically with some theory behind but not too elaborate). The compression that Tishby observed is more due to nonlinearity they used (tanh) which has a double-sided saturation effect (unlike ReLu which is unbounded on one side). They also show that you can have good generalization without compression and that compression does not arise from stochasticity of SGD but can arise in batch as well.
+
+There is a discussion related to the evaluation of the mutual information which usually calculates the info and entropy metrics as if the variables were discrete (through binning) but since they are not, this is just an arbitrary bias introduced to the evaluation.
+
+Also, for deterministic functions $f$ the mutual information $\rI(X, h=f(X))$ is infinity, it is in general impossible to analyse mutual info of the deterministic NN layers without introducing some error.
+
+\begin{notebox}
+\concl The paper caused quite a lot of controversy around the IB method by criticising initial Tishby's findings. Though they often present similarly flawed results (little theory, basic experiments) they pose the right questions and open room for discussion.
+\end{notebox}
+

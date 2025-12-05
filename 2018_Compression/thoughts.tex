@@ -1,0 +1,48 @@
+\clearpage
+
+\section{Intro thougths}\label{sec:thoughts}
+
+\paragraph{maximum likelihood}
+we assume a population $\rvx \in \sX$ governed by some unknown probablity distribution $p(\rvx)$.
+We have at our disposal a sample from this pupulation $\sS = \{\vx_i\}_{i=1}^n$ (assume i.i.d.) and we use it to infer a statistical model of the data.
+In maximum liekelihood approach we posit a distribution family $p(\rvx | \vtheta)$ and we search for the best parameters $\vtheta^*$ so that the distribution $p(\rvx | \vtheta^*)$ best fits the observed data $\sim$ we search parameters that would have most likely produced the data.
+
+The max \iterm{likelihood} problem is thus
+$\vtheta^* = \argmax_\vtheta \prod_i^n p(\vx_i | \vtheta)$
+which is equivalent to minimizing the negative log of the likelihood
+\begin{align}\label{fig:thoughts_nnl}
+\vtheta^* = \argmin_\vtheta - \sum_i^n \log p(\vx_i | \vtheta), \quad \vx_i \sim p(\rvx) \enspace .
+\end{align}
+
+
+\paragraph{compression} the theoretical lower bound (thanks to Shanon) on the expected length of a binary code for random variable $\rvx$ is the entropy of the distribution $H(p) = - E_{p(\rvx)} \logb p(\rvx)$, where each sample $\vx$ is encoded with the shortest possible binary code of length equal to its information content $h(\vx) = - \logb p(\vx)$.
+
+Since the true data distribution $p(\rvx)$ is unknown, we cannot use it for compression.
+We use instead a compression model, a distribution $p(\rvx | \vtheta)$, to establish the lengths of the codewords for the symbols $\vx$ as $l(\rvx) = - \logb p(\vx | \vtheta)$.
+These lengths are clearly not the same as the information content of the individual observations $\vx$.
+The expected codeword length for a randomly sampled symbol $\rvx$ is the cross-entropy $CH(p, q) = - E_{p(\rvx)} \logb p(\rvx | \vtheta)$.
+
+To minimize the expected codeword length of symbols sampled from the unknown $p(\rvx)$, we shall minimize the cross-entropy $\vtheta^* = \argmin_\theta - E_{p(\rvx)} \logb p(\rvx | \vtheta)$. 
+In practice, this can be achieved by minimizing the empirical estimate over the data sample
+\begin{align}\label{fig:thoughts_ce}
+\vtheta^* = \argmin_\vtheta - \frac{1}{n} \sum_i^n \logb p(\vx_i | \vtheta), \quad \vx_i \sim p(\rvx) \enspace .
+\end{align}
+Note that this is equialent to problem \eqref{fig:thoughts_nnl}.
+\begin{notebox}
+Maximizing likelihood is equivalent to finding a compression model that will minimize the expected codeword length.
+\end{notebox}
+
+Furthermore we can develop the cross-entropy as follows
+\begin{align}\label{fig:thoughts_kl}
+CH(p, q) & = - E_{p(\rvx)} \logb p(\rvx | \vtheta) \nn
+& = E_{p(\rvx)} \logb \frac{p(\rvx)}{p(\rvx | \vtheta)p(\rvx)} \nn
+& = E_{p(\rvx)} \logb \frac{p(\rvx)}{p(\rvx | \vtheta)} - E_{p(\rvx)} \logb p(\rvx) \nn
+& = \KL(p, q) + H(p) \enspace .
+\end{align}
+
+Since the unkown $p$ and hence the entropy $H(p)$ are fixed, minimizing the cross entropy $H(p, q)$ is also equivalent to minimizing the KL divergence between $p$ and $q$ which can be interpreted as
+\begin{itemize}[noitemsep, topsep=0pt]
+\item minimizing the statistical distance between the distribution (bringing $q$ close to $p$)
+\item minimizing the additional bits from using $q$ instead of $p$ to establish the codewords.
+\end{itemize}
+

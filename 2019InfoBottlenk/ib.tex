@@ -1,0 +1,152 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MG 24/12/2019 - Paper notes %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Preamble %%%%
+\documentclass[a4paper, oneside]{article}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+\usepackage[T1]{fontenc}
+\usepackage{kpfonts}
+
+% for coloring
+\usepackage[dvipsnames]{xcolor}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+
+% for compact item lists
+\usepackage{paralist}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% for declaring math operators
+\usepackage{amsthm}
+
+% wrap text around figures
+\usepackage{wrapfig}
+
+% nice text boxes
+\usepackage{tcolorbox}
+\newtcbox{\note}{on line, boxrule=0pt, boxsep=0pt, arc=0pt, outer arc=0pt, left=1pt, right=1pt, top=2pt, bottom=2pt, fontupper=\itshape}
+\newtcolorbox{notebox}{boxrule=0pt}
+
+% biblatex seetings for better referencing
+\usepackage[backend=biber,
+            citestyle=authoryear,
+            bibstyle=numeric,
+            block=space,
+            backref=true,
+            date=year,
+            maxcitenames=2,
+            mincitenames=1,
+            url=false,
+            doi=false,
+            isbn=false,
+            eprint=false]{biblatex}
+\addbibresource{ib.bib}
+
+
+%%% new shorthand commands
+
+\newcommand{\nn}{\nonumber \\}%
+
+\newcommand{\tldr}{\textbf{TLDR: }}
+\newcommand{\concl}{\textbf{Concluding remarks: }}
+
+
+% argmin/max opearator
+\DeclareMathOperator*{\argmin}{arg\,min}%
+\DeclareMathOperator*{\argmax}{arg\,max}%
+\DeclareMathOperator*{\kl}{KL}%
+
+% shortands for common math
+\newcommand{\KL}[2]{\kl \left( #1 \parallel #2 \right)}
+\newcommand{\pc}[2]{p \left( #1 \mid #2 \right)}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\dif}{\; \text{d} \, }
+
+\newcommand{\mE}{\mathbb{E}}%%
+\newcommand{\rE}{\mathrm{E}}%% % expectation
+\newcommand{\rH}{\mathrm{H}}%% % entropy
+\newcommand{\rI}{\mathrm{I}}%% % information
+\newcommand{\mR}{\mathbb{R}}%%
+\newcommand{\mcR}{\mathcal{R}}%%
+\newcommand{\mN}{\mathbb{N}}%%
+
+\newcommand{\mD}{\mathcal{D}}%%
+\newcommand{\mL}{\mathcal{L}}%%
+\newcommand{\mX}{\mathcal{X}}%%
+\newcommand{\mY}{\mathcal{Y}}%%
+\newcommand{\mZ}{\mathcal{Z}}%%
+
+\newcommand{\bc}{\mathbf{c}}%%
+\newcommand{\bx}{\mathbf{x}}%%
+\newcommand{\bz}{\mathbf{z}}%%
+\newcommand{\pdx}{\mathbf{p_{\mD}(\bx)}}%%
+
+
+
+\newcommand{\bC}{\mathbf{C}}%%
+\newcommand{\bX}{\mathbf{X}}%%
+\newcommand{\bZ}{\mathbf{Z}}%%
+
+% \newcommand{\note}[1]{\emph{\textbf{Note:} #1}}
+% \newcommand{\idea}[1]{\emph{\textbf{\color{red}Idea:} #1}}
+
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+% Number equations within a section
+\numberwithin{equation}{section}
+
+{\large Magda's notes about information bottleneck in learning}
+
+{\hfill Last update: \today}
+
+Informal notes for my future self who is likely to forget.
+I explain the papers the way I understand them, using terminology and logic natural to me.
+This means I may deviate from the original paper structure, notation, etc.
+At places, my interpretation my be incorrect due to lack of understanding. 
+I will strive for this not to happen too often but I'm certainly not infallible. 
+
+This is a working document, not  polished, with possible typos, editing errors, etc. 
+
+
+% Print table of contents
+\tableofcontents
+
+\input{ibmethod}
+
+\input{ibdnn}
+
+\input{infoDL_Tishby}
+
+\input{ibDL}
+
+\input{estimInfoFlowDL}
+
+\input{ibvariational}
+
+
+\clearpage 
+\printbibliography
+
+
+
+% print index
+\phantomsection
+\cleardoublepage
+\addcontentsline{toc}{section}{\indexname}
+\printindex
+
+\end{document}

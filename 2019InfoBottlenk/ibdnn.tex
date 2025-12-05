@@ -1,0 +1,70 @@
+\providecommand{\hx}{}
+\renewcommand{\hx}{\hat{x}}
+\providecommand{\hX}{}
+\renewcommand{\hX}{\hat{X}}
+
+\clearpage
+
+\section{Tishby's information bottleneck principle in DL}\label{sec:ibdnn}\index{information bottleneck}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{tishbyDeepLearningInformation2015}
+
+\hfill Notes taken: 25/12/2019 \index{December 2019}
+\end{notebox}
+
+
+\subsection{Introduction}
+
+They formulate the goal of deep learning as an information theoric trade-off between compression and prediction (building on the information bottleneck method \ref{sec:ibmethod}) and give some guarantees for generalization.
+
+\subsubsection{The DNN setting}
+They consider MLPs with sigmoid neurons, high dimensional inputs $X$ and classification (multi-class) output $Y$.
+The optimisation is performed by SGD through backpropagation of some loss.
+
+\subsubsection{The information bottleneck principle}
+
+The principle suggests to encode $X$ into $\hX$ such that it squeezes out of $X$ all information not relevant for predicting $Y$.
+$\hX$ can be seen as the minimal sufficient statistic of $X$ with respect to $Y$, ot the simplest representation of $X$ that captures the mutual info $\rI(X; Y)$.
+For the classification case they assume a Markov chain $Y \to X \to \hX$ with conditional independence assumption $Y \perp \hX \mid X$ described by the joint density $p(y, x, \hx) = p(y) \pc{x}{y} \pc{\hx}{x} $ and the data processing inequality (DPI)\index{data processing inequality} $I(Y; X) \geq I(Y; \hX)$.
+
+The information bottleneck (IB) method proposes to learn the stochastic mapping $\pc{\hx}{x}$ by minimizing
+\begin{equation}
+\mL[ \pc{\hx}{x}] = \rI(X; \hX) - \beta \rI(\hX; Y) \enspace .
+\end{equation}
+They suggest to reformulate it reformulate it as the minimization
+\begin{equation}\label{ibdmm:optim}
+\mL[ \pc{\hx}{x}] = \rI(X; \hX) + \beta \rI(X; Y \mid \hX) \enspace ,
+\end{equation}
+that is minimizing the residual information about $Y$ in $X$ not captured by $\hX$.
+
+\subsubsection{IB for DNN}
+
+They see the DNN layers as forming a Markov chain $Y \to X \to h_1 \to \ldots \to h_n \to \hat{Y}$ in which the DPI holds $\rI(Y; X) \geq \rI(Y; h_1) \geq \ldots \geq \rI(Y; h_n) \geq \rI(Y; \hat{Y})$, where equality holds only if each layer is sufficient statistic of its input with respect to $Y$.
+
+From learning perspective, each layer should try to minimize $\rI(h_{i-1}; h_i)$ while maximizing $\rI(Y; h_i)$.
+They have got some bounds on the prediction error based on $\rI(Y; h_i)$.
+Also the optimal theoretical limit of equation \eqref{ibdmm:optim} can be evaluated for each intermediate layer conditioning on the previous layers.
+Each consecutive layer compresses the inputs increasing the distortion.
+
+\subsubsection{Generalization bounds}
+
+The IB curve obtained by minimizing \eqref{ibdmm:optim} is a property of a joint distribution $p(x, y)$ which is unknown in ML.
+Assuming bouinded cardinality of the representation $K = \abs{\hX}$ (that is of the layers $h_i$) the difference between the true mutual information $\rI(X; \hX)$ resp. $\rI(\hX; Y)$ and their sample estimates increases with $K$ but not with the cardinality of $X$.
+Which means the IB curve can be well estimated for compressed representations but badly estimated for complex representations.
+Using these bounds, they sketch worst-case bound on the out-of-sample RD curve which actually has an optimal point with minimal distortion and corresponding rate. 
+They claim that as the compression progresses we move closer in the information plane to this optimal point.
+ 
+\begin{notebox}
+\tldr Transfer the information bottleneck method to DNN classification learning.
+For compressed representation $\hX$ of the signal $X$ and the target $Y$ the optimization problem is
+\begin{equation}
+\mL[ \pc{\hx}{x}] = \rI(X; \hX) + \beta \rI(X; Y \mid \hX) \enspace .
+\end{equation}
+In the DNN case each hidden layer $h_i$ is seen as the compressed representation $\hX$ so that we have the following DPI  $\rI(Y; X) \geq \rI(Y; h_1) \geq \ldots \geq \rI(Y; h_n) \geq \rI(Y; \hat{Y})$.
+They also have some generalization bounds claiming that what matters is the cardinality of the representations $K = \abs{\hX}$ but not of $\abs{X}$. 
+\end{notebox}
+
+\begin{notebox}
+\concl Rather straightforward extension of IB method to DNNs. I`m not sure how reasonable is the generalization analysis (haven't read the other paper they wrote and cite) but it seems to somehow rely on the discrete nature of the source and encoding spaces which is gnerally not true in DL.
+\end{notebox}

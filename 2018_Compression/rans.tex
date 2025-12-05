@@ -1,0 +1,75 @@
+\clearpage
+
+\section{Townsend: Tutorial on rANS}\label{sec:rANS}\index{rANS}\index{asymetric numeral system}
+
+\begin{notebox}
+\textbf{Paper: } \fullcite{townsendTutorialRangeVariant2020}
+
+\hfill Notes taken: 9/6/2021 \index{June 2021}
+\end{notebox}
+
+\subsection{Intro}\label{sec:rANS_Intro}
+
+\begin{notebox}[colback=yellow!5]
+All $\log$ should be read as $\log_2$ here!
+\end{notebox}
+
+The difference between the range variant of \iterm{asymetric numeral systems} (\iterm{rANS}) and \iterm{arithmetic coding} (\iterm{AC}) is the order in which they are decoded: in rANS compression is LIFO (stack-like), in AC it is FIFO (queue-like).
+
+There are two basic functions in ANS:
+\begin{itemize}[nosep]
+\item $\mathtt{push}: (m, x) \to m'$
+\item $\mathtt{pop}: m' \to (m, x)$,
+\end{itemize}
+where $m$ is a compressed message and $x$ is an uncompressed symbol.
+These are inverses of each other so that it holds $\mathtt{push}(\mathtt{pop}(m))=m$ and $\mathtt{pop}(\mathtt{push}(m, x))=(m, x)$.
+
+An ensamble $X$ with precision $r$ is a triple $(x, \gA_X, \gP_X)$ where the outocme $x$ takes a value out of the set of possible values $\gA_X = \{a_1, \ldots, a_I\}$ and $\gP_X = \{p_1, \ldots, p_I\}$ are the integer valued probability weights such that $\sum_i^I p_i = 2^r$ and the probability $P(x = a_i) = p_i / 2^r$.
+So the probabilities are quantized to some precision $r$ (with $r=23$ we get about the 32-bit floating precision so not a limiting assumption).
+
+The \iterm{Shannon information content} of an outcome $x$ is $h(x) = -\log P(x)$.
+
+For a sequence of ensambles $X_1, \ldots, X_N$ we seak algo that can encode the sequence of outcomes $x_1, \ldots, x_N$ in a binary message with length close $h(x_1, \ldots, x_N) = - \log P(x_1, \ldots, x_N)$ (in expectation).
+
+By the standard probability rules we have
+\begin{align*}
+h(x_1, \ldots, x_N) = - \log P(x_1, \ldots, x_N) = - \sum_n \log P(x_n | x_1, \ldots, x_{n-1}) = \sum_n h(x_n | x_1, \ldots, x_{n-1}) \enspace .
+\end{align*}
+
+\subsection{ANS}\label{sec:rANS_ANS}
+
+We structure the message $m = (s, t)$, where $s$ in unsigned integer with precision $r_s$, $s \in \{0, 1, \ldots, 2^{r_s} - 1\}$ so that it can be expressed as binary number with $r_s$ bits.
+Next $t$ is a stack of unsigned integers with precision $r_t < r_s$ with its own $\mathtt{stack\_push}$ and $\mathtt{stack\_pop}$ operations.
+We also impose a constraint $s \geq 2^{r_s - r_t}$.
+We obtain message $m$ by contatenating $s$ and the elements of $t$.
+
+The \textbf{length} of $m$ is $l(m) := r_s + r_t |t|$, where $|t|$ is the number of elements in the stack $t$.
+The \textbf{effective length} of $m$ is $l^*(m) := \log s + r_t |t|$.
+Since $2^{r_s - r_t} \leq s < 2^{r_s}$ we have $r_s - r_t \leq \log s < r_s$ and hence
+\begin{align}
+l(m) - r_t \leq l^*(m) < l(m) \enspace.
+\end{align}
+Intuitively $l^*(m)$ is the precise measure of the size of $m$ while $l(m)$ is the integer-valued length - the length of the binary code to be transmitted.
+
+\subsubsection{Decoder pop}
+
+The \textbf{decoder} decodes the binary message $m$ by performing a series of $N$ $\mathtt{pop}$ operations starting from $m_0$:
+\begin{align}
+(m_n, x_n) = \mathtt{pop}(m_{n-1}), \quad n=1, \ldots, N
+\end{align}
+Each $\mathtt{pop}$ uses the probability $P(X_n | X_1, \ldots, X_{n-1})$
+
+First split $m$ to $(s, t)$, then extract symbol $x$ from $s$ via bijective function $d : \sN \to \sN \times \gA, \ s \to (s', x)$.
+$d$ is such that if $s \geq 2^{r_s - r_t}$ 
+\begin{align}
+\log s - \log s' \leq h(x) + \epsilon, \qquad
+\epsilon = \log \frac{1}{1 - 2^{-(r_s - r_t -r)}}
+\end{align}
+For small $2^{-(r_s - r_t -r)}$ we can approximate $\epsilon \approx \frac{2^{-(r_s - r_t -r)}}{\log 2}$. They use $r_s = 64, r_t = 32, r = 16$ which gives $\epsilon = \log \frac{1}{1 - 2^{-16}} = 2.2 \times 10^{-5}$ so very small.
+
+We then check if $s'$ is smaller then $2^{r_s - r_t}$, if yes we $\mathtt{stack\_pop}$ integers from $t$ to lower order bits of $s'$.
+
+
+\begin{algorithm}
+\KwData{Some input data\\these inputs can be displayed on several lines and oneinput can be wider than line’s width.}
+\end{algorithm}
