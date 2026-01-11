@@ -1,0 +1,65 @@
+\ProvidesPackage{notes_preamble}
+
+% Author: MG, 2026-01-10
+%
+% Usage:
+% \usepackage{notes_preamble}
+
+% wider text, smaller margins
+\usepackage{a4wide}
+
+% for coloring
+\usepackage[dvipsnames]{xcolor}
+
+% for index list
+\usepackage{makeidx}
+\makeindex
+\newcommand{\addidx}[1]{\emph{#1}\index{\lowercase{#1}}}
+
+% for better lists
+\usepackage{enumitem}
+
+% for images
+\usepackage{graphicx}
+\graphicspath{{./Pics/}}
+
+% for hyperrefs
+\usepackage{hyperref}
+
+% for declaring math operators
+\usepackage{amsthm}
+
+% wrap text around figures
+\usepackage{wrapfig}
+
+% chagne format of section titles
+\usepackage{titlesec}
+
+% for better math
+\usepackage{amsmath,amsfonts,amssymb,bm,derivative}
+
+% for tikz drawings
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+
+% \titleformat*{\section}{\LARGE\bfseries}
+% \titleformat*{\subsection}{\Large\bfseries}
+% \titleformat*{\subsubsection}{\large\bfseries}
+\titleformat*{\paragraph}{\bfseries\itshape}
+% \titleformat*{\subparagraph}{\large\bfseries}
+
+% biblatex seetings for better referencing
+\usepackage[backend=biber,
+            citestyle=authoryear,
+            bibstyle=numeric,
+            block=space,
+            backref=true,
+            date=year,
+            maxcitenames=5,
+            mincitenames=1,
+            url=false,
+            doi=false,
+            isbn=false,
+            eprint=false]{biblatex}
+
+

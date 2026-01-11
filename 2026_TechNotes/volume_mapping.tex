@@ -1,0 +1,292 @@
+\section{Volume mapping metrics}\label{sec:volume_mapping}
+
+With Philipp we discuss mapping a $d$-dimensional sphere (or ball) from the data space to the $d$-dimensional latent space in a way to preserve the probability measure (volume) as much as possible.
+
+\subsection{Flow maps and velocity fields}\label{sec:flow_maps_velocity_fields}
+
+This is based on Philipp's notation for flow matching models making it somewhat more explicit at places.
+
+\begin{itemize}[nosep]
+  \item Data space: $X(1) \in \mR^d \sim \pi_1$
+  \item Latent space: $X(0) \in \mR^d  \sim \pi_0$
+\end{itemize}
+
+We assume a flow map (unknown) wich maps points from the latent space to probability spaces along time $t \in [0,1]$:
+\begin{equation}
+\begin{aligned}
+\psi: \mR^d \times [0,1] & \mapsto \mR^d \\
+\psi(X(0), t) & = X(t) \\
+\text{ such that } \psi(X(0), 0) & = X(0) \quad \text{identity map at } t=0, \\
+\psi(X(0), 1) & = X(1) \quad \text{mapping to target data space at } t=1, \\
+\text{ and } X(t) & \sim \pi_t \quad \text{probability distributions along time } t \enspace . \\
+\end{aligned}
+\end{equation}
+
+The time derivative of the flow map gives the velocity field which tells us how points $X$ move in space as time evolves:
+\begin{equation}
+v(X(t), t) = \pdv{\psi(X(0), t)}{t} = \odv*{X(t)}{t} \enspace .
+\end{equation}
+Note that the velocity field depends on both position $X(t)$ and time $t$.
+
+In flow matching models we learn to approximate the velocity field $v(X(t), t)$ with a neural network $u_{\theta}(X(t), t)$.
+This can then be used to define an ordinary differential equation (ODE) whos solution is the approximate flow map $\psi_{\theta}(X(0), t) = X(t)$:
+\begin{equation}
+\odv*{X(t)}{t} = u_{\theta}(X(t), t) \quad \text{ with } X(0) \sim \pi_0 \enspace .
+\end{equation}
+
+We usually solve this ODE numerically using an ODE solver such as Euler or Runge-Kutta methods.
+With simple Euler method we have:
+\begin{equation}
+\psi_{\theta}(X(0), 1) = X(1) = X(0) + \int_0^1 u_{\theta}(X(t), t) \odif{t} \approx X(0) + \sum_{k=0}^{N-1} \frac{1}{N} u_{\theta}\left(X\left(\frac{k}{N}\right), \frac{k}{N}\right) \enspace .
+\end{equation}
+
+We can also reverse the process and map points from the data space back to the latent space by solving the ODE backwards in time and getting the reverse flow map $\varphi_{\theta}(X(1), t) = X(t)$:
+\begin{equation}
+\odv*{X(t)}{t} = -u_{\theta}(X(t), t) \quad \text{ with } X(1) \sim \pi_1 \enspace .
+\end{equation}
+Using Euler method again we have:
+\begin{equation}
+\varphi_{\theta}(X(1), 0) = X(0) = X(1) - \int_0^1 u_{\theta}(X(t), t) \odif{t} \approx X(1) - \sum_{k=0}^{N-1} \frac{1}{N} u_{\theta}\left(X\left(1 - \frac{k}{N}\right), 1 - \frac{k}{N}\right) \enspace .
+\end{equation}
+
+\subsection{Volume mapping around a data point}\label{sec:volume_mapping_around_data_point}
+
+Consider a sphere in the data space centered at a data point $x^c(1)$ with radius $r$.
+
+\begin{equation}
+\mathcal{B}_r(x^c(1)) = \{ x(1) \in \mR^d : \|x(1) - x^c(1)\|_2 \leq r \} \enspace .
+\end{equation}
+
+We can map the center point $x^c(1)$ to the latent space using the learned reverse flow map $\varphi_{\theta}$:
+\begin{equation}
+x^c(0) =  \varphi_{\theta}(x^c(1), 0) \enspace .
+\end{equation}
+Similary, we can map any point on the sphere $x(1)$ to the corresponding point in the latent space:
+\begin{equation}
+x(0) =  \varphi_{\theta}(x(1), 0) \enspace .
+\end{equation}
+
+The distance between the center point and any point on the sphere in the data space is $r$:
+\begin{equation}
+\|x(1) - x^c(1)\|_2 = r \enspace .
+\end{equation}
+The distance between the the mapped points in the latent space will generally not be equal to $r$ due to the distortion introduced by the flow map:
+\begin{equation}
+\|x(0) - x^c(0)\|_2 \neq r \enspace .
+\end{equation}
+
+To understand how the sphere transforms under the flow map, we can sample multiple points on the sphere in the data space, map them to the latent space, and try to recover the polytope in the latent space formed by these mapped points.
+This, however, is both expensive and inaccurate.
+Instead, we can approximate the local behavior of the flow map around the center point using its Jacobian matrix.
+
+\subsection{Linear approximation of the flow map}\label{sec:linear_approx_flow_map}
+
+The Jacobian matrix of the reverse flow map $\varphi_{\theta}$ at the center point $x^c(1)$ is given by:
+\begin{equation}
+J_{\varphi_{\theta}}(x^c(1)) = \pdv{\varphi_{\theta}(x(1), 0)}{x(1)} \Big|_{x(1) = x^c(1)} \enspace .
+\end{equation}
+Using the Jacobian, we can approximate the mapping of points near the center point using a first-order Taylor expansion:
+\begin{equation}
+\tilde{x}(0) \approx x^c(0) + J_{\varphi_{\theta}}(x^c(1)) (x(1) - x^c(1)), \text{ where } \|x(1) - x^c(1)\|_2 = r \enspace .
+\end{equation}
+
+\begin{figure}[h!]
+    \centering
+    \input{volume_mapping_figure}
+    \caption{Mapping two points $x(1)$ and $x'(1)$ from sphere in data space to latent space. Green is the reverse flow map $\varphi_{\theta}$, blue is the linear approximation using the Jacobian $J_{\varphi_{\theta}}$. Distances to center of the exact mapping are $c, c'$ and of the linear approximation are $s, s'$. Distances between exact and approximated points are $d, d'$.}
+    \label{fig:volume_mapping}
+\end{figure}
+
+As shown in Figure~\ref{fig:volume_mapping}, distances to the center in the latent space $c, c'$ are distorted by the flow map and no longer equal to $r$.
+The linear Jacobian mapping suffers from an approximation error and maps to different points than the exact flow map, the distances between the exact and approximated points are $d, d'$.
+We can compare the exact mapping $x(0)$ obtained from the flow map $\varphi_{\theta}$ with the linear approximation $\tilde{x}(0)$.
+For example we can calculate the average distance between the exact and approximated points over multiple samples on the sphere:
+\begin{equation}
+D_0 = \frac{1}{N} \sum_{i=1}^{N} \| x_i(0) - \tilde{x}_i(0) \|_2 = \frac{1}{N} \sum_{i=1}^{N} d_i \enspace .
+\end{equation}
+Alternatively, we can compare the average distances to the center point in the latent space for both exact and approximated mappings:
+\begin{equation}
+C_0 = \frac{1}{N} \sum_{i=1}^{N} \| x_i(0) - x^c(0) \|_2 =  \frac{1}{N} \sum_{i=1}^{N} c_i \quad \text{ and } \quad S_0 = \frac{1}{N} \sum_{i=1}^{N} \| \tilde{x}_i(0) - x^c(0) \|_2 = \frac{1}{N} \sum_{i=1}^{N} s_i \enspace .
+\end{equation}
+
+\subsubsection{Comparisons in data space}\label{sec:comparisons_data_space}
+
+The above comparison may be difficult to interpret since the distances are measured in the latent space.
+We can instead map the approximated points $\tilde{x}(0)$ back to the data space using the forward flow map $\psi_{\theta}$:
+\begin{equation}
+\tilde{x}(1) = \psi_{\theta}(\tilde{x}(0), 1) \enspace .
+\end{equation}
+
+\begin{figure}[h!]
+    \centering
+    \input{volume_mapping_figure2}
+    \caption{Approximation error of the Jacobian-based linear approximation for two points $x(1)$ and $x'(1)$ on the sphere in data space. We first map the points to the latent space by the linear approximation of the reverse flow map $J_{\varphi_{\theta}}$ - blue. We then brick these points by the exact flow map $\psi_{\theta}$ - green. The displacement between the exact points and the approximated points in data space are $d, d'$ shows the approximation error from the linearization.}
+    \label{fig:volume_mapping2}
+\end{figure}
+
+We can then compare the exact points $x(1)$ with the approximated points $\tilde{x}(1)$ in the data space.
+For example we can calculate the average distance between the exact and approximated points over multiple samples on the sphere:
+\begin{equation}
+D_1 = \frac{1}{N} \sum_{i=1}^{N} \| x_i(1) - \tilde{x}_i(1) \|_2 \enspace .
+\end{equation}
+Alternatively, we can compare the average distances to the center point in the data space for both exact and approximated mappings:
+\begin{equation}
+C_1 = \frac{1}{N} \sum_{i=1}^{N} \| x_i(1) - x^c(1) \|_2 = r \quad \text{ and } \quad S_1 = \frac{1}{N} \sum_{i=1}^{N} \| \tilde{x}_i(1) - x^c(1) \|_2 \enspace .
+\end{equation}
+
+\subsection{How to get the Jacobian}\label{sec:get_jacobian}
+
+\subsubsection{Augmented ODE method}\label{sec:augmented_ode_method}
+The Jacobian matrix $J_{\varphi_{\theta}}(X(1))$ for any point $X(1)$ in the data space can be computed by augmenting the initial ODE. 
+Starting from the reverse flow ODE:
+\begin{equation}
+\odv*{X(t)}{t} = -u_{\theta}(X(t), t) \quad \text{ with } X(1) = x^c(1) \enspace ,
+\end{equation}
+the solution $X(0) = \varphi_{\theta}(X(1), 0)$ gives the mapped point in the latent space.
+
+The Jacobian matrix is the derivative of the reverse flow map with respect to the input point $X(1)$.
+\begin{equation}
+J_{\varphi_{\theta}}(X(1)) = \odv{\varphi_{\theta}(X(1), 0)}{X(1)} = \odv{X(0)}{X(1)} \enspace .
+\end{equation}
+
+We can define the Jacobians for all times $t$ as:
+\begin{equation}
+J(t) = \odv{X(t)}{X(1)} = \odv{\varphi_{\theta}(X(1), t)}{X(1)} \enspace .
+\end{equation}
+Taking the derivative with respect to time $t$ gives:
+\begin{equation}
+\odv*{J(t)}{t} = \odv{}{t} \left( \odv{X(t)}{X(1)} \right) = \odv{}{X(1)} \left( \odv{X(t)}{t} \right) = \odv{}{X(1)} \left(-u_{\theta}(X(t), t) \right) \enspace .
+\end{equation}
+Using the chain rule on the right side we get:
+\begin{equation}
+\odv*{J(t)}{t} = -\odv{u_{\theta}(X(t), t)}{X(t)} \odv{X(t)}{X(1)} = -\odv{u_{\theta}(X(t), t)}{X(t)} J(t) \enspace .
+\end{equation}
+
+We can therefore consider the augmented ODE system:
+\begin{equation}
+\odv{}{t}
+\begin{bmatrix}X(t) \\
+J(t)
+\end{bmatrix} =
+\begin{bmatrix} -u_{\theta}(X(t), t) \\
+-\odv{u_{\theta}(X(t), t)}{X(t)} J(t)
+\end{bmatrix} \quad \text{ with } 
+\begin{bmatrix}X(1) \\
+J(1)
+\end{bmatrix} =
+\begin{bmatrix}x^c(1) \\
+I
+\end{bmatrix} \enspace ,
+\end{equation}
+where $I$ is the $d \times d$ identity matrix $I = J(1) = \odv{X(1)}{X(1)}$.
+
+By solving this augmented ODE backwards in time from $t=1$ to $t=0$, we obtain both the mapped point $x^c(0)$ and the Jacobian matrix $J_{\varphi_{\theta}}(x^c(1))$ at the same time:
+\begin{equation}
+\begin{bmatrix}x^c(0) \\
+J_{\varphi_{\theta}}(x^c(1))
+\end{bmatrix} =
+\begin{bmatrix}X(0) \\
+J(0)
+\end{bmatrix} \enspace .
+\end{equation}  
+Using the Euler method to solve the augmented ODE numerically, we have:
+\begin{equation}
+\begin{bmatrix}X\left(t - \frac{1}{N}\right) \\
+J\left(t - \frac{1}{N}\right)
+\end{bmatrix} \approx
+\begin{bmatrix}X(t) \\
+J(t)
+\end{bmatrix} - \frac{1}{N}
+\begin{bmatrix} u_{\theta}(X(t), t) \\
+\odv{u_{\theta}(X(t), t)}{X(t)} J(t)
+\end{bmatrix} \enspace .
+\end{equation}  
+This requires computing the Jacobian of the neural network $u_{\theta}$ with respect to its input $X(t)$ at each time step.
+This can be done efficiently using automatic differentiation.
+
+The Jacobian Euler steps can also be written as:
+\begin{equation}
+J\left(t - \frac{1}{N}\right) \approx \left(I - \frac{1}{N} \odv{u_{\theta}(X(t),t)}{X(t)} \right) J(t) \enspace .
+\end{equation}
+The recursions starting from $J(1) = I$ are:
+\begin{equation}
+J\left(1 - \frac{1}{N}\right) \approx \left(I - \frac{1}{N} \odv{u_{\theta}(X(1),1)}{X(1)} \right) I \enspace ,
+\end{equation}
+\begin{equation}
+J\left(1 - \frac{2}{N}\right) \approx \left(I - \frac{1}{N} \odv{u_{\theta}(X(1 - \frac{1}{N}),1 - \frac{1}{N})}{X(1 - \frac{1}{N})} \right) \left(I - \frac{1}{N} \odv{u_{\theta}(X(1),1)}{X(1)} \right) I \enspace ,
+\end{equation}
+and so on until $t=0$ so that:
+\begin{equation}
+J(0) \approx \prod_{k=0}^{N-1} \left(I - \frac{1}{N} \odv{u_{\theta}(X(1 - \frac{k}{N}),1 - \frac{k}{N})}{X(1 - \frac{k}{N})} \right) I \enspace .
+\end{equation}
+
+\subsubsection{Getting the points in latent space}\label{sec:getting_points_latent_space}
+
+Since in the end we only want to get the approximated points in latent space $\tilde{x}(0)$, we can avoid computing the full Jacobian matrix and instead compute the product of the Jacobian with the vector $(x(1) - x^c(1))$ directly (JVP - Jacobian-vector product).
+Starting from the linear approximation:
+\begin{equation}
+\tilde{x}(0) \approx x^c(0) + J_{\varphi_{\theta}}(x^c(1)) (x(1) - x^c(1)) \enspace ,
+\end{equation}
+we can define:
+\begin{equation}
+s(t) = J(t) (x(1) - x^c(1)) \enspace .
+\end{equation}
+Taking the derivative with respect to time $t$ gives:
+\begin{equation}
+\odv*{s(t)}{t} = \odv*{J(t)}{t} (x(1) - x^c(1)) = -\odv{u_{\theta}(X(t), t)}{X(t)} J(t) (x(1) - x^c(1)) = -\odv{u_{\theta}(X(t), t)}{X(t)} s(t) \enspace .
+\end{equation}
+We can therefore consider the augmented ODE system:
+\begin{equation}
+\odv{}{t}
+\begin{bmatrix}X(t) \\
+s(t)
+\end{bmatrix} =
+\begin{bmatrix} -u_{\theta}(X(t), t) \\
+-\odv{u_{\theta}(X(t), t)}{X(t)} s(t)
+\end{bmatrix} \quad \text{ with } 
+\begin{bmatrix}X(1) \\
+s(1)
+\end{bmatrix} =
+\begin{bmatrix}x^c(1) \\
+x(1) - x^c(1)
+\end{bmatrix} \enspace ,
+\end{equation}
+where the initial condition for $s(1)$ is simply the vector difference $(x(1) - x^c(1))$.
+By solving this augmented ODE backwards in time from $t=1$ to $t=0$, we obtain both the mapped point $x^c(0)$ and the product of the Jacobian with the vector $(x(1) - x^c(1))$ at the same time:
+\begin{equation}
+\begin{bmatrix}x^c(0) \\
+J_{\varphi_{\theta}}(x^c(1)) (x(1) - x^c(1))
+\end{bmatrix} =
+\begin{bmatrix}X(0) \\
+s(0)
+\end{bmatrix} \enspace .
+\end{equation}  
+Using the Euler method to solve the augmented ODE numerically, we have:
+\begin{equation}
+\begin{bmatrix}X\left(t - \frac{1}{N}\right) \\
+s\left(t - \frac{1}{N}\right)
+\end{bmatrix} \approx
+\begin{bmatrix}X(t) \\
+s(t)
+\end{bmatrix} - \frac{1}{N}
+\begin{bmatrix} u_{\theta}(X(t), t) \\
+\odv{u_{\theta}(X(t), t)}{X(t)} s(t)
+\end{bmatrix} \enspace .
+\end{equation}  
+This requires computing the Jacobian of the neural network $u_{\theta}$ with respect to its input $X(t)$ at each time step, but only multiplying it with the vector $s(t)$ instead of the full Jacobian matrix. 
+
+The key insight: \textbf{don't compute what you don't need.} 
+If you only need the transformation of specific vectors, compute $J \cdot v$ directly rather than computing the full matrix $J$.
+
+The python code to implement this is as follows - says Claude!:
+\begin{verbatim}
+# For each point on sphere
+for v in displacement_vectors:  # v = x^(1) - x_c^(1)
+    # Compute JVP using forward-mode AD
+    with torch.autograd.forward_ad.dual_level():
+        dual_input = torch.autograd.forward_ad.make_dual(x_c, v)
+        dual_output = reverse_flow(dual_input)
+        jvp = torch.autograd.forward_ad.unpack_dual(dual_output).tangent
+    # Linear approximation: x(0) = x_c(0) + J·v
+    x_tilde = x_c_latent + jvp
+\end{verbatim}  

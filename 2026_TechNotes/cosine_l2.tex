@@ -1,0 +1,27 @@
+\section{Link between cosine similarity and $\ell_2$ distance}\label{sec:cosine_l2}
+
+Cosine similarity of two vectors $\vx, \vy \in \mR^d$ is defined as:
+\begin{equation}
+S_C(\vx, \vy) = \frac{\vx^{\intercal} \vy}{\|\vx\|_2 \|\vy\|_2} \enspace .
+\end{equation}
+
+$\ell_2$ distance (Euclidean distance) between the two vectors is defined as:
+\begin{equation}
+d_{\ell_2}(\vx, \vy) = \|\vx - \vy\|_2 \enspace .
+\end{equation}
+
+And the relationship between the two is given by:
+\begin{equation}
+d_{\ell_2}(\vx, \vy) = \|\vx - \vy\|_2 = \sqrt{\|\vx\|_2^2 + \|\vy\|_2^2 - 2 \vx^{\intercal} \vy} = \sqrt{\|\vx\|_2^2 + \|\vy\|_2^2 - 2 S_C(\vx, \vy) \|\vx\|_2 \|\vy\|_2} \enspace .
+\end{equation}
+
+This means:
+\begin{equation}
+d_{\ell_2}^2(\vx, \vy) = \|\vx\|_2^2 + \|\vy\|_2^2 - 2 S_C(\vx, \vy) \|\vx\|_2 \|\vy\|_2 \enspace .
+\end{equation}
+
+
+In particular, if the \textbf{vectors are normalized to unit length}, i.e., $\|\vx\|_2 = \|\vy\|_2 = 1$, then the relationship simplifies to:
+\begin{equation}
+d_{\ell_2}^2(\vx, \vy) = 2 - 2 S_C(\vx, \vy) \Leftrightarrow  0.5\,d_{\ell_2}^2(\vx, \vy) = 1 - S_C(\vx, \vy) \enspace .
+\end{equation}

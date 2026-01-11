@@ -1,0 +1,49 @@
+\documentclass[a4paper, oneside, 10pt]{article}
+\usepackage{notes_preamble}
+\usepackage{math_commands}
+
+\begin{document}
+
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+% Number equations within a section
+% \numberwithin{equation}{section}
+
+% Bibliography resource
+% \addbibresource{refs.bib}
+
+
+{\large Magda's 2026 set of technical notes}
+
+{\hfill Last update: \today}
+
+This is the 2026 set of my technical notes on various ML topics.
+I started writing the 1st set when beginning my PhD, continued as postdoc and occassionally even as prof. 
+As a prof I have less time but picking up at least some of the good old habits might help in bringing me back from admin to research.
+All previous docs are available in my GitHub repo \url{https://github.com/mgswiss15/technotes}.
+
+The general purpose of the notes is to help me understand better the selected topics by re-explaining (\emph{re-} because these have been explained elsewhere many times), and to have a reference and possibly reusable material for later.
+
+This is a working document not meant to be polished. There may be typos and other editing errors. 
+Technical errors mean that I didn't quite understand something which I unfortunately cannot rule out.
+
+% Print table of contents
+% \tableofcontents
+
+\input{cosine_l2}
+
+\input{volume_mapping}
+
+
+% \clearpage 
+% \printbibliography
+
+% print index
+% \phantomsection
+% \cleardoublepage
+% \addcontentsline{toc}{section}{\indexname}
+% \printindex
+
+\end{document}

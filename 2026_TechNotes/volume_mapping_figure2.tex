@@ -1,0 +1,41 @@
+\begin{tikzpicture}[scale=1.5]
+    % Define coordinates
+    \coordinate (xc1) at (0,1);
+    \coordinate (xc0) at (6,0);
+    \coordinate (x1) at ($(xc1) + (60:1)$); % Point on circle at 60 degrees, radius 1
+    \coordinate (xJ1) at ($(xc1) + (70:1.5)$); 
+    \coordinate (xJ0) at (7.3,0.4); % Near xc0 but different distance, on the right
+    \coordinate (x11) at ($(xc1) + (-80:1)$); % Point on circle at 60 degrees, radius 1
+    \coordinate (xJ11) at ($(xc1) + (-100:0.8)$);
+    \coordinate (xJ01) at (5.2,-0.3); % Near xc0 but different distance, on the right
+    
+    % Draw circle
+    \draw[gray] (xc1) circle (1);
+    
+    % Draw points
+    \fill[orange] (xc1) circle (2pt) node[above left] {$x^c(1)$};
+    \fill (x1) circle (2pt) node[above right] {$x(1)$};
+    \fill[orange] (xc0) circle (2pt) node[below] {$x^c(0)$};
+    \fill (xJ1) circle (2pt) node[left] {$\tilde{x}(1)$};
+    \fill (xJ0) circle (2pt) node[above right] {$\tilde{x}(0)$};
+    \fill (x11) circle (2pt) node[below left] {$x'(1)$};
+    \fill (xJ11) circle (2pt) node[above right] {$\tilde{x}'(1)$};
+    \fill (xJ01) circle (2pt) node[above left] {$\tilde{x}'(0)$};
+    
+    % Draw curved arrows
+    \draw[-{Stealth[length=3mm]}, thick, green!80!black] (xJ0) to[out=170, in=10] node[midway, below] {$\psi_{\theta}$} (xJ1);
+    \draw[-{Stealth[length=3mm]}, thick, blue] (x1) to[out=8, in=140] node[midway, above]  {$J_{\varphi_{\theta}}$} (xJ0);  
+    \draw[-{Stealth[length=3mm]}, thick, green!80!black] (xJ01) to[out=170, in=10] node[midway, below] {$\psi_{\theta}$} (xJ11);  
+    \draw[-{Stealth[length=3mm]}, thick, blue] (x11) to[out=-8, in=-170] node[midway, below]  {$J_{\varphi_{\theta}}$} (xJ01);
+
+% Draw radius
+% \draw[gray, <->] (xc1) to node[midway, left] {$r$} (x1);
+% \draw[gray, <->] (xc1) to node[midway, left] {$r$} (x11);
+% \draw[green!80!black, <->, dashed] (xc0) to node[midway, right] {$c$} (x0);
+% \draw[green!80!black, <->, dashed] (xc0) to node[midway, right] {$c'$} (x01);
+% \draw[blue, <->, dashed] (xc0) to node[midway, below] {$s$} (xJ0);
+% \draw[blue, <->, dashed] (xc0) to node[midway, above] {$s'$} (xJ01);
+\draw[red, <->, dashed] (x1) to node[midway, left] {$d$} (xJ1);
+\draw[red, <->, dashed] (x11) to node[midway, below] {$d'$} (xJ11);
+    
+\end{tikzpicture}
